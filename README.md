@@ -1,2 +1,2 @@
-# Trabalho CG
-Trabalho Cg João Vitor e Renan
+# CG
+Files for the Computer Graphics course in Three.js
