@@ -11,17 +11,34 @@ import {
 } from "../libs/util/util.js";
  import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 
-let scene, renderer, light, camera, keyboard;
+let scene, renderer, light, camera, keyboard,material;
 
 scene = new THREE.Scene();    // Create main scene
 renderer = initRenderer();    // View function in util/utils
-light = initDefaultSpotlight(scene, new THREE.Vector3(0.0, 200.0, 0.0), 200000); // Use default light    
+light = initDefaultSpotlight(scene, new THREE.Vector3(0.0, 200.0, 0.0), 200000); // Use default light  
+
+let camPos = new THREE.Vector3(0, 10, 0);
+let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
+let camUpRef = new THREE.Vector3(0, 0.5, -1);
+let camLook = new THREE.Vector3(0, 1.8, -1);
+let camRight = new THREE.Vector3(0.0, 0.0, 0.0);
+let camSight = new THREE.Vector3(0.0, 0.0, 0.0);
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.copy(camPos);
+camera.up.copy(camUp);
+camera.lookAt(camLook);
+
+
+
+
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
+material = setDefaultMaterial("rgb(0,0,0)");
 const controle = new PointerLockControls (camera,renderer.domElement );
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2);
-var groundPlane = createGroundPlaneXZ(500, 500, 400, 400); // width, height, resolutionW, resolutionH
+let planegeometry = new THREE.BoxGeometry(500,0.1,500);
+let groundPlane = new THREE.Mesh(planegeometry, material);
+//var groundPlane = createGroundPlaneXZ(10, 10, 10, 10); // width, height, resolutionW, resolutionH
 scene.add(groundPlane);
 
 // Create objects
@@ -30,7 +47,7 @@ scene.add(groundPlane);
 //createTeapot(0.0,  0.4, -2.0, Math.random() * 0xffffff);   
 
 var materialCubo = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material 
-var materialCubo1 = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material
+var materialCubo1 = setDefaultMaterial("rgb(255,255, 255)"); // create a basic material
 var materialCubo2 = setDefaultMaterial("rgb(185, 51, 27)"); // create a basic material
 var materialCubo3 = setDefaultMaterial("rgb(12, 26, 92)"); // create a basic material
 var materialCubo4 = setDefaultMaterial("rgb(221, 158, 22)"); // create a basic material
@@ -164,35 +181,27 @@ cube1.translateZ(17);
 // Set initial position of the sphere
 sphere.translateY(0.9);
 
-let camPos = new THREE.Vector3(0, 10, 0);
-let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
-let camUpRef = new THREE.Vector3(0, 0.5, -1);
-let camLook = new THREE.Vector3(0, 1.8, -1);
-let camRight = new THREE.Vector3(0.0, 0.0, 0.0);
-let camSight = new THREE.Vector3(0.0, 0.0, 0.0);
+
 camSight.subVectors(camLook, camPos);
 
 var persTeste=null;
 var message = new SecondaryBox("");
 
 
-// Main camera
 
-sphere.add(camera);
-camera.position.copy(camPos);
-camera.up.copy(camUp);
-camera.lookAt(camLook);
+
+
 
 var eixo_x=new THREE.Vector3(1,0,0);
 var eixo_y=new THREE.Vector3(0,1,0);
 var eixo_z=new THREE.Vector3(0,0,1);
 
-let speed = 0.1;
+let speed = 20;
 let rotSpeed = (2 * Math.PI) / 360;
 
 
 
-render();
+
 
 const boxSphere = new THREE.Box3();
 
@@ -288,7 +297,7 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot)
    }];
 
 }
-
+/*
 function updateCamera() {
    //camera.position.copy(camPos);
    //camera.up.copy( camUp );
@@ -300,6 +309,7 @@ function updateCamera() {
       "/ Up: {" + camUp.x + ", " + camUp.y + ", " + camUp.z + "}" +
       "/ Sight: {" + camUp.x + ", " + camUp.y + ", " + camUp.z + "}");
 }
+      */
 ///// A partir daqui Enzo 
 
 const textoEsq  = document.getElementById('instructions');
@@ -325,6 +335,7 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 let reset = false;
+let moveUp = false;
 
 window.addEventListener('keydown', (event) => MovimentoVerificador(event.keyCode ,true));
 window.addEventListener('keyup',(event) => MovimentoVerificador(event.keyCode,false));
@@ -339,19 +350,24 @@ switch(key)
     break;
   case 82:
     reset = value;
+    break;
   case 65:
     moveLeft = value;
     break;
   case 68:
     moveRight= value;
+    break;
+  case 81:
+    moveUp = value;
+    break;
 }
 }
 function Movimento (delta)
 {
     raycaster.ray.origin.copy(controle.getObject().position);
-    const isIntersectingGround = raycaster.intersectObjects([groundPlane]).length > 0.1;
-    //const isIntersectingGround = false; 
-   
+    //const isIntersectingGround = raycaster.intersectObjects([groundPlane,area1.cube0,area1.cube1,area1.cube2,area1.cube3]).length > 0.1;
+    
+   const isIntersectingGround = raycaster.intersectObjects([groundPlane, ...area1.cubos, ...area2.cubos, ...area3.cubos, ...area4.cubos]).length > 0.1;
     if(!isIntersectingGround){
    camera.position.y -=10 * delta;
     }
@@ -376,9 +392,15 @@ function Movimento (delta)
     controle.getObject().position.set(3,4,8);
     controle.getObject().rotation.set(0,0,0);
   }
-/// fim Enzo 
+  if(moveUp==true)
+  {
+   camera.position.y +=20 *delta;
+  }
+
 }
-function keyboardUpdate() {
+/// fim Enzo 
+
+/*function keyboardUpdate() {
    keyboard.update();
    speed=0.1;
 
@@ -559,7 +581,7 @@ function estabeleceBoundingBoxes(){
 
 
 
-/*function render() {
+function render() {
    requestAnimationFrame(render);
    
    keyboardUpdate();
@@ -570,23 +592,25 @@ function estabeleceBoundingBoxes(){
    }
 
 }
-   */
-  const clock = new THREE.Clock();
-function render()
-{
-  
-  requestAnimationFrame(render);
- // fps.update(0.016);
-  
- if( controle.isLocked) {
-  Movimento(clock.getDelta());
- }
- 
- 
- 
-  renderer.render(scene, camera) // Render scene
-  
 }
+   */
+ const clock = new THREE.Clock();
+ render();
+ function render()
+ {
+   
+   requestAnimationFrame(render);
+  // fps.update(0.016);
+   
+  if( controle.isLocked) {
+   Movimento(clock.getDelta());
+  }
+  
+  
+  
+   renderer.render(scene, camera) // Render scene
+   
+ }
   
 
 
