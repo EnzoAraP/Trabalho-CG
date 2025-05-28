@@ -75,11 +75,6 @@ switch(key)
     moveRight= value;
 }
 }
- function Gravidade (delta)
- {
- 
-
- }
    
 function Movimento (delta)
 {
