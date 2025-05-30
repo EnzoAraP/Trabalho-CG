@@ -31,12 +31,12 @@ scene.add(camera);
 
 let tempoUltimoTiro = 0;
 
-let cylinderGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1.2, 32);
+let cylinderGeometry = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 32);
 const cylinderMaterial = setDefaultMaterial("rgb(226, 17, 17)");
 let cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
 cylinder.position.set(0, 0, 0);
-cylinder.rotation.x = -Math.PI / 3;
+cylinder.rotation.x = -Math.PI / 2;
 
 console.log(cylinder);
 //criacao do projetil
@@ -243,9 +243,7 @@ scene.add(helperCube);
 
 camera.add(cylinder);
 //cylinder.position.set(0, -1, -5); // Por exemplo, um pouco à frente e abaixo.
-cylinder.translateX(0);
-cylinder.translateY(1.0);
-cylinder.translateZ(-1.3);
+cylinder.position.set(0,-0.3,-0.8)
 
 // criacao do cilindro
 
@@ -768,7 +766,7 @@ function render() {
       Movimento(clock.getDelta());
    }
    stats.update();
-       const velocidadeProjetil = 0.5;
+       const velocidadeProjetil = 1;
        vetProjetil.forEach(proj =>{
        const deslocamento = new THREE.Vector3(proj.direction.x * velocidadeProjetil, proj.direction.y * velocidadeProjetil, proj.direction.z * velocidadeProjetil);
    
