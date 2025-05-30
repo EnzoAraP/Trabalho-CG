@@ -55,6 +55,8 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 let reset = false;
+let mouseButton = false;
+
 window.addEventListener('keydown', (event) => MovimentoVerificador(event.keyCode ,true));
 window.addEventListener('keyup',(event) => MovimentoVerificador(event.keyCode,false));
 function MovimentoVerificador(key,value){
@@ -105,6 +107,9 @@ function Movimento (delta)
     controle.getObject().position.set(3,4,8);
     controle.getObject().rotation.set(0,0,0);
   }
+
+}
+function mousePressed(){
 
 }
 // Listen window size changes

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 import Stats from '../build/jsm/libs/stats.module.js';
 import {PointerLockControls} from '../build/jsm/controls/PointerLockControls.js';
 import {initRenderer,
@@ -189,6 +190,31 @@ function moveAnimate(delta) {
         camera.position.y += speed / 2 * delta;
     }
 }
+function atirar(){
+if(verdade==true){
+   
+    const tentativaDisparo = performance.now();
+
+    if (tentativaDisparo - tempoUltimoTiro >= 500) {
+        tempoUltimoTiro = tentativaDisparo;
+        const projetil = new THREE.Mesh(projetilGeometry, projetilMaterial);
+
+        // posicao do projetil
+        const spawnProjetil = new THREE.Vector3();
+        spawnProjetil.copy(camera.position);
+
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+
+        spawnProjetil.add(direction.clone().multiplyScalar(7));
+        projetil.position.copy(spawnProjetil);
+
+        vetProjetil.push({ mesh: projetil, direction });
+
+        scene.add(projetil);
+    }
+}
+}
 
 // criacao do cilindro
 let cylinderGeometry = new THREE.CylinderGeometry(0.17, 0.17, 2, 32);
@@ -208,8 +234,10 @@ window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)},
 
 //tiro
 let tempoUltimoTiro = 0;
-
-window.addEventListener('mousedown', (event) => {
+let verdade= false;
+/*window.addEventListener('mousedown', (event) => {
+       verdade =true;
+    if(verdade==true){
   if (event.button === 0|| event.button === 2) {
     const tentativaDisparo = performance.now();
 
@@ -231,7 +259,16 @@ window.addEventListener('mousedown', (event) => {
 
         scene.add(projetil);
     }
+    }
   }
+});
+*/
+window.addEventListener('mousedown', (event) => {
+     if (event.button === 0|| event.button === 2)
+   verdade =true;
+});
+window.addEventListener('mouseup',(event)=> {
+    verdade = false;
 });
 
 const clock = new THREE.Clock();
@@ -241,8 +278,9 @@ function render() {
 
     if (controls.isLocked) {
         moveAnimate(clock.getDelta());
+        atirar();
     }
-
+    console.log(verdade);
     const velocidadeProjetil = 0.5;
     vetProjetil.forEach(proj =>{
     const deslocamento = new THREE.Vector3(proj.direction.x * velocidadeProjetil, proj.direction.y * velocidadeProjetil, proj.direction.z * velocidadeProjetil);
