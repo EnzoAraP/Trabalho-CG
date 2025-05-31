@@ -31,20 +31,22 @@ scene.add(camera);
 
 let tempoUltimoTiro = 0;
 
+
+// Criação da arma:
 let cylinderGeometry = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 32);
 const cylinderMaterial = setDefaultMaterial("rgb(226, 17, 17)");
 let cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
 cylinder.position.set(0, 0, 0);
-cylinder.rotation.x = -Math.PI / 2;
+cylinder.rotation.x = -Math.PI / 2; //  Girando a arma para ficar na posição correta
 
 //console.log(cylinder);
-//criacao do projetil
+//criacao do projetil( vetor que os armazena a todos)
 const vetProjetil = [];
 const projetilGeometry = new THREE.SphereGeometry(0.1, 16, 16);
 const projetilMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 
-const voo = true;
+const voo = true; // Variável que indica se o voo está habilitado ou não.
 var prim = true;
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
@@ -53,17 +55,17 @@ material = setDefaultMaterial("rgb(218, 204, 204)");
 let material2 = setDefaultMaterial("rgb(39, 164, 168)");
 const controle = new PointerLockControls(camera, renderer.domElement);
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
-let planegeometry = new THREE.BoxGeometry(500, 0.1, 500);
-let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 6, 500);
-let border_planeGeometry_XY = new THREE.BoxGeometry(500, 6, 1);
+let planegeometry = new THREE.BoxGeometry(500, 0.1, 500); // Plano base 500x500
+let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 6, 500); // Geometra das muralhas em z 
+let border_planeGeometry_XY = new THREE.BoxGeometry(500, 6, 1); // Geomteria das muralhas em x
 
 let groundPlane = new THREE.Mesh(planegeometry, material);
-var fronteira = [];
-for (var i = 0; i < 2; i++) {
+var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
+for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
    let novoPlano = new THREE.Mesh(border_planeGeometry_YZ, material2);
    scene.add(novoPlano);
-   novoPlano.translateX(250.5 * (1 - 2 * i));
-   novoPlano.translateY(3);
+   novoPlano.translateX(250.5 * (1 - 2 * i)); // Descolocamentos adequados
+   novoPlano.translateY(3); // Para deixar a base alinhada ao solo
    fronteira.push(novoPlano);
    novoPlano = new THREE.Mesh(border_planeGeometry_XY, material2);
    scene.add(novoPlano);
@@ -79,22 +81,24 @@ scene.add(groundPlane);
 
 
 //var materialCubo = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material 
-var materialCubo1 = setDefaultMaterial("rgb(47, 235, 9)"); // create a basic material
-var materialCubo2 = setDefaultMaterial("rgb(185, 51, 27)"); // create a basic material
-var materialCubo3 = setDefaultMaterial("rgb(12, 26, 92)"); // create a basic material
-var materialCubo4 = setDefaultMaterial("rgb(221, 158, 22)"); // create a basic material
+var materialCubo1 = setDefaultMaterial("rgb(47, 235, 9)"); // cria o material dos cubos da área 1
+var materialCubo2 = setDefaultMaterial("rgb(185, 51, 27)"); // cria o material dos cubos da área 2
+var materialCubo3 = setDefaultMaterial("rgb(12, 26, 92)"); // cria o material dos cubos da área 3
+var materialCubo4 = setDefaultMaterial("rgb(221, 158, 22)"); // cria o material dos cubos da área 4
 
-var larg = 0.5;
+var larg = 0.5; // Tamenho em x e z do personagem(Largura e espessura)
 var materialDeg = setDefaultMaterial("rgb(30, 131, 126)"); // create a basic material
-var squareGeometry = new THREE.BoxGeometry(larg, 1.8, larg);
-var squareMaterial = new THREE.MeshPhongMaterial(
-   { color: 'rgb(143, 123, 37)', shininess: "40", specular: 'rgb(255,255,255)' });
-var sphere = new THREE.Mesh(squareGeometry, squareMaterial);
+//var squareGeometry = new THREE.BoxGeometry(larg, 1.8, larg); 
+//var squareMaterial = new THREE.MeshPhongMaterial(
+//   { color: 'rgb(143, 123, 37)', shininess: "40", specular: 'rgb(255,255,255)' });
+//var sphere = new THREE.Mesh(squareGeometry, squareMaterial);
 
 
 
-var cubeGeo0 = new THREE.BoxGeometry(0.25, 0.1, 0.25);
+var cubeGeo0 = new THREE.BoxGeometry(0.25, 0.1, 0.25);// Geometria do cubo central que é o pai de toda estrutura de uma área
 var cubeGeo = new THREE.BoxGeometry(70, 2.2, 50);
+
+//Geometrias de da cada cubo(1,2,3 são as geometrias dos cubos das áreas menores e 4,5,6 são a dos cubos da área maior(4) ) :
 var cubeGeo1 = new THREE.BoxGeometry(70, 2.2, 50);
 var cubeGeo2 = new THREE.BoxGeometry(65, 2.2, 2);
 var cubeGeo3 = new THREE.BoxGeometry(70, 2.2, 50);
@@ -103,28 +107,37 @@ var cubeGeo5 = new THREE.BoxGeometry(135, 2.2, 2);
 var cubeGeo6 = new THREE.BoxGeometry(140, 2.2, 100);
 
 
-scene.add(sphere);
+//scene.add(sphere);
 
-let inicializadasBoxes = false;
+let inicializadasBoxes = false; // Variável para verificar se todas as bounding boxes dos objetos estáticos que as possuem já foram inicializadas no render
 
-var queda = false;
-var ini = 0;
-var fim = 3;
-var grandeArea = -1;
-var area = -1;
+//var queda = false;
+//var ini = 0;
+//var fim = 3;
+var grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
+/* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
+     Fronteira(0) : Região próxima às muralhas do mapa( tem formato de moldura quadrada)
+      Grande Áreas de 1 a 4: Representam as áreas especiais do jogo(Plataformas em formato de paralelepípedo) e seus derredores( margem de 4 unidades de comprimento)
+
+*/
+var area = -1; // Variável que indica em qual área em formato de paralelepípedo presente no jogo.
 var area1 = {
-   cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
+   //Cubos:
+   cube0: new THREE.Mesh(cubeGeo0, materialCubo1), //Cubo central-pai.
+   // Cubos que compõem o cenário
    cube1: new THREE.Mesh(cubeGeo1, materialCubo1),
    cube2: new THREE.Mesh(cubeGeo2, materialCubo1),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo1),
+
+   // Vetor das escadas, retorno de fução  que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
    degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 2.2, 5, 2, 8, 90, materialCubo2),
-   posicao_ini: new THREE.Vector3(-100, 1.1, -150),
-   cubos: [],
-   boundingCubos: [],
-   boundingRampa: null,
-   boundingDegraus: [],
-   ex: 35,
-   ez: 51
+   posicao_ini: new THREE.Vector3(-100, 1.1, -150), // Posição inicial do cubo central(núcleo) da área
+   cubos: [], // Vetor dos cubos que compõem o cenário
+   boundingCubos: [], // Vetor das boundigBoxes dos cubos acima
+   boundingRampa: null, // boundingBox da rampa da escada
+   boundingDegraus: [], // Vetor com a boudingBox dos degraus
+   ex: 35, // Extensão da área em relação a seu centro no eixo x(  Metade do comprimento do lado em x do paralelepípedo)
+   ez: 51 // Extensão da área em relação a seu centro no eixo z(  Metade do comprimento do lado em z do paralelepípedo)
 }
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
 var area2 = {
@@ -174,9 +187,9 @@ var area4 = {
 area4.cubos = [area4.cube1, area4.cube2, area4.cube3];
 
 //console.log(area1.cubos[1]);
-var areas = [area1, area2, area3, area4];
+var areas = [area1, area2, area3, area4]; // Vetor que armazena todos os elementos das áreas em bloco retangular do mapa
 
-for (var i = 0; i < 4; i++) {
+for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
    scene.add(areas[i].cube0);
    areas[i].cube0.translateX(areas[i].posicao_ini.x);
    areas[i].cube0.translateY(areas[i].posicao_ini.y);
@@ -210,112 +223,113 @@ for (var i = 0; i < 4; i++) {
 
 
 // Set initial position of the sphere
-sphere.translateY(0.9);
+//sphere.translateY(0.9);
 
 
-camSight.subVectors(camLook, camPos);
+camSight.subVectors(camLook, camPos); // Vetor da direção do campo de visão da câmera. Por ora, inútil, já que pode ser obtido de outra dorma
 
-var persTeste = null;
+// Variáveis para teste:
+var persTeste = null; 
 var message = new SecondaryBox("");
 
 
 
-let colisaoEspecialEscada = false;
+let colisaoEspecialEscada = false; // Variável obsoleta para teste não mais inexistente
 
-
+// Eixos do sistema de coordenadas cartesiano:
 var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
 var eixo_z = new THREE.Vector3(0, 0, 1);
-var isIntersectingStaircase = false;
-const speedPadrao = 15;
-let speed = speedPadrao;
+
+var isIntersectingStaircase = false; // Variável para verificar a intersecção com a escada
+const speedPadrao = 15; // Valor padrão de velocidade do player
+let speed = speedPadrao; // Valor que armazena velocidade atual do player
 
 
 
-var obj = controle.getObject();
+var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 
 
-var boxPersonagem = new THREE.Box3();
+var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
 
 const boxCube = new THREE.Box3();
-const helperSphere = new THREE.Box3Helper(boxPersonagem, 0xff0000);
-scene.add(helperSphere);
+//const helperSphere = new THREE.Box3Helper(boxPersonagem, 0xff0000);
+//scene.add(helperSphere);
 
-const helperCube = new THREE.Box3Helper(boxCube, 0x00ff00);
-scene.add(helperCube);
+//const helperCube = new THREE.Box3Helper(boxCube, 0x00ff00);
+//scene.add(helperCube);
 
 
-camera.add(cylinder);
-//cylinder.position.set(0, -1, -5); // Por exemplo, um pouco à frente e abaixo.
-cylinder.position.set(0, -0.3, -0.8)
+camera.add(cylinder);// Adiciona arma no jogo
+cylinder.position.set(0, -0.3, -0.8); // Estabelece posição da rama para ficar corretamente na câmera
 
-// criacao do cilindro
 
-//const helperRampa = new THREE.Box3Helper(boxRampa1, 0xff0000);
-//scene.add(helperRampa);
-
-// Posição inicial é da seguinte forma:(coord_x, altura_daBASE_y, coord_z)
+// Função que cria a escada ( Posição inicial da escada, em relação à base, altura total da escada, comprimento total, largua total, número de degraus, rotação em relação à cena( Graus),
+// material dos degraus)
 function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot, materialDeg) {
-   var degraus = [];
-   let altura_individual = altura_total / num;
+   var degraus = []; // Vetor de degraus
+   // Divisões para se obter os tamanhos individuais:
+   let altura_individual = altura_total / num;  
    let comp_individual = comp_total / num;
    let geometria_degrau = new THREE.BoxGeometry(largura, altura_individual, comp_individual);
-   var degrau_base = new THREE.Mesh(geometria_degrau, materialDeg);
+   var degrau_base = new THREE.Mesh(geometria_degrau, materialDeg); // Degrau da base da escadaria, pai de todos os outros e da rampa
    scene.add(degrau_base);
-   degraus.push(degrau_base);
-   degrau_base.translateX(posicao_ini.x);
-   degrau_base.translateY(posicao_ini.y + (altura_individual / 2));
+   degraus.push(degrau_base); // Adiciona no vetor
+   degrau_base.translateX(posicao_ini.x); 
+   degrau_base.translateY(posicao_ini.y + (altura_individual / 2)); // Translada a altura pela métade para a posição inicial ser a base
    degrau_base.translateZ(posicao_ini.z);
-   rot = rot * Math.PI / 180
+   rot = rot * Math.PI / 180 // Converte para radianos
    degrau_base.rotateY(rot);
-   degrau_base.translateZ(- (comp_individual / 2));
+   degrau_base.translateZ(- (comp_individual / 2)); // Deslocamento para alinhamento correto da rampa
    for (var i = 1; i < num; i++) {
       let degrau = new THREE.Mesh(geometria_degrau, materialDeg);
       degraus.push(degrau);
-      degrau_base.add(degrau);
+      degrau_base.add(degrau); // Adiciona ao degrau base o novo degrau
+
+      // Translações para que eles fiquem com apenas uma aresta de intersecção, encadeados um após o outro na forma de uma escada:
       degrau.translateZ(-comp_individual * i);
       degrau.translateY(altura_individual * i);
 
    }
 
-   // Geometria da caixa
+
 
    let diagonal_degrau = Math.sqrt(
       altura_individual ** 2 + comp_individual ** 2
-   );
+   ); // Tamanho da diagonal de cada degrau
 
-   let altura_rampa = num * diagonal_degrau;
-   let espessura_rampa = diagonal_degrau;
-   let largura_rampa = largura;
+   let altura_rampa = num * diagonal_degrau; // Altura total da rampa deve ser igual a soma de todas as diagonais
+   let espessura_rampa = diagonal_degrau; // a espessura deve ser igual a de uma diagonal de degrau para que ela os cubra a todos
+   let largura_rampa = largura; // A largura é igual a dos degraus
 
    const geo_rampa = new THREE.BoxGeometry(
       largura_rampa,
       altura_rampa,
       espessura_rampa
-   );
+   ); 
 
    let material_invisivel = new THREE.MeshBasicMaterial({
       color: "red",
       visible: false
-   });
+   }); // Material invisível da rampa
 
-   let rampa_invisivel = new THREE.Mesh(geo_rampa, material_invisivel);
+   let rampa_invisivel = new THREE.Mesh(geo_rampa, material_invisivel); // Objeto da rampa
 
-   let inclinacao = Math.atan2(comp_total, altura_total);
+   let inclinacao = Math.atan2(comp_total, altura_total); // Inclinação dela deverá ser igual à arco-cotangente do ângulo da rampa em relação ao eixo-z, arco-tangente do ângulo em relação a y : CA/CO
 
    // Rotaciona no X
 
-   rampa_invisivel.rotation.x = -inclinacao;
+   rampa_invisivel.rotation.x = -inclinacao;// Rotação para o lado oposto, no sentido horário
    // Posiciona
    rampa_invisivel.position.set(
       0, // X
-      altura_total / 2 - altura_individual / 2, // Y
-      -comp_total / 2 + comp_individual / 2 - (diagonal_degrau / (2 * Math.cos(inclinacao)) - comp_individual)
+      altura_total / 2 - altura_individual / 2, 
+      -comp_total / 2 + comp_individual / 2 - (diagonal_degrau / (2 * Math.cos(inclinacao)) - comp_individual) //Z
    );
 
    degrau_base.add(rampa_invisivel);
    rampa_invisivel.translateY(-diagonal_degrau * Math.tan(inclinacao) / (2)
-   );
+   );// Alinhar, por conta geométrica, ao início da parte de cima do último degrau
 
 
    // Adiciona na cena
@@ -324,14 +338,14 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
 
 
    return [{
-      "degraus": degraus,
-      "comprimento_degrau": comp_individual
+      "degraus": degraus, // Vetor de degraus
+      "comprimento_degrau": comp_individual // Comprimento de cada um deles
    }, {
-      "rampa": rampa_invisivel,
-      "angulo_inclinacao": inclinacao,
+      "rampa": rampa_invisivel, // Objeto da rampa
+      "angulo_inclinacao": inclinacao, 
       "altura": altura_total,
       "comprimento": comp_total,
-      "angulo_rotacao": rot
+      "angulo_rotacao": rot // ângulo de rotação em radianos
    }];
 
 }
@@ -411,21 +425,21 @@ function MovimentoVerificador(key, value) {
 function Movimento(delta) {
    raycaster.ray.origin.copy(controle.getObject().position);
    //const isIntersectingGround = raycaster.intersectObjects([groundPlane,area1.cube0,area1.cube1,area1.cube2,area1.cube3]).length > 0.1;
-
+   
 
    //console.log(cylinder);
    //console.log(cylinder.position);
-   const frontal = new THREE.Vector3();
+   const frontal = new THREE.Vector3(); // Vetor direção da câmera
    obj.getWorldDirection(frontal);
 
-   frontal.y = 0;
+   frontal.y = 0;// Tira parte em y
    frontal.normalize();
 
-   const direito = new THREE.Vector3();
+   const direito = new THREE.Vector3(); // Vetor perpendicular à direita
    direito.crossVectors(frontal, eixo_y).normalize();
 
 
-   const moveDir = new THREE.Vector3();
+   const moveDir = new THREE.Vector3(); // Vetor para armazenar movimento
    if (moveForward) moveDir.add(frontal);
    if (moveBackward) moveDir.sub(frontal);
    if (moveRight) moveDir.add(direito);
@@ -433,15 +447,15 @@ function Movimento(delta) {
 
    //if (keyboard.pressed("Q")) moveDir.y += 1;
    //if (keyboard.pressed("E")) moveDir.y -= 1;
+   console.log(controle.pointerSpeed);
 
-
-   if (moveDir.lengthSq() !== 0) {
+   if (moveDir.lengthSq() !== 0) { // Se houver movimento
       //console.log("grande área " + grandeArea);
-      if (grandeArea >= 1) {
+      if (grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
 
-         moveDir.normalize().multiplyScalar(speed * delta);
+         moveDir.normalize().multiplyScalar(speed * delta); // Normaliza e multiplica pela velocidade
          let quebrar = false;
-         if (area != -1) {
+         if (area != -1) { // Se estivermos sobre uma área de blocos
             queda = false;
             //console.log(area);
             let xi = (areas[area].posicao_ini).x;
@@ -459,8 +473,7 @@ function Movimento(delta) {
 
             //console.log(xi+ex+larg);
             if (obj.position.x > (xi + ex +larg) || obj.position.x < (xi - ex-larg) || obj.position.z > (zi + ez+larg) || obj.position.z < (zi - ez-larg)) {
-               ini = 0;
-               fim = 3;
+             
                area = -1;
                queda = true;
               //console.log("aaz")
@@ -726,6 +739,8 @@ function Movimento(delta) {
    }
    //}
    prim = false;
+   console.log("Depois")
+   console.log(controle.pointerSpeed);
 }
 
 
@@ -824,6 +839,7 @@ const clock = new THREE.Clock();
 window.addEventListener('mousedown', (event) => {
      if (event.button === 0|| event.button === 2)
    verdade =true;
+console.log(controle.pointerSpeed);
 });
 window.addEventListener('mouseup',(event)=> {
     verdade = false;
