@@ -100,12 +100,12 @@ var cubeGeo0 = new THREE.BoxGeometry(0.25, 0.1, 0.25);// Geometria do cubo centr
 var cubeGeo = new THREE.BoxGeometry(70, 2.2, 50);
 
 //Geometrias de da cada cubo(1,2,3 são as geometrias dos cubos das áreas menores e 4,5,6 são a dos cubos da área maior(4) ) :
-var cubeGeo1 = new THREE.BoxGeometry(70, 2.2, 50);
-var cubeGeo2 = new THREE.BoxGeometry(64.5, 2.2, 2);
-var cubeGeo3 = new THREE.BoxGeometry(70, 2.2, 50);
-var cubeGeo4 = new THREE.BoxGeometry(140, 2.2, 100);
-var cubeGeo5 = new THREE.BoxGeometry(134.5, 2.2, 2);
-var cubeGeo6 = new THREE.BoxGeometry(140, 2.2, 100);
+var cubeGeo1 = new THREE.BoxGeometry(70, 4, 50);
+var cubeGeo2 = new THREE.BoxGeometry(64.5, 4, 2);
+var cubeGeo3 = new THREE.BoxGeometry(70, 4, 50);
+var cubeGeo4 = new THREE.BoxGeometry(140, 4, 100);
+var cubeGeo5 = new THREE.BoxGeometry(134.5, 4, 2);
+var cubeGeo6 = new THREE.BoxGeometry(140, 4, 100);
 
 
 //scene.add(sphere);
@@ -131,8 +131,8 @@ var area1 = {
    cube3: new THREE.Mesh(cubeGeo3, materialCubo1),
 
    // Vetor das escadas, retorno de fução  que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 2.2, 5, 2, 8, 90, materialCubo2),
-   posicao_ini: new THREE.Vector3(-100, 1.1, -150), // Posição inicial do cubo central(núcleo) da área
+   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materialCubo2),
+   posicao_ini: new THREE.Vector3(-100, 2, -150), // Posição inicial do cubo central(núcleo) da área
    cubos: [], // Vetor dos cubos que compõem o cenário
    boundingCubos: [], // Vetor das boundigBoxes dos cubos acima
    boundingRampa: null, // boundingBox da rampa da escada
@@ -146,8 +146,8 @@ var area2 = {
    cube1: new THREE.Mesh(cubeGeo1, materialCubo2),
    cube2: new THREE.Mesh(cubeGeo2, materialCubo2),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo2),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 0), 2.2, 5, 2, 8, 90, materialCubo3),
-   posicao_ini: new THREE.Vector3(-100, 1.1, 0),
+   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 0), 4, 5, 2, 8, 90, materialCubo3),
+   posicao_ini: new THREE.Vector3(-100, 2, 0),
    cubos: [],
    boundingCubos: [],
    boundingRampa: null,
@@ -161,8 +161,8 @@ var area3 = {
    cube1: new THREE.Mesh(cubeGeo1, materialCubo3),
    cube2: new THREE.Mesh(cubeGeo2, materialCubo3),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo3),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 2.2, 5, 2, 8, 90, materialCubo4),
-   posicao_ini: new THREE.Vector3(-100, 1.1, 150),
+   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 4, 5, 2, 8, 90, materialCubo4),
+   posicao_ini: new THREE.Vector3(-100, 2, 150),
    cubos: [],
    boundingCubos: [],
    boundingDegraus: [],
@@ -176,8 +176,8 @@ var area4 = {
    cube1: new THREE.Mesh(cubeGeo4, materialCubo4),
    cube2: new THREE.Mesh(cubeGeo5, materialCubo4),
    cube3: new THREE.Mesh(cubeGeo6, materialCubo4),
-   degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 2.2, 5, 2, 8, 270, materialCubo1),
-   posicao_ini: new THREE.Vector3(150, 1.1, 0),
+   degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, materialCubo1),
+   posicao_ini: new THREE.Vector3(150, 2, 0),
    cubos: [],
    boundingCubos: [],
    boundingDegraus: [],

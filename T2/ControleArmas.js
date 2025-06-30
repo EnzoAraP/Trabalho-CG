@@ -15,7 +15,7 @@ import { testeGrandesAreas } from 'criacaoAreas.js';
 
 
 
-class lancaMisseis{
+class LancaMisseis{
    constructor(camera){
         this.tempoUltimoTiro=0;
         this.cylinderGeometry = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 32);
@@ -45,8 +45,9 @@ class lancaMisseis{
 
 
     atirar(scene,camera,verdade){
-        if(verdade==true){
         
+        if(verdade==true){
+            
             const tentativaDisparo = performance.now();
 
             if (tentativaDisparo - this.tempoUltimoTiro >= 500) {
@@ -73,8 +74,10 @@ class lancaMisseis{
 
 
  controle_projeteis(scene,areas,fronteira){
+    
     let colidiu = false;
       let tamVet = this.vetProjetil.length;
+      const velocidadeProjetil = 1.2;
       for (var q = 0; q < tamVet; q++) {
          colidiu=false;
          let proj = this.vetProjetil[q];
@@ -159,3 +162,4 @@ class lancaMisseis{
 }
 }
 
+export { LancaMisseis }

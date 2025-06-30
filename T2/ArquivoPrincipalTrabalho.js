@@ -11,8 +11,10 @@ import {
    setDefaultMaterial
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
-import { areas,testeGrandesAreas } from 'criacaoAreas.js';
 
+
+import { areas,testeGrandesAreas } from 'criacaoAreas.js';
+import { LancaMisseis, lancaMisseis } from './ControleArmas.js';
 
 let scene, renderer, light, camera, keyboard, material;
 var stats = new Stats();
@@ -67,7 +69,7 @@ for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos.
 scene.add(groundPlane);
 
 
-
+const lancaMisseis= new LancaMisseis(camera);
 
 // Set initial position of the sphere
 //sphere.translateY(0.9);
@@ -483,9 +485,9 @@ function render() {
       let delta = clock.getDelta();
       delta = Math.min(delta,0.05);
       Movimento(delta);
-      atirar();
+      lancaMisseis.atirar();
       stats.update();
-      const velocidadeProjetil = 1.2;
+      
       
    }
       //console.log(verdade);
