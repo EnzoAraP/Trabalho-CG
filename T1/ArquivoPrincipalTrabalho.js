@@ -546,7 +546,7 @@ function MovimentoVerificador(key, value) {
 function Movimento(delta) {
 
    raycaster.ray.origin.copy(controle.getObject().position);
-
+   console.log(obj.position.y);
    const frontal = new THREE.Vector3(); // Vetor direção da câmera
    obj.getWorldDirection(frontal);
 
@@ -641,7 +641,7 @@ function Movimento(delta) {
                if (area == -1) {
                   area = grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
                }
-
+               console.log(moveDir.y);
             }
          }
 
@@ -790,6 +790,7 @@ function Movimento(delta) {
    }
    //}
    prim = false; // Não é mais de utilidade
+   console.log(moveDir.y);
 }
 
 

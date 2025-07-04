@@ -107,7 +107,8 @@ class Area2 {
 
         const geo   = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
         const mesh  = new THREE.Mesh(geo, material_blocos);
-
+               mesh.castShadow=true;
+    mesh.receiveShadow=true;
         // posição XZ
         this.cube0.add(mesh);
         mesh.position.set(pos.x, dim.h /2 + 2, pos.z);

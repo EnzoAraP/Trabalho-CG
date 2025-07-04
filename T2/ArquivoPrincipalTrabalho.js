@@ -16,16 +16,65 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { areas, testeGrandesAreas,scene } from './criacaoAreas.js';
 import { LancaMisseis } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
+import { AmbientLight } from '../build/three.module.js';
 
-let renderer, light, camera, keyboard, material;
+let  light, camera, keyboard, material;
 var stats = new Stats();
+let color = "rgb(0, 0, 0)", shadowMapType = THREE.PCFSoftShadowMap
+  var renderer = new THREE.WebGLRenderer();
+   //renderer.useLegacyLights = true;
+   renderer.shadowMap.enabled = true;
+  
+   renderer.shadowMap.type = shadowMapType;
 
-renderer = initRenderer(); // View function in util/utils
-light = initDefaultSpotlight(scene, new THREE.Vector3(0.0, 500.0, 0.0), 500000); // Use default light 
+   renderer.setClearColor(new THREE.Color(color));
+   renderer.setSize(window.innerWidth, window.innerHeight);
+   renderer.shadowMap.enabled = true;
+   document.getElementById("webgl-output").appendChild(renderer.domElement);
+
+light =new AmbientLight(); // Use default light 
 
 let camPos = new THREE.Vector3(0, 10, 0);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0, 1.8, -1);
+
+
+
+const voo = false; // Variável que indica se o voo está habilitado ou não.
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+dirLight.position.set(250, 275, 250); // Posição elevada e inclinada
+dirLight.castShadow = true;
+
+
+
+  dirLight.castShadow = true;
+  dirLight.intensity = 3;
+  // Shadow Parameters
+  dirLight.shadow.mapSize.width = 4096;
+  dirLight.shadow.mapSize.height = 4096;
+  dirLight.shadow.camera.near = 200;
+  dirLight.shadow.camera.far = 1050;
+  dirLight.shadow.camera.left = -150;
+  dirLight.shadow.camera.right = 150;
+  dirLight.shadow.camera.bottom = -150;
+  dirLight.shadow.camera.top = 150;
+  dirLight.shadow.bias = -0.0005;  
+
+  // No effect on Basic and PCFSoft
+  dirLight.shadow.radius = 0.5;
+
+scene.add(dirLight);
+// (opcional) Ajuda para visualizar o volume de sombra
+const helper = new THREE.CameraHelper(dirLight.shadow.camera);
+scene.add(helper);
+
+
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+fillLight.position.set(-250, 275, -250);
+fillLight.castShadow = false;
+scene.add(fillLight);
+
 
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.copy(camPos);
@@ -33,9 +82,6 @@ camera.up.copy(camUp);
 camera.lookAt(camLook);
 
 scene.add(camera);
-
-const voo = false; // Variável que indica se o voo está habilitado ou não.
-
 console.log("AAAA");
 
 
@@ -54,6 +100,8 @@ let groundPlane = new THREE.Mesh(planegeometry, material);
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
    let novoPlano = new THREE.Mesh(border_planeGeometry_YZ, material2);
+   novoPlano.castShadow=true;
+   novoPlano.receiveShadow=true;
    scene.add(novoPlano);
    novoPlano.translateX(250.5 * (1 - 2 * i)); // Descolocamentos adequados
    novoPlano.translateY(3); // Para deixar a base alinhada ao solo
@@ -65,7 +113,7 @@ for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos.
    fronteira.push(novoPlano);
 
 }
-
+groundPlane.receiveShadow=true;
 //var groundPlane = createGroundPlaneXZ(10, 10, 10, 10); // width, height, resolutionW, resolutionH
 scene.add(groundPlane);
 

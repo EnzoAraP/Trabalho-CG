@@ -49,7 +49,7 @@ class Personagem{
 
     this.redondezasDaFechadura=false;
 
-    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.01);    
+    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);    
 
        
 
@@ -189,7 +189,7 @@ class Personagem{
                if (this.area == -1) {
                   this.area = this.grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
                }
-
+               console.log(moveDir.y);
             }
          }
 
@@ -258,6 +258,7 @@ class Personagem{
 
    }
    if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma) {
+      console.log("queda");
       
       this.obj.position.y -= 5 * delta;
       this.raycaster.ray.origin.copy(this.obj.position);
@@ -279,8 +280,10 @@ class Personagem{
                   break;
                }
             }
-            if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma)
+            if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma){
                this.obj.position.y += 5 * delta;
+               console.log("volta");
+            }
          }
 
 
@@ -328,8 +331,9 @@ class Personagem{
          }
          
          
+         
    }
-   
+   console.log(moveDir.y);
 
    if (reset == true) {
       this.obj.position.set(3, 4, 8);
@@ -361,7 +365,7 @@ class Personagem{
 
    if(areas[1].elevar_bloco)
       areas[1].fazer_elevar_bloco();
-
+   console.log(this.obj.position.y);
 }
 }
 

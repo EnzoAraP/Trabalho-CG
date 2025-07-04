@@ -19,10 +19,10 @@ let scene = new THREE.Scene(); // Create main scene
 
 
 //var materialCubo = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material 
-var materialCubo1 = setDefaultMaterial("rgb(47, 235, 9)"); // cria o material dos cubos da área 1
-var materialCubo2 = setDefaultMaterial("rgb(185, 51, 27)"); // cria o material dos cubos da área 2
-var materialCubo3 = setDefaultMaterial("rgb(12, 26, 92)"); // cria o material dos cubos da área 3
-var materialCubo4 = setDefaultMaterial("rgb(221, 158, 22)"); // cria o material dos cubos da área 4
+var materialCubo1 = new THREE.MeshLambertMaterial({ color: "rgb(47, 235, 9)"}); // cria o material dos cubos da área 1
+var materialCubo2 = new THREE.MeshLambertMaterial({ color: "rgb(185, 51, 27)"}); // cria o material dos cubos da área 2
+var materialCubo3 = new THREE.MeshLambertMaterial({ color: "rgb(12, 26, 92)"}); // cria o material dos cubos da área 3
+var materialCubo4 = new THREE.MeshLambertMaterial({ color: "rgb(221, 158, 22)"}); // cria o material dos cubos da área 4
 
 
 
@@ -106,12 +106,14 @@ area4.cubos = [area4.cube1, area4.cube2, area4.cube3];
 var areas = [area1, area2, area3, area4]; // Vetor que armazena todos os elementos das áreas em bloco retangular do mapa
 
 for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
+   
    scene.add(areas[i].cube0);
    areas[i].cube0.translateX(areas[i].posicao_ini.x);
    areas[i].cube0.translateY(areas[i].posicao_ini.y);
    areas[i].cube0.translateZ(areas[i].posicao_ini.z);
    for (var j = 0; j < 3; j++) {
-
+         areas[i].cubos[j].castShadow=true;
+         areas[i].cubos[j].receiveShadow=true;
       (areas[i].cube0).add(areas[i].cubos[j]);
       if (j == 1) {
          let desc = -2.75;
@@ -199,6 +201,8 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
    let comp_individual = comp_total / num;
    let geometria_degrau = new THREE.BoxGeometry(largura, altura_individual, comp_individual);
    var degrau_base = new THREE.Mesh(geometria_degrau, materialDeg); // Degrau da base da escadaria, pai de todos os outros e da rampa
+   degrau_base.castShadow=true;
+   degrau_base.receiveShadow=true;
    scene.add(degrau_base);
    degraus.push(degrau_base); // Adiciona no vetor
    degrau_base.translateX(posicao_ini.x); 
@@ -209,6 +213,8 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
    degrau_base.translateZ(- (comp_individual / 2)); // Deslocamento para alinhamento correto da rampa
    for (var i = 1; i < num; i++) {
       let degrau = new THREE.Mesh(geometria_degrau, materialDeg);
+      degrau.castShadow=true;
+      degrau.receiveShadow=true;
       degraus.push(degrau);
       degrau_base.add(degrau); // Adiciona ao degrau base o novo degrau
 
