@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import KeyboardState from '../libs/util/KeyboardState.js'
+import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
+import Stats from '../build/jsm/libs/stats.module.js';
 import {
    initRenderer,
    initDefaultSpotlight,
@@ -7,9 +10,11 @@ import {
    onWindowResize,
    setDefaultMaterial
 } from "../libs/util/util.js";
+import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
+import {Area2} from './area2.js'
 
 
-
+let scene = new THREE.Scene(); // Create main scene
 
 
 
@@ -21,19 +26,24 @@ var materialCubo4 = setDefaultMaterial("rgb(221, 158, 22)"); // cria o material 
 
 
 
-
+var materiais_cubos=[
+ setDefaultMaterial("rgb(47, 235, 9)") // cria o material dos cubos da área 1
+,setDefaultMaterial("rgb(185, 51, 27)") // cria o material dos cubos da área 2
+, setDefaultMaterial("rgb(12, 26, 92)") // cria o material dos cubos da área 3
+, setDefaultMaterial("rgb(221, 158, 22)") // cria o material dos cubos da área 4
+];
 
 
 var cubeGeo0 = new THREE.BoxGeometry(0.25, 0.1, 0.25);// Geometria do cubo central que é o pai de toda estrutura de uma área
-
+var cubeGeo = new THREE.BoxGeometry(70, 2.2, 50);
 
 //Geometrias de da cada cubo(1,2,3 são as geometrias dos cubos das áreas menores e 4,5,6 são a dos cubos da área maior(4) ) :
-var cubeGeo1 = new THREE.BoxGeometry(70, 2.2, 50);
-var cubeGeo2 = new THREE.BoxGeometry(64.5, 2.2, 2);
-var cubeGeo3 = new THREE.BoxGeometry(70, 2.2, 50);
-var cubeGeo4 = new THREE.BoxGeometry(140, 2.2, 100);
-var cubeGeo5 = new THREE.BoxGeometry(134.5, 2.2, 2);
-var cubeGeo6 = new THREE.BoxGeometry(140, 2.2, 100);
+var cubeGeo1 = new THREE.BoxGeometry(70, 4, 50);
+var cubeGeo2 = new THREE.BoxGeometry(64.5, 4, 2);
+var cubeGeo3 = new THREE.BoxGeometry(70, 4, 50);
+var cubeGeo4 = new THREE.BoxGeometry(140, 4, 100);
+var cubeGeo5 = new THREE.BoxGeometry(134.5, 4, 2);
+var cubeGeo6 = new THREE.BoxGeometry(140, 4, 100);
 
 
 //scene.add(sphere);
@@ -49,39 +59,25 @@ var area1 = {
    cube2: new THREE.Mesh(cubeGeo2, materialCubo1),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo1),
 
-   // Vetor das escadas, retorno de fução  que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 2.2, 5, 2, 8, 90, materialCubo2),
-   posicao_ini: new THREE.Vector3(-100, 1.1, -150), // Posição inicial do cubo central(núcleo) da área
+   // Vetor das escadas, retorno de fução que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
+   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materialCubo2),
+   posicao_ini: new THREE.Vector3(-100, 2, -150), // Posição inicial do cubo central(núcleo) da área
    cubos: [], // Vetor dos cubos que compõem o cenário
    boundingCubos: [], // Vetor das boundigBoxes dos cubos acima
    boundingRampa: null, // boundingBox da rampa da escada
    boundingDegraus: [], // Vetor com a boudingBox dos degraus
-   ex: 35, // Extensão da área em relação a seu centro no eixo x(  Metade do comprimento do lado em x do paralelepípedo)
-   ez: 51 // Extensão da área em relação a seu centro no eixo z(  Metade do comprimento do lado em z do paralelepípedo)
+   ex: 35, // Extensão da área em relação a seu centro no eixo x( Metade do comprimento do lado em x do paralelepípedo)
+   ez: 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
 }
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
-var area2 = {
-   cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
-   cube1: new THREE.Mesh(cubeGeo1, materialCubo2),
-   cube2: new THREE.Mesh(cubeGeo2, materialCubo2),
-   cube3: new THREE.Mesh(cubeGeo3, materialCubo2),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 0), 2.2, 5, 2, 8, 90, materialCubo3),
-   posicao_ini: new THREE.Vector3(-100, 1.1, 0),
-   cubos: [],
-   boundingCubos: [],
-   boundingRampa: null,
-   boundingDegraus: [],
-   ex: 35,
-   ez: 51
-}
-area2.cubos = [area2.cube1, area2.cube2, area2.cube3];
+var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo2]);
 var area3 = {
    cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
    cube1: new THREE.Mesh(cubeGeo1, materialCubo3),
    cube2: new THREE.Mesh(cubeGeo2, materialCubo3),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo3),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 2.2, 5, 2, 8, 90, materialCubo4),
-   posicao_ini: new THREE.Vector3(-100, 1.1, 150),
+   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 4, 5, 2, 8, 90, materialCubo4),
+   posicao_ini: new THREE.Vector3(-100, 2, 150),
    cubos: [],
    boundingCubos: [],
    boundingDegraus: [],
@@ -95,8 +91,8 @@ var area4 = {
    cube1: new THREE.Mesh(cubeGeo4, materialCubo4),
    cube2: new THREE.Mesh(cubeGeo5, materialCubo4),
    cube3: new THREE.Mesh(cubeGeo6, materialCubo4),
-   degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 2.2, 5, 2, 8, 270, materialCubo1),
-   posicao_ini: new THREE.Vector3(150, 1.1, 0),
+   degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, materialCubo1),
+   posicao_ini: new THREE.Vector3(150, 2, 0),
    cubos: [],
    boundingCubos: [],
    boundingDegraus: [],
@@ -105,7 +101,6 @@ var area4 = {
    ez: 101
 }
 area4.cubos = [area4.cube1, area4.cube2, area4.cube3];
-
 
 //console.log(area1.cubos[1]);
 var areas = [area1, area2, area3, area4]; // Vetor que armazena todos os elementos das áreas em bloco retangular do mapa
@@ -143,6 +138,58 @@ for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
 
 // Função que cria a escada ( Posição inicial da escada, em relação à base, altura total da escada, comprimento total, largua total, número de degraus, rotação em relação à cena( Graus),
 // material dos degraus)
+
+
+function testeGrandesAreas(objeto, areaAnalisada) {
+   let rednFech=false;
+   if (areaAnalisada == -1) {
+      if (Math.abs(objeto.position.x) >= 245 || Math.abs(objeto.position.z) >= 245)
+         areaAnalisada = 0;
+      else {
+         let posicao_ini, ex, ez;
+         let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.mesh.position.x,areas[1].fechadura.mesh.position.y,areas[1].fechadura.mesh.position.z);
+         pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
+         rednFech = (objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3);
+         
+         for (var i = 0; i < 4; i++) {
+            posicao_ini = areas[i].posicao_ini;
+            ex = areas[i].ex;
+            ez = areas[i].ez;
+            if (objeto.position.x >= posicao_ini.x - ex - 4 && objeto.position.x <= posicao_ini.x + ex + 4 && objeto.position.z >= posicao_ini.z - ez - 4 && objeto.position.z <= posicao_ini.z + ez + 4) {
+               areaAnalisada = i + 1;
+               break;
+            }
+
+         }
+      }
+   }
+   else {
+      if (areaAnalisada == 0) {
+         if (Math.abs(objeto.position.x) < 245 && Math.abs(objeto.position.z) < 245)
+            areaAnalisada = -1;
+      }
+      else {
+         if(areaAnalisada==2){
+            let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.mesh.position.x,areas[1].fechadura.mesh.position.y,areas[1].fechadura.mesh.position.z);
+            pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
+            rednFech = objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3;
+         }
+         let posicao_ini = areas[areaAnalisada - 1].posicao_ini, ex = areas[areaAnalisada - 1].ex, ez = areas[areaAnalisada - 1].ez;
+         if (objeto.position.x < posicao_ini.x - ex - 4 || objeto.position.x > posicao_ini.x + ex + 4 || objeto.position.z < posicao_ini.z - ez - 4 || objeto.position.z > posicao_ini.z + ez + 4) {
+            areaAnalisada = -1;
+         }
+
+      }
+
+   }
+   return [areaAnalisada,rednFech];
+}
+
+
+
+
+
+
 function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot, materialDeg) {
    var degraus = []; // Vetor de degraus
    // Divisões para se obter os tamanhos individuais:
@@ -227,39 +274,5 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
 
 }
 
-function testeGrandesAreas(obj, areaAnalisada) {
-   if (areaAnalisada == -1) {
-      if (Math.abs(obj.position.x) >= 245 || Math.abs(obj.position.z) >= 245)
-         areaAnalisada = 0;
-      else {
-         let posicao_ini, ex, ez;
-         for (var i = 0; i < 4; i++) {
-            posicao_ini = areas[i].posicao_ini;
-            ex = areas[i].ex;
-            ez = areas[i].ez;
-            if (obj.position.x >= posicao_ini.x - ex - 4 && obj.position.x <= posicao_ini.x + ex + 4 && obj.position.z >= posicao_ini.z - ez - 4 && obj.position.z <= posicao_ini.z + ez + 4) {
-               areaAnalisada = i + 1;
-               break;
-            }
 
-         }
-      }
-   }
-   else {
-      if (areaAnalisada == 0) {
-         if (Math.abs(obj.position.x) < 245 && Math.abs(obj.position.z) < 245)
-            areaAnalisada = -1;
-      }
-      else {
-         let posicao_ini = areas[areaAnalisada - 1].posicao_ini, ex = areas[areaAnalisada - 1].ex, ez = areas[areaAnalisada - 1].ez;
-         if (obj.position.x < posicao_ini.x - ex - 4 || obj.position.x > posicao_ini.x + ex + 4 || obj.position.z < posicao_ini.z - ez - 4 || obj.position.z > posicao_ini.z + ez + 4) {
-            areaAnalisada = -1;
-         }
-
-      }
-
-   }
-   return areaAnalisada;
-}
-
-export{ areas, testeGrandesAreas };
+export{ areas, testeGrandesAreas,scene };

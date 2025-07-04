@@ -11,6 +11,7 @@ import {
    setDefaultMaterial
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
+import { BoxGeometry } from '../build/three.module.js';
 
 let scene, renderer, light, camera, keyboard, material;
 var stats = new Stats();
@@ -38,7 +39,7 @@ const cylinderMaterial = setDefaultMaterial("rgb(226, 17, 17)");
 let cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
 cylinder.position.set(0, 0, 0);
-cylinder.rotation.x = -Math.PI / 2; //  Girando a arma para ficar na posição correta
+cylinder.rotation.x = -Math.PI / 2; // Girando a arma para ficar na posição correta
 
 //console.log(cylinder);
 //criacao do projetil( vetor que os armazena a todos)
@@ -54,7 +55,7 @@ keyboard = new KeyboardState();
 material = setDefaultMaterial("rgb(218, 204, 204)");
 let material2 = setDefaultMaterial("rgb(39, 164, 168)");
 const controle = new PointerLockControls(camera, renderer.domElement);
-controle.pointerSpeed=0.6;
+controle.pointerSpeed = 0.6;
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
 let planegeometry = new THREE.BoxGeometry(500, 0.1, 500); // Plano base 500x500
 let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 6, 500); // Geometra das muralhas em z 
@@ -91,7 +92,7 @@ var larg = 0.75; // Tamenho em x e z do personagem(Largura e espessura)
 //var materialDeg = setDefaultMaterial("rgb(30, 131, 126)"); // create a basic material
 //var squareGeometry = new THREE.BoxGeometry(larg, 1.8, larg); 
 //var squareMaterial = new THREE.MeshPhongMaterial(
-//   { color: 'rgb(143, 123, 37)', shininess: "40", specular: 'rgb(255,255,255)' });
+// { color: 'rgb(143, 123, 37)', shininess: "40", specular: 'rgb(255,255,255)' });
 //var sphere = new THREE.Mesh(squareGeometry, squareMaterial);
 
 
@@ -117,11 +118,36 @@ let inicializadasBoxes = false; // Variável para verificar se todas as bounding
 //var fim = 3;
 var grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
 /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
-     Fronteira(0) : Região próxima às muralhas do mapa( tem formato de moldura quadrada)
-      Grande Áreas de 1 a 4: Representam as áreas especiais do jogo(Plataformas em formato de paralelepípedo) e seus derredores( margem de 4 unidades de comprimento)
+ Fronteira(0) : Região próxima às muralhas do mapa( tem formato de moldura quadrada)
+ Grande Áreas de 1 a 4: Representam as áreas especiais do jogo(Plataformas em formato de paralelepípedo) e seus derredores( margem de 4 unidades de comprimento)
 
 */
 var area = -1; // Variável que indica em qual área em formato de paralelepípedo presente no jogo.
+
+var redondezasDaFechadura=false;
+
+var geometria_porta = new BoxGeometry(0.2, 4, 2);
+var material_porta = setDefaultMaterial("rgb(50,120,90)");
+
+var porta_area_2 = new THREE.Mesh(geometria_porta, material_porta);
+
+var porta_area_2_aberta = false;
+
+var porta_2_abrindo = false;
+
+var possui_chave1 = true;
+
+var geometria_suporte_fechadura = new THREE.BoxGeometry(1.5, 1, 1.5);
+
+var material_suporte_fechadura = setDefaultMaterial("rgb(100,100,100)");
+
+var suporte_fechadura = new THREE.Mesh(geometria_suporte_fechadura, material_suporte_fechadura);
+
+var geometria_plataforma_a2 = new BoxGeometry(2, 4, 2);
+var material_plataforma_a2 = setDefaultMaterial("rgb(105, 152, 163)");
+
+var plataforma_area_2=new THREE.Mesh(geometria_plataforma_a2,material_plataforma_a2);
+var naPlataforma=false;
 var area1 = {
    //Cubos:
    cube0: new THREE.Mesh(cubeGeo0, materialCubo1), //Cubo central-pai.
@@ -130,15 +156,15 @@ var area1 = {
    cube2: new THREE.Mesh(cubeGeo2, materialCubo1),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo1),
 
-   // Vetor das escadas, retorno de fução  que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
+   // Vetor das escadas, retorno de fução que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
    degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materialCubo2),
    posicao_ini: new THREE.Vector3(-100, 2, -150), // Posição inicial do cubo central(núcleo) da área
    cubos: [], // Vetor dos cubos que compõem o cenário
    boundingCubos: [], // Vetor das boundigBoxes dos cubos acima
    boundingRampa: null, // boundingBox da rampa da escada
    boundingDegraus: [], // Vetor com a boudingBox dos degraus
-   ex: 35, // Extensão da área em relação a seu centro no eixo x(  Metade do comprimento do lado em x do paralelepípedo)
-   ez: 51 // Extensão da área em relação a seu centro no eixo z(  Metade do comprimento do lado em z do paralelepípedo)
+   ex: 35, // Extensão da área em relação a seu centro no eixo x( Metade do comprimento do lado em x do paralelepípedo)
+   ez: 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
 }
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
 var area2 = {
@@ -146,15 +172,77 @@ var area2 = {
    cube1: new THREE.Mesh(cubeGeo1, materialCubo2),
    cube2: new THREE.Mesh(cubeGeo2, materialCubo2),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo2),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 0), 4, 5, 2, 8, 90, materialCubo3),
+   degraus: [],
    posicao_ini: new THREE.Vector3(-100, 2, 0),
    cubos: [],
    boundingCubos: [],
    boundingRampa: null,
    boundingDegraus: [],
    ex: 35,
-   ez: 51
+   ez: 51,
+   porta: null,
+   porta_box: null,
+   fechadura: null,
+   fechadura_box: null,
+   plataforma: null
 }
+
+area2.cube0.add(suporte_fechadura);
+area2.cube0.add(porta_area_2);
+area2.cube0.add(plataforma_area_2);
+
+suporte_fechadura.translateX(40);
+suporte_fechadura.translateZ(-5);
+suporte_fechadura.translateY(0.5 - 2);
+porta_area_2.translateX(35.1);
+plataforma_area_2.translateX(34);
+plataforma_area_2.translateY(-3.949);
+area2.porta = porta_area_2;
+area2.fechadura = suporte_fechadura;
+
+area2.plataforma= {mesh: plataforma_area_2,box:null, em_movimento: false, subir:true, tempo_espera:0, emEspera:false};
+
+
+function abrir_porta(porta,portaBox, limiteZ, multiplicador) {
+   console.log("Abrir");
+   if (multiplicador * porta.position.z >= multiplicador * limiteZ) {
+      porta.position.eixo_z = limiteZ;
+      console.log("True");
+      portaBox.setFromObject(porta);
+      return true;
+   }
+   else {
+      porta.position.z += multiplicador * 0.01;
+      console.log("Translado");
+      portaBox.setFromObject(porta);
+   }
+   return false;
+}
+
+function mover_plataforma(obj_plataforma, limiteY, multiplicador) {
+   
+   let plataforma=obj_plataforma.mesh;
+   let plataformaBox=obj_plataforma.box;
+   
+   
+   plataforma.position.y += multiplicador * 0.02;
+   
+   plataformaBox.setFromObject(plataforma);
+   if (multiplicador * plataforma.position.y >= multiplicador * limiteY) {
+      let dif=limiteY-plataforma.position.y+multiplicador * 0.02;
+      plataforma.position.y = limiteY;
+      
+      
+      plataformaBox.setFromObject(plataforma);
+      obj_plataforma.em_movimento = false;
+      obj_plataforma.subir = (!obj_plataforma.subir);
+      return dif;
+   }
+   return multiplicador * 0.02;
+   
+}
+
+
 area2.cubos = [area2.cube1, area2.cube2, area2.cube3];
 var area3 = {
    cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
@@ -229,9 +317,6 @@ for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
 
 camSight.subVectors(camLook, camPos); // Vetor da direção do campo de visão da câmera. Por ora, inútil, já que pode ser obtido de outra dorma
 
-// Variáveis para teste:
-var persTeste = null; 
-var message = new SecondaryBox("");
 
 
 
@@ -252,6 +337,7 @@ var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 
 var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
 
+
 const boxCube = new THREE.Box3();
 //const helperSphere = new THREE.Box3Helper(boxPersonagem, 0xff0000);
 //scene.add(helperSphere);
@@ -269,13 +355,13 @@ cylinder.position.set(0, -0.3, -0.8); // Estabelece posição da rama para ficar
 function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot, materialDeg) {
    var degraus = []; // Vetor de degraus
    // Divisões para se obter os tamanhos individuais:
-   let altura_individual = altura_total / num;  
+   let altura_individual = altura_total / num;
    let comp_individual = comp_total / num;
    let geometria_degrau = new THREE.BoxGeometry(largura, altura_individual, comp_individual);
    var degrau_base = new THREE.Mesh(geometria_degrau, materialDeg); // Degrau da base da escadaria, pai de todos os outros e da rampa
    scene.add(degrau_base);
    degraus.push(degrau_base); // Adiciona no vetor
-   degrau_base.translateX(posicao_ini.x); 
+   degrau_base.translateX(posicao_ini.x);
    degrau_base.translateY(posicao_ini.y + (altura_individual / 2)); // Translada a altura pela métade para a posição inicial ser a base
    degrau_base.translateZ(posicao_ini.z);
    rot = rot * Math.PI / 180 // Converte para radianos
@@ -306,7 +392,7 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
       largura_rampa,
       altura_rampa,
       espessura_rampa
-   ); 
+   );
 
    let material_invisivel = new THREE.MeshBasicMaterial({
       color: "red",
@@ -323,7 +409,7 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
    // Posiciona
    rampa_invisivel.position.set(
       0, // X
-      altura_total / 2 - altura_individual / 2, 
+      altura_total / 2 - altura_individual / 2,
       -comp_total / 2 + comp_individual / 2 - (diagonal_degrau / (2 * Math.cos(inclinacao)) - comp_individual) //Z
    );
 
@@ -342,7 +428,7 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
       "comprimento_degrau": comp_individual // Comprimento de cada um deles
    }, {
       "rampa": rampa_invisivel, // Objeto da rampa
-      "angulo_inclinacao": inclinacao, 
+      "angulo_inclinacao": inclinacao,
       "altura": altura_total,
       "comprimento": comp_total,
       "angulo_rotacao": rot // ângulo de rotação em radianos
@@ -379,6 +465,45 @@ let reset = false;
 let moveUp = false;
 
 
+function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMovimento,BoxObjetoATestar){
+   let intsc = "";
+   let colisao=false;
+            ["x", "z"].forEach(eixo => {
+               objeto.position[eixo] += vetorMovimento[eixo]; // TEsta
+
+               let boxObjeto = new THREE.Box3().setFromCenterAndSize(
+                  new THREE.Vector3(objeto.position.x, objeto.position.y - altura/2, objeto.position.z),
+                  new THREE.Vector3(largura_x, altura, largura_z) // largura, altura, profundidade desejadas
+               );
+
+               if (boxObjeto.intersectsBox(BoxObjetoATestar)) {
+
+                  intsc = eixo; // Eixo intersectado
+                  colisao=true;
+
+               }
+               objeto.position[eixo] -= vetorMovimento[eixo]; // Tira movimento-teste
+            });
+
+            if (colisao) {
+               vetorMovimento.normalize(); // Normaliza para fazer verificações corretamente
+
+               let fator = 1; // Fator a se multiplicar( Norma da projeção, que é o produto escalar padrão para projeção em vetores de norma 1, como os dos eixos)
+               //console.log(intsc);
+               if (intsc === "x") {
+                  fator = vetorMovimento.dot(eixo_z); // Projeta em z
+               }
+               else {
+                  fator = vetorMovimento.dot(eixo_x); // Projeta em x
+               }
+               //console.log(fator);
+               speed = Math.abs(fator) * speed;
+               vetorMovimento[intsc] = 0; // Zera o outro eixo
+               //console.log(moveDir);
+            }
+            return colisao;
+}
+
 
 
 window.addEventListener('keydown', (event) => MovimentoVerificador(event.keyCode, true));
@@ -390,13 +515,13 @@ function MovimentoVerificador(key, value) {
          break;
       case 38:
          moveForward = value;
-         break;   
+         break;
       case 83:
          moveBackward = value;
          break;
       case 40:
          moveBackward = value;
-         break;   
+         break;
       case 82:
          reset = value;
          break;
@@ -404,22 +529,24 @@ function MovimentoVerificador(key, value) {
          moveLeft = value;
          break;
       case 37:
-         moveLeft=value;
-         break;   
+         moveLeft = value;
+         break;
       case 68:
          moveRight = value;
          break;
       case 39:
          moveRight = value;
-         break;   
+         break;
       case 81:
          moveUp = value;
          break;
    }
 }
+
 function Movimento(delta) {
+
    raycaster.ray.origin.copy(controle.getObject().position);
-   
+
    const frontal = new THREE.Vector3(); // Vetor direção da câmera
    obj.getWorldDirection(frontal);
 
@@ -436,7 +563,7 @@ function Movimento(delta) {
    if (moveRight) moveDir.add(direito);
    if (moveLeft) moveDir.sub(direito);
 
-   ;
+   
 
    if (moveDir.lengthSq() !== 0) { // Se houver movimento
       if (grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
@@ -444,7 +571,7 @@ function Movimento(delta) {
          moveDir.normalize().multiplyScalar(speed * delta); // Normaliza e multiplica pela velocidade, considerando o delta(Diferença entre quadros)
          let quebrar = false;
          if (area != -1) { // Se estivermos sobre uma área de blocos
-         
+
             // Extensões das áreas definidas( Metade do lado em cada eixo)
             let xi = (areas[area].posicao_ini).x;
             let zi = (areas[area].posicao_ini).z;
@@ -453,125 +580,84 @@ function Movimento(delta) {
 
 
             // Verifica se saiu da área com blocos, indo para o plano base.
-            if (obj.position.x > (xi + ex +larg) || obj.position.x < (xi - ex-larg) || obj.position.z > (zi + ez+larg) || obj.position.z < (zi - ez-larg)) {
-             
+            if (obj.position.x > (xi + ex + larg) || obj.position.x < (xi - ex - larg) || obj.position.z > (zi + ez + larg) || obj.position.z < (zi - ez - larg)) {
+
                area = -1;
             }
          }
-
+         let colisaoAreaAtual=false;
          for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-
-            let intsc = "";
-            ["x", "z"].forEach(eixo => {
-               obj.position[eixo] += moveDir[eixo]; // TEsta
-
-               boxPersonagem = new THREE.Box3().setFromCenterAndSize(
-                  new THREE.Vector3(obj.position.x, obj.position.y - 0.9, obj.position.z),
-                  new THREE.Vector3(larg, 1.8, larg) // largura, altura, profundidade desejadas
-               ); 
-               
-               if (boxPersonagem.intersectsBox(areas[grandeArea - 1].boundingCubos[j])) {
-                  
-                  intsc = eixo; // Eixo intersectado
-
-
-               }
-               obj.position[eixo] -= moveDir[eixo];  // Tira movimento-teste
-            });
-
-            if (intsc !== "") {
-               moveDir.normalize(); // Normaliza para fazer verificações corretamente
-
-               let fator = 1; // Fator a se multiplicar( Norma da projeção, que é o produto escalar padrão para projeção em vetores de norma 1, como os dos eixos)
-               //console.log(intsc);
-               if (intsc === "x") {
-                  fator = moveDir.dot(eixo_z); // Projeta em z
-               }
-               else {
-                  fator = moveDir.dot(eixo_x); // Projeta em x
-               }
-               //console.log(fator);
-               speed = Math.abs(fator) * speed;
-               moveDir[intsc] = 0; // Zera o outro eixo
-               //console.log(moveDir);
-            }
+            let colisaoBlocoAtual=verifica_colisoes_com_blocos(obj,larg,2,larg,moveDir,areas[grandeArea-1].boundingCubos[j]);
+            if(!colisaoAreaAtual && colisaoBlocoAtual)
+               colisaoAreaAtual=true;
          }
-
-         
-         isIntersectingStaircase = raycaster.intersectObject(areas[grandeArea - 1].degraus[1].rampa).length > 0.01; // Teste da rampa
-
-
-         if (isIntersectingStaircase) {
-
-            // Está colidindo com a rampa
-            quebrar = true;
-            let comp_total = areas[grandeArea - 1].degraus[1].comprimento;
-            let altura_total = areas[grandeArea - 1].degraus[1].altura;
-  
-
-
-            let dir_rampa = new THREE.Vector3(0, altura_total, -comp_total).normalize(); // Vetor diração da rampa
-            let rotMatrix = new THREE.Matrix4().makeRotationY(areas[grandeArea - 1].degraus[1].angulo_rotacao);
-            dir_rampa.applyMatrix4(rotMatrix);
-
-            // Está na rampa
-            moveDir.normalize();
-            moveDir.y += (altura_total / comp_total);
-            let vetorProj = new THREE.Vector3();
-            vetorProj.copy(moveDir);
-            //console.log(vetorProj);
-            vetorProj.projectOnVector(dir_rampa);
-            let moveProjecao = vetorProj.length();
-            //console.log(moveProjecao);
-            if (Math.abs(moveProjecao) > 0.0001) {
-               // Move na direção da rampa : incluir subida/descida
-               moveDir.y = vetorProj.y;
+         if(grandeArea==2){
+            if(!verifica_colisoes_com_blocos(obj,larg,2,larg,moveDir,areas[grandeArea-1].porta_box)  && !colisaoAreaAtual && redondezasDaFechadura){
+               let colisaoComFechadura=verifica_colisoes_com_blocos(obj,larg,2,larg,moveDir,areas[grandeArea-1].fechadura_box);
+               if(colisaoComFechadura && !porta_area_2_aberta && !porta_2_abrindo && possui_chave1){
+                  porta_2_abrindo=true;
+               }
             }
-            if (area == -1) {
-               area = grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
+            else{
+               if((areas[1].plataforma.em_movimento || !areas[1].subir)&& !naPlataforma ){
+                  verifica_colisoes_com_blocos(obj,larg,2,larg,moveDir,areas[grandeArea-1].plataforma.box);
+                  
+               }
+               
+
             }
 
+         }   
+         else{
+            isIntersectingStaircase = raycaster.intersectObject(areas[grandeArea - 1].degraus[1].rampa).length > 0.01; // Teste da rampa
+
+
+            if (isIntersectingStaircase) {
+
+               // Está colidindo com a rampa
+               quebrar = true;
+               let comp_total = areas[grandeArea - 1].degraus[1].comprimento;
+               let altura_total = areas[grandeArea - 1].degraus[1].altura;
+
+
+
+               let dir_rampa = new THREE.Vector3(0, altura_total, -comp_total).normalize(); // Vetor diração da rampa
+               let rotMatrix = new THREE.Matrix4().makeRotationY(areas[grandeArea - 1].degraus[1].angulo_rotacao);
+               dir_rampa.applyMatrix4(rotMatrix);
+
+               // Está na rampa
+               moveDir.normalize();
+               moveDir.y += (altura_total / comp_total);
+               let vetorProj = new THREE.Vector3();
+               vetorProj.copy(moveDir);
+               //console.log(vetorProj);
+               vetorProj.projectOnVector(dir_rampa);
+               let moveProjecao = vetorProj.length();
+               //console.log(moveProjecao);
+               if (Math.abs(moveProjecao) > 0.0001) {
+                  // Move na direção da rampa : incluir subida/descida
+                  moveDir.y = vetorProj.y;
+               }
+               if (area == -1) {
+                  area = grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
+               }
+
+            }
          }
 
       }
       else if (grandeArea == 0) {
          for (var j = 0; j < 4; j++) {
 
-            let intsc = "";
-            ["x", "z"].forEach(eixo => {
-               obj.position[eixo] += moveDir[eixo];
-
-               boxPersonagem = new THREE.Box3().setFromCenterAndSize(
-                  new THREE.Vector3(obj.position.x, obj.position.y - 0.9, obj.position.z),
-                  new THREE.Vector3(larg, 1.8, larg) // largura, altura, profundidade desejadas
-               );
-               //console.log(boxPersonagem);
-               if (boxPersonagem.intersectsBox(fronteira[j + 4])) {
-                  
-                  intsc = eixo;
-                 
-
-
+            verifica_colisoes_com_blocos(obj,larg,2,larg,moveDir,fronteira[j + 4]);
+         }
+      }
+      else{
+         if(redondezasDaFechadura){
+            let colisaoComFechadura=verifica_colisoes_com_blocos(obj,larg,2,larg,moveDir,areas[1].fechadura_box);
+               if(colisaoComFechadura && !porta_area_2_aberta && !porta_2_abrindo && possui_chave1){
+                  porta_2_abrindo=true;
                }
-               obj.position[eixo] -= moveDir[eixo];
-            });
-
-            if (intsc !== "") {
-               moveDir.normalize();
-
-               let fator = 1;
-               //console.log(intsc);
-               if (intsc === "x") {
-                  fator = moveDir.dot(eixo_z);
-               }
-               else {
-                  fator = moveDir.dot(eixo_x);
-               }
-               //console.log(fator);
-               speed = Math.abs(fator) * speed;
-               moveDir[intsc] = 0;
-               //console.log(moveDir);
-            }
          }
       }
 
@@ -580,55 +666,34 @@ function Movimento(delta) {
 
       speed = speedPadrao;
       obj.position.add(moveDir); //Movimenta objeto da câmera
-      
+
 
       // Verifica saída e entrada de grandes áreas
-      if (grandeArea == -1) {
-         if (Math.abs(obj.position.x) >= 245 || Math.abs(obj.position.z) >= 245)
-            grandeArea = 0;
-         else {
-            let posicao_ini, ex, ez;
-            for (var i = 0; i < 4; i++) {
-               posicao_ini = areas[i].posicao_ini;
-               ex = areas[i].ex;
-               ez = areas[i].ez;
-               if (obj.position.x >= posicao_ini.x - ex - 4 && obj.position.x <= posicao_ini.x + ex + 4 && obj.position.z >= posicao_ini.z - ez - 4 && obj.position.z <= posicao_ini.z + ez + 4) {
-                  grandeArea = i + 1;
-                  break;
-               }
-
-            }
-         }
-      }
-      else {
-         if (grandeArea == 0) {
-            if (Math.abs(obj.position.x) < 245 && Math.abs(obj.position.z) < 245)
-               grandeArea = -1;
-         }
-         else {
-            let posicao_ini = areas[grandeArea - 1].posicao_ini, ex = areas[grandeArea - 1].ex, ez = areas[grandeArea - 1].ez;
-            if (obj.position.x < posicao_ini.x - ex - 4 || obj.position.x > posicao_ini.x + ex + 4 || obj.position.z < posicao_ini.z - ez - 4 || obj.position.z > posicao_ini.z + ez + 4) {
-               grandeArea = -1;
-            }
-
-         }
-
-      }
+     let grandeArea_e_fechadura=testeGrandesAreas(obj,grandeArea);
+     grandeArea= grandeArea_e_fechadura[0];
+     redondezasDaFechadura=grandeArea_e_fechadura[1];
    }
 
 
    let isIntersectingGround = false;
    isIntersectingStaircase = false;
+   let intersectaPlataforma = false;
    raycaster.ray.origin.copy(obj.position);
    if (grandeArea >= 1) {
       if (area != -1) {
-         isIntersectingStaircase = raycaster.intersectObjects([areas[area].degraus[1].rampa, areas[grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
-         isIntersectingGround = raycaster.intersectObjects([...areas[grandeArea - 1].cubos]).length > 0.00001 || obj.position.y<2;
+         if(grandeArea!=2)
+            isIntersectingStaircase = raycaster.intersectObjects([areas[area].degraus[1].rampa, areas[grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
+         else
+            intersectaPlataforma = raycaster.intersectObject(areas[1].plataforma.mesh);
+         isIntersectingGround = raycaster.intersectObjects([...areas[grandeArea - 1].cubos]).length > 0.00001 || obj.position.y < 2;
       }
       else {
          if (voo) {
             //console.log(areas[0].degraus[1].rampa)
-            isIntersectingStaircase = raycaster.intersectObjects([areas[grandeArea - 1].degraus[1].rampa, areas[grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
+            if(grandeArea!=2)
+               isIntersectingStaircase = raycaster.intersectObjects([areas[grandeArea - 1].degraus[1].rampa, areas[grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
+            else
+               intersectaPlataforma = raycaster.intersectObject(areas[1].plataforma.mesh);
             isIntersectingGround = raycaster.intersectObjects([groundPlane, ...areas[grandeArea - 1].cubos]).length > 0.00001;
          }
          else {
@@ -641,33 +706,80 @@ function Movimento(delta) {
       isIntersectingGround = raycaster.intersectObject(groundPlane).length > 0.1;
 
    }
-   if (!isIntersectingGround && !isIntersectingStaircase) {
-      //console.log("queda");
+   if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma) {
+      
       obj.position.y -= 5 * delta;
       raycaster.ray.origin.copy(obj.position);
       if (grandeArea >= 1) {
          //console.log(area);
-      if (area != -1) {
-                        boxPersonagem = new THREE.Box3().setFromCenterAndSize(
-                  new THREE.Vector3(obj.position.x, obj.position.y - 0.9, obj.position.z),
-                  new THREE.Vector3(larg, 1.8, larg) // largura, altura, profundidade desejadas
-               );
-         isIntersectingStaircase = raycaster.intersectObjects([areas[area].degraus[1].rampa, areas[grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
-         isIntersectingGround = false;
-         for(var i=0;i<3;i++){
-                if(areas[grandeArea-1].boundingCubos[i].intersectsBox(boxPersonagem)){
-                    isIntersectingGround=true;
-                    break;
-                } 
-               }        
-         if(isIntersectingGround || isIntersectingStaircase)
-            obj.position.y += 5 * delta;  
-      }
-      
-      
+         if (area != -1) {
+            boxPersonagem = new THREE.Box3().setFromCenterAndSize(
+               new THREE.Vector3(obj.position.x, obj.position.y - 0.9, obj.position.z),
+               new THREE.Vector3(larg, 1.8, larg) // largura, altura, profundidade desejadas
+            );
+            if(grandeArea!=2)
+               isIntersectingStaircase = raycaster.intersectObjects([areas[area].degraus[1].rampa, areas[grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
+            else
+               intersectaPlataforma = raycaster.intersectObject(areas[1].plataforma.mesh);
+            isIntersectingGround = false;
+            for (var i = 0; i < 3; i++) {
+               if (areas[grandeArea - 1].boundingCubos[i].intersectsBox(boxPersonagem)) {
+                  isIntersectingGround = true;
+                  break;
+               }
+            }
+            if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma)
+               obj.position.y += 5 * delta;
+         }
 
+
+
+      }
    }
+   if(grandeArea==2 && porta_area_2_aberta){
+      
+      let objeto=obj;
+         let pos_plataforma_a2=new THREE.Vector3(areas[1].plataforma.mesh.position.x,areas[1].plataforma.mesh.position.y,areas[1].plataforma.mesh.position.z);
+         pos_plataforma_a2.addVectors(pos_plataforma_a2,areas[1].posicao_ini);
+         naPlataforma = (objeto.position.x <= pos_plataforma_a2.x+1 && objeto.position.x >= pos_plataforma_a2.x-1
+            && objeto.position.z <= pos_plataforma_a2.z+1 && objeto.position.z >= pos_plataforma_a2.z-1 
+            //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+         );
+         console.log("Esta na plataforma? ")
+         console.log(naPlataforma) ;
+         console.log(areas[1].plataforma);
+         if(naPlataforma && area==-1)
+            area=1;  
+         if(!areas[1].plataforma.em_movimento && !areas[1].plataforma.subir && objeto.position.y<=2.2){
+            console.log("Desce");
+            areas[1].plataforma.em_movimento=(objeto.position.x <= pos_plataforma_a2.x+(3+larg) && objeto.position.x >= pos_plataforma_a2.x-(3+larg) 
+            && objeto.position.z <= pos_plataforma_a2.z+(3+larg) && objeto.position.z >= pos_plataforma_a2.z-(3+larg) );
+            console.log(areas[1].plataforma.em_movimento);
+         }   
+         else if(!areas[1].plataforma.em_movimento && !areas[1].plataforma.emEspera && naPlataforma){
+            areas[1].plataforma.emEspera=true;
+         }
+
+         if(areas[1].plataforma.emEspera)
+         {  
+            if(!naPlataforma){
+               areas[1].plataforma.tempo_espera=0;
+               areas[1].plataforma.emEspera=false;
+            }
+            else{
+               areas[1].plataforma.tempo_espera++;
+            if(areas[1].plataforma.tempo_espera>=120){
+               areas[1].plataforma.em_movimento=true;
+               areas[1].plataforma.tempo_espera=0;
+               areas[1].plataforma.emEspera=false;
+            } 
+            }
+              
+         }
+         
+         
    }
+   
 
    if (reset == true) {
       controle.getObject().position.set(3, 4, 8);
@@ -683,30 +795,30 @@ function Movimento(delta) {
 
 
 let verdade = false;
-function atirar(){
-if(verdade==true){
-   
-    const tentativaDisparo = performance.now();
+function atirar() {
+   if (verdade == true) {
 
-    if (tentativaDisparo - tempoUltimoTiro >= 500) {
-        tempoUltimoTiro = tentativaDisparo;
-        const projetil = new THREE.Mesh(projetilGeometry, projetilMaterial);
+      const tentativaDisparo = performance.now();
 
-        // posicao do projetil
-        const spawnProjetil = new THREE.Vector3();
-        spawnProjetil.copy(camera.position);
+      if (tentativaDisparo - tempoUltimoTiro >= 500) {
+         tempoUltimoTiro = tentativaDisparo;
+         const projetil = new THREE.Mesh(projetilGeometry, projetilMaterial);
 
-        const direction = new THREE.Vector3();
-        camera.getWorldDirection(direction);
+         // posicao do projetil
+         const spawnProjetil = new THREE.Vector3();
+         spawnProjetil.copy(camera.position);
 
-        spawnProjetil.add(direction.clone().multiplyScalar(1));
-        projetil.position.copy(spawnProjetil);
+         const direction = new THREE.Vector3();
+         camera.getWorldDirection(direction);
 
-        vetProjetil.push({ mesh: projetil, direction,frames:0,area_proj:-1 });
+         spawnProjetil.add(direction.clone().multiplyScalar(1));
+         projetil.position.copy(spawnProjetil);
 
-        scene.add(projetil);
-    }
-}
+         vetProjetil.push({ mesh: projetil, direction, frames: 0, area_proj: -1 });
+
+         scene.add(projetil);
+      }
+   }
 }
 /// fim Enzo 
 
@@ -722,32 +834,60 @@ function estabeleceBoundingBoxes() {
 
 
          areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos[j]));
-         let degraus = areas[i].degraus[0].degraus;
-         for (var k = 0; k < 8; k++) {
-            areas[i].boundingDegraus.push(new THREE.Box3().setFromObject(degraus[k]));
-         }
-      }
-      areas[i].boundingRampa = new THREE.Box3().setFromObject(areas[i].degraus[1].rampa);
+         if(i!=1)
+            {   let degraus = areas[i].degraus[0].degraus;
+            
 
+            for (var k = 0; k < 8; k++) {
+               if(k==0){
+                  const geometry = degraus[0].geometry;
+                  geometry.computeBoundingBox();
+
+                  const box = geometry.boundingBox.clone();
+
+                  
+                  box.applyMatrix4(degraus[0].matrixWorld);
+                  areas[i].boundingDegraus.push(box);
+               }
+               else{
+                  areas[i].boundingDegraus.push(new THREE.Box3().setFromObject(degraus[k]));
+                  console.log(areas[i].boundingDegraus[k]);
+                  const helper = new THREE.Box3Helper(areas[i].boundingDegraus[k], 0xffff00); // Amarelo
+                  scene.add(helper);
+            }
+            }
+            areas[i].boundingRampa = new THREE.Box3().setFromObject(areas[i].degraus[1].rampa);
+         }
+         
+         }
 
       //const helper = new THREE.Box3Helper(areas[i].boundingRampa, 0xff0000); // Cor vermelha
       //scene.add(helper);
       fronteira.push(new THREE.Box3().setFromObject(fronteira[i]));
-
+      
    }
+   areas[1].porta_box = new THREE.Box3().setFromObject(area2.porta);
+   areas[1].fechadura_box = new THREE.Box3().setFromObject(area2.fechadura);
+   areas[1].plataforma.box = new THREE.Box3().setFromObject(area2.plataforma.mesh);
+
 }
 
-function testeGrandesAreas(obj, areaAnalisada) {
+function testeGrandesAreas(objeto, areaAnalisada) {
+   let rednFech=false;
    if (areaAnalisada == -1) {
-      if (Math.abs(obj.position.x) >= 245 || Math.abs(obj.position.z) >= 245)
+      if (Math.abs(objeto.position.x) >= 245 || Math.abs(objeto.position.z) >= 245)
          areaAnalisada = 0;
       else {
          let posicao_ini, ex, ez;
+         let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.position.x,areas[1].fechadura.position.y,areas[1].fechadura.position.z);
+         pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
+         rednFech = (objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3);
+         
          for (var i = 0; i < 4; i++) {
             posicao_ini = areas[i].posicao_ini;
             ex = areas[i].ex;
             ez = areas[i].ez;
-            if (obj.position.x >= posicao_ini.x - ex - 4 && obj.position.x <= posicao_ini.x + ex + 4 && obj.position.z >= posicao_ini.z - ez - 4 && obj.position.z <= posicao_ini.z + ez + 4) {
+            if (objeto.position.x >= posicao_ini.x - ex - 4 && objeto.position.x <= posicao_ini.x + ex + 4 && objeto.position.z >= posicao_ini.z - ez - 4 && objeto.position.z <= posicao_ini.z + ez + 4) {
                areaAnalisada = i + 1;
                break;
             }
@@ -757,47 +897,52 @@ function testeGrandesAreas(obj, areaAnalisada) {
    }
    else {
       if (areaAnalisada == 0) {
-         if (Math.abs(obj.position.x) < 245 && Math.abs(obj.position.z) < 245)
+         if (Math.abs(objeto.position.x) < 245 && Math.abs(objeto.position.z) < 245)
             areaAnalisada = -1;
       }
       else {
+         if(areaAnalisada==2){
+            let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.position.x,areas[1].fechadura.position.y,areas[1].fechadura.position.z);
+            pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
+            redondezasDaFechadura = objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3;
+         }
          let posicao_ini = areas[areaAnalisada - 1].posicao_ini, ex = areas[areaAnalisada - 1].ex, ez = areas[areaAnalisada - 1].ez;
-         if (obj.position.x < posicao_ini.x - ex - 4 || obj.position.x > posicao_ini.x + ex + 4 || obj.position.z < posicao_ini.z - ez - 4 || obj.position.z > posicao_ini.z + ez + 4) {
+         if (objeto.position.x < posicao_ini.x - ex - 4 || objeto.position.x > posicao_ini.x + ex + 4 || objeto.position.z < posicao_ini.z - ez - 4 || objeto.position.z > posicao_ini.z + ez + 4) {
             areaAnalisada = -1;
          }
 
       }
 
    }
-   return areaAnalisada;
+   return [areaAnalisada,rednFech];
 }
 const clock = new THREE.Clock();
 
 window.addEventListener('mousedown', (event) => {
-     if (event.button === 0|| event.button === 2)
-       verdade =true;
-//console.log(controle.pointerSpeed);
+   if (event.button === 0 || event.button === 2)
+      verdade = true;
+   //console.log(controle.pointerSpeed);
 });
-window.addEventListener('mouseup',(event)=> {
-    verdade = false;
+window.addEventListener('mouseup', (event) => {
+   verdade = false;
 });
 render();
 function render() {
-
+   
 
    // fps.update(0.016);
 
    if (controle.isLocked) {
       let delta = clock.getDelta();
-      delta = Math.min(delta,0.05);
+      delta = Math.min(delta, 0.05);
       Movimento(delta);
       atirar();
       stats.update();
-      const velocidadeProjetil = 1.2;
+      const velocidadeProjetil = 0.01;
       let colidiu = false;
       let tamVet = vetProjetil.length;
       for (var q = 0; q < tamVet; q++) {
-         colidiu=false;
+         colidiu = false;
          let proj = vetProjetil[q];
          const deslocamento = new THREE.Vector3(proj.direction.x * velocidadeProjetil, proj.direction.y * velocidadeProjetil, proj.direction.z * velocidadeProjetil);
 
@@ -810,17 +955,19 @@ function render() {
                colidiu = true;
          }
          else {
-            if (proj.mesh.position.y < -0.1){
+            if (proj.mesh.position.y < -0.1) {
                colidiu = true;
                console.log("B");
-            }   
+            }
             else {
                if (Math.abs(proj.mesh.position.x) > 252 || Math.abs(proj.mesh.position.z) > 252 || Math.abs(proj.mesh.position.y) > 6.1) {
                   proj.frames = 1;
                }
                else {
                   let boxBala = new THREE.Box3().setFromObject(proj.mesh);
-                  proj.area_proj = testeGrandesAreas(proj.mesh, proj.area_proj);
+                  let grande_area_e_fechadura= testeGrandesAreas(proj.mesh, proj.area_proj);
+                  proj.area_proj = grande_area_e_fechadura[0];
+                  let redFech=grande_area_e_fechadura[1];
                   if (proj.area_proj != -1) {
                      if (proj.area_proj == 0) {
                         for (var i = 0; i < 4; i++) {
@@ -832,36 +979,58 @@ function render() {
                         }
                      }
                      else {
-                        i = proj.area_proj-1;
+                        i = proj.area_proj - 1;
                         //console.log(i);
                         let cubosBox = areas[i].boundingCubos;
                         let rampaBox = areas[i].boundingRampa;
-                        for (var j = 0; j < 3; j++) {
+                        if(redFech){
+                           colidiu=(areas[1].fechadura_box.intersectsBox(boxBala));
+                           console.log(areas[1].fechadura_box);
+                           console.log(colidiu);
+                           if( colidiu)
+                              console.log("C-0")
+                           console.log("0-C")
+
+                        }
+                        
+                        for (var j = 0; !colidiu && j < 3; j++) {
                            if (cubosBox[j].intersectsBox(boxBala)) {
                               colidiu = true;
                               console.log("C");
-                              break;
+                              
                            }
 
                         }
                         if (!colidiu) {
-                           if (rampaBox.intersectsBox(boxBala)) {
-                              let degrausBox = areas[i].boundingDegraus;
-                              //console.log(degrausBox)
-                              for (var k = 0; k < 8; k++) {
-                                 if (degrausBox[k].intersectsBox(boxBala)) {
-                                    colidiu = true;
-                                    console.log("D");
-                                    break;
+                           if(i!=1)
+                           { 
+                              if (rampaBox.intersectsBox(boxBala)) {
+                                 let degrausBox = areas[i].boundingDegraus;
+                                 //console.log(degrausBox)
+                                 for (var k = 0; k < 8; k++) {
+                                    if (boxBala.intersectsBox(degrausBox[k])) {
+                                       console.log(degrausBox[k]);
+                                       colidiu = true;
+                                       console.log("D");
+                                       break;
 
+                                    }
+                                 }
+                              }
+                              else {
+                                 if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
+                                    colidiu = true;
+                                    console.log("E");
                                  }
                               }
                            }
-                           else {
-                              if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
-                                 colidiu = true;
-                                 console.log("E");
+                           else{
+                              if(porta_area_2_aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)){
+                                 colidiu=true;
                               }
+                              else{
+                                 colidiu=areas[1].porta_box.intersectsBox(boxBala);
+                              } 
                            }
                         }
                      }
@@ -870,7 +1039,7 @@ function render() {
             }
          }
          if (colidiu) {
-            console.log("Colisão"+proj.frames);
+            console.log("Colisão" + proj.frames);
             scene.remove(proj.mesh);
             vetProjetil.splice(q, 1);
             q--;
@@ -878,9 +1047,25 @@ function render() {
          }
       }
    }
-      //console.log(verdade);
+   //console.log(verdade);
 
-
+   if(porta_2_abrindo){
+      porta_2_abrindo=!abrir_porta(areas[1].porta,areas[1].porta_box,2,1);
+      if(!porta_2_abrindo)
+         porta_area_2_aberta=true;
+   }
+   else if(porta_area_2_aberta && areas[1].plataforma.em_movimento){
+      let mult=1;
+      let limite=0;
+      if(! areas[1].plataforma.subir){
+         mult=-1;
+         limite=-3.949;
+      }
+      let qtd_mov=mover_plataforma(areas[1].plataforma,limite,mult);
+      if(naPlataforma){
+         obj.position.y+=qtd_mov;
+      }
+   }
    renderer.render(scene, camera) // Render scene
    requestAnimationFrame(render);
    if (!inicializadasBoxes) {
@@ -888,8 +1073,3 @@ function render() {
       inicializadasBoxes = true;
    }
 }
-
-
-
-
-
