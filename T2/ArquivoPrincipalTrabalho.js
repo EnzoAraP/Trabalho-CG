@@ -214,7 +214,7 @@ function estabeleceBoundingBoxes() {
       
       
    }
-   for(var i=0;i<6;i++){
+   for(var i=0;i<areas[1].num_blocos_extras;i++){
       areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
    }
 

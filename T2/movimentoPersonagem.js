@@ -148,6 +148,10 @@ class Personagem{
                   colisaoExtras=speedColisao[1];
                   
                }
+               if(areas[1].num_passos_exec==0){
+                  areas[1].mudar_limite_elevacao(2);
+                  areas[1].elevar_bloco=true;
+               }
             }
             
 
@@ -354,6 +358,9 @@ class Personagem{
       }
       console.log("Plat");
    }
+
+   if(areas[1].elevar_bloco)
+      areas[1].fazer_elevar_bloco();
 
 }
 }

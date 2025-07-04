@@ -120,12 +120,14 @@ class Area2 {
         this.num_passos_elevacao=240;
         this.indice_bloco_chave=10;
         this.elevar_bloco=false;
+        
         this.limite_elevacao=1.6;
         this.num_blocos_extras=11;
 
         this.a=0;
         this.b=1.2;
         this.c=0.4;
+        this.num_passos_exec=0;
     }
     abrir_porta( limiteZ, multiplicador) {
       
@@ -158,7 +160,10 @@ class Area2 {
             plataformaBox.setFromObject(plataforma);
             this.plataforma.em_movimento = false;
             this.plataforma.subir = (!this.plataforma.subir);
-            dif+=0.053*multiplicador;
+            if(dif>=0)
+                dif+=0.055;
+            else
+                dif-=0.054;
 
             return dif;
         }
@@ -168,13 +173,30 @@ class Area2 {
     mudar_limite_elevacao(limiteY){
         if(this.elevar_bloco)
             return;
-        
+        this.limite_elevacao=limiteY-this.c;
+        this.a=(-2*this.limite_elevacao+3*this.c)/2;
+        this.b=this.limite_elevacao-this.a-this.c;
+
     }
-    elevar_bloco(limiteY){
+    funcao_movimento_elevacao(x){
+        return this.a*(x**2)+this.b*x+this.c;
+    }
+    fazer_elevar_bloco(){
         if(!this.elevar_bloco)
             return;
-        bloco_chave = this.blocosExtras[this.indice_bloco_chave];
-        bloco_chave.position.y+=0.01;
+        if(this.num_passos_exec<this.num_passos_elevacao){
+            this.num_passos_exec++;
+            let bloco_chave = this.blocosExtras[this.indice_bloco_chave];
+            let bloco_chave_box=this.boundingBlocosExtras[this.indice_bloco_chave];
+            bloco_chave.position.y=this.funcao_movimento_elevacao(this.num_passos_exec/this.num_passos_elevacao)+2;
+            bloco_chave_box.setFromObject(bloco_chave);
+            console.log(bloco_chave.position.y);
+            console.log(this.num_passos_exec);
+        }
+        if(this.num_passos_exec>=this.num_passos_elevacao)
+            this.elevar_bloco=false;
+        
+        
         
     }
 }

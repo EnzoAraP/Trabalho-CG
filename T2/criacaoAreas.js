@@ -27,10 +27,10 @@ var materialCubo4 = setDefaultMaterial("rgb(221, 158, 22)"); // cria o material 
 
 
 var materiais_cubos=[
- setDefaultMaterial("rgb(47, 235, 9)") // cria o material dos cubos da área 1
-,setDefaultMaterial("rgb(185, 51, 27)") // cria o material dos cubos da área 2
-, setDefaultMaterial("rgb(12, 26, 92)") // cria o material dos cubos da área 3
-, setDefaultMaterial("rgb(221, 158, 22)") // cria o material dos cubos da área 4
+ materialCubo1 // cria o material dos cubos da área 1
+,materialCubo2 // cria o material dos cubos da área 2
+, materialCubo3 // cria o material dos cubos da área 3
+, materialCubo4 // cria o material dos cubos da área 4
 ];
 
 
