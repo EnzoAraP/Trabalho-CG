@@ -111,7 +111,9 @@ class Personagem{
             
             let speedColisao=verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[this.grandeArea-1].porta.box,this.speed);
             this.speed=speedColisao[0];
-            if(  !speedColisao[1] && !colisaoAreaAtual && this.redondezasDaFechadura){
+            let colisaoComAPorta=speedColisao[1];
+            let colisaoComAPlataforma=false;
+            if( this.redondezasDaFechadura){
                speedColisao=verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[this.grandeArea-1].fechadura.box,this.speed);
                this.speed=speedColisao[0];
                let colisaoComFechadura=speedColisao[1];
@@ -124,8 +126,10 @@ class Personagem{
                   
                   let speedColisao=verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[this.grandeArea-1].plataforma.box,this.speed);
                   this.speed=speedColisao[0];
-                  if(speedColisao[1])
+                  colisaoComAPlataforma=speedColisao[1];
+                  if(colisaoComAPlataforma)
                      console.log("Plat");
+
                }
                else{
                console.log("Porta");
@@ -134,6 +138,16 @@ class Personagem{
             }
                
 
+            }
+
+            if(this.area==1 && !this.naPlataforma && !colisaoComAPorta){
+               let colisaoExtras=false;
+               for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
+                  let speedColisao=verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[this.grandeArea-1].boundingBlocosExtras[j],this.speed);
+                  this.speed=speedColisao[0];
+                  colisaoExtras=speedColisao[1];
+                  
+               }
             }
             
 

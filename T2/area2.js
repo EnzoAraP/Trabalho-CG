@@ -66,6 +66,66 @@ class Area2 {
 
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
+
+        const material_blocos = setDefaultMaterial("rgb(255, 215, 0)");
+
+// posições fixas (offsets em relação ao centro da área)
+        const posicoes= [
+        // cinco entre meio e periferia (distância = 0.5 * ex/ez)
+        { x: 0.5 * this.ex, z: 0.62 * this.ez },
+        { x:  0.82 * this.ex, z:    -0.7 * this.ez },
+        { x:  -0.2 * this.ex, z:  -0.34 * this.ez },
+        { x: -  0.63 * this.ex, z:   0.18 * this.ez },
+        { x:  0.5 * this.ex, z: 0.08       }, // meio-lateral
+        { x:  0.15 * this.ex,  z:  0.85 * this.ez }, // canto superior levemente deslocado
+        { x: -0.85 * this.ex,  z: -0.20 * this.ez }, // canto inferior esquerdo
+        { x:  0.20 * this.ex,  z: -0.75 * this.ez }, // canto inferior direito
+        { x: -0.75 * this.ex,  z:  0.50 * this.ez }, // lateral esquerda média
+        { x:  0.35 * this.ex,  z: -0.10 * this.ez }, // perto do centro, mas deslocado
+        // bloco central (revelador), será o índice 10
+        { x: 0,           z: 0       }
+        ];
+
+        this.blocosExtras = [];
+        this.boundingBlocosExtras = [];
+        const dimensoes = [
+        { w: 1.6,  d: 1.6,   h: 1.2  },  // bloco 0
+        { w: 1.2,  d: 2.4,   h: 2.0  },  // bloco 1
+        { w: 2.0,  d: 1.2,   h: 1.6  },  // bloco 2
+        { w: 2.4,  d: 0.8,   h: 2.4  },  // bloco 3
+        { w: 1.6,  d: 2.0,   h: 1.6  },  // bloco 4
+        { w: 2.0,  d: 2.0,   h: 1.0  },  // bloco 5
+        { w: 1.2,  d: 1.6,   h: 1.6  },  // bloco 6
+        { w: 1.6,  d: 0.95,  h: 1.4  },  // bloco 7
+        { w: 2.0,  d: 0.8,   h: 2.0  },  // bloco 8
+        { w: 1.8,  d: 1.8,   h: 1.2  },  // bloco 9
+        { w: 2.0,  d: 2.0,   h: 0.8  }   // bloco 10 (central, mais baixo)
+        ];
+        posicoes.forEach((pos, i) => {
+        // defina tamanhos variados:
+        const dim = dimensoes[i];
+
+        const geo   = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
+        const mesh  = new THREE.Mesh(geo, material_blocos);
+
+        // posição XZ
+        this.cube0.add(mesh);
+        mesh.position.set(pos.x, dim.h /2 + 2, pos.z);
+
+        this.blocosExtras.push(mesh);
+
+        // marque o bloco central para subir depois
+        
+        });
+        this.num_passos_elevacao=240;
+        this.indice_bloco_chave=10;
+        this.elevar_bloco=false;
+        this.limite_elevacao=1.6;
+        this.num_blocos_extras=11;
+
+        this.a=0;
+        this.b=1.2;
+        this.c=0.4;
     }
     abrir_porta( limiteZ, multiplicador) {
       
@@ -98,15 +158,24 @@ class Area2 {
             plataformaBox.setFromObject(plataforma);
             this.plataforma.em_movimento = false;
             this.plataforma.subir = (!this.plataforma.subir);
-            if(dif<0)
-                dif-0.051;
-            else
-                dif+=0.07;
+            dif+=0.053*multiplicador;
 
             return dif;
         }
         return multiplicador * 0.02;
 
+    }
+    mudar_limite_elevacao(limiteY){
+        if(this.elevar_bloco)
+            return;
+        
+    }
+    elevar_bloco(limiteY){
+        if(!this.elevar_bloco)
+            return;
+        bloco_chave = this.blocosExtras[this.indice_bloco_chave];
+        bloco_chave.position.y+=0.01;
+        
     }
 }
 

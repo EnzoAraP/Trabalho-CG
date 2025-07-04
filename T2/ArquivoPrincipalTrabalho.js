@@ -212,7 +212,13 @@ function estabeleceBoundingBoxes() {
       //scene.add(helper);
       fronteira.push(new THREE.Box3().setFromObject(fronteira[i]));
       
+      
    }
+   for(var i=0;i<6;i++){
+      areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
+   }
+
+
    areas[1].porta.box = new THREE.Box3().setFromObject( areas[1].porta.mesh);
    const helper2 = new THREE.Box3Helper(areas[1].porta.box, 0xffff00); // Amarelo
    areas[1].fechadura.box = new THREE.Box3().setFromObject(areas[1].fechadura.mesh);

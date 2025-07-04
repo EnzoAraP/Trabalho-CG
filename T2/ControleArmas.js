@@ -168,6 +168,12 @@ class LancaMisseis{
                                   else{
                                      colidiu=areas[1].porta.box.intersectsBox(boxBala);
                                   } 
+                                  for( var j=0;!colidiu && j<areas[1].num_blocos_extras;j++){
+                                    if(areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)){
+                                       colidiu = true;
+                                       console.log("F");
+                                    }
+                                  }
                                }
                             }
                          }

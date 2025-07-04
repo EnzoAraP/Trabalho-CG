@@ -45,7 +45,7 @@ var cubeGeo4 = new THREE.BoxGeometry(140, 4, 100);
 var cubeGeo5 = new THREE.BoxGeometry(134.5, 4, 2);
 var cubeGeo6 = new THREE.BoxGeometry(140, 4, 100);
 
-
+var cubeGeo2_area2 = new THREE.BoxGeometry(66.5, 4, 2);
 //scene.add(sphere);
 
 
@@ -70,7 +70,7 @@ var area1 = {
    ez: 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
 }
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
-var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo2]);
+var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2_area2,cubeGeo3],[materialCubo1,materialCubo2]);
 var area3 = {
    cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
    cube1: new THREE.Mesh(cubeGeo1, materialCubo3),
@@ -115,6 +115,8 @@ for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
       (areas[i].cube0).add(areas[i].cubos[j]);
       if (j == 1) {
          let desc = -2.75;
+         if(i==1)
+            desc=-0.25;
          if (i == 3)
             desc = -desc;
 
