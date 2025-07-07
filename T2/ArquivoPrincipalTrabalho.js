@@ -16,6 +16,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { areas, testeGrandesAreas,scene } from './criacaoAreas.js';
 import { LancaMisseis } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
+import { Cacodemon } from './Inimigo02.js';
 import { AmbientLight } from '../build/three.module.js';
 
 let  light, camera, keyboard, material;
@@ -43,7 +44,7 @@ let camLook = new THREE.Vector3(0, 1.8, -1);
 const voo = false; // Variável que indica se o voo está habilitado ou não.
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 3);
-dirLight.position.set(250, 275, 250); // Posição elevada e inclinada
+dirLight.position.set(250, 275, 200); // Posição elevada e inclinada
 dirLight.castShadow = true;
 
 
@@ -54,15 +55,15 @@ dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 4096;
   dirLight.shadow.mapSize.height = 4096;
   dirLight.shadow.camera.near = 200;
-  dirLight.shadow.camera.far = 1050;
-  dirLight.shadow.camera.left = -150;
-  dirLight.shadow.camera.right = 150;
-  dirLight.shadow.camera.bottom = -150;
-  dirLight.shadow.camera.top = 150;
-  dirLight.shadow.bias = -0.0005;  
+  dirLight.shadow.camera.far = 1400;
+  dirLight.shadow.camera.left = -200;
+  dirLight.shadow.camera.right = 200;
+  dirLight.shadow.camera.bottom = -200;
+  dirLight.shadow.camera.top = 200;
+  dirLight.shadow.bias = -0.0001;  
 
   // No effect on Basic and PCFSoft
-  dirLight.shadow.radius = 0.5;
+  dirLight.shadow.radius = 0.1;
 
 scene.add(dirLight);
 // (opcional) Ajuda para visualizar o volume de sombra
@@ -71,8 +72,21 @@ scene.add(helper);
 
 
 const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-fillLight.position.set(-250, 275, -250);
+fillLight.position.set(-250, 275, -200);
 fillLight.castShadow = false;
+fillLight.intensity = 0.5;
+
+fillLight.shadow.camera.near = 200;
+fillLight.shadow.camera.far = 1200;
+fillLight.shadow.camera.left = -200;
+fillLight.shadow.camera.right = 200;
+fillLight.shadow.camera.bottom = -200;
+fillLight.shadow.camera.top = 200;
+fillLight.shadow.bias = -0.0005;  
+
+// No effect on Basic and PCFSoft
+
+
 scene.add(fillLight);
 
 
@@ -87,8 +101,8 @@ console.log("AAAA");
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
-material = setDefaultMaterial("rgb(218, 204, 204)");
-let material2 = setDefaultMaterial("rgb(39, 164, 168)");
+material = new THREE.MeshLambertMaterial({ color:"rgb(218, 204, 204)"}); // cria o material dos cubos da área 1
+let material2 = new THREE.MeshLambertMaterial({ color:"rgb(39, 164, 168)"}); 
 const controle = new PointerLockControls(camera, renderer.domElement);
 controle.pointerSpeed=0.6;
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
@@ -118,13 +132,13 @@ groundPlane.receiveShadow=true;
 scene.add(groundPlane);
 
 
-const lancaMisseis= new LancaMisseis(camera);
+
 
 // Set initial position of the sphere
 //sphere.translateY(0.9);
 
 
-var larg = 0.75; // Tamenho em x e z do personagem(Largura e espessura)
+var larg = 0.5; // Tamenho em x e z do personagem(Largura e espessura)
 
 
 
@@ -146,6 +160,28 @@ var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
 
 var personagem = new Personagem(obj,camera,boxPersonagem,larg,speedPadrao);
+
+let cacodemon_geometry = new THREE.BoxGeometry(0.6,1.2,0.6);
+
+let cacodemon_material = new THREE.MeshLambertMaterial({ color:"rgb(55, 9, 180)"}); 
+
+var cacodemons=[];
+
+var arma_cacodemons_derrotados=[];
+for(var i=0;i<3;i++){
+   
+   var obj_cacodemon= new THREE.Mesh(cacodemon_geometry,cacodemon_material);
+   obj_cacodemon.castShadow=true;
+   obj_cacodemon.receiveShadow=true;
+   scene.add(obj_cacodemon);
+   obj_cacodemon.position.set(i,0.3,-i);
+   let arma_cac=new LancaMisseis(obj_cacodemon,[personagem],false);
+   let novo_cac=new Cacodemon(obj_cacodemon,camera,new THREE.Box3(),0.6,3,arma_cac,personagem);
+   cacodemons.push(novo_cac);
+
+}
+
+const lancaMisseis= new LancaMisseis(camera,cacodemons,true);
 
 const textoEsq = document.getElementById('instructions');
 const blocker = document.getElementById('blocker');
@@ -304,8 +340,21 @@ function render() {
       personagem.movimento(areas,fronteira,groundPlane,delta,moveForward,moveBackward,moveRight,moveLeft,moveUp,reset);
       lancaMisseis.atirar(scene,camera,verdade);
       stats.update();
-      lancaMisseis.controle_projeteis(scene,areas,fronteira)
-      
+      let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene,areas,fronteira);
+      if(armasNovosDerrotados.length!=0)
+         arma_cacodemons_derrotados=arma_cacodemons_derrotados.concat(armasNovosDerrotados);
+      for(var i=0;i<cacodemons.length;i++){
+       
+            cacodemons[i].movimento(areas,fronteira,groundPlane,delta,false,false,scene);
+            cacodemons[i].arma.controle_projeteis(scene,areas,fronteira);
+     
+      }
+      for ( var i=0;i<arma_cacodemons_derrotados.length;i++){
+         arma_cacodemons_derrotados[i].controle_projeteis(scene,areas,fronteira);
+         if(arma_cacodemons_derrotados[i].vetProjetil.length==0)
+            arma_cacodemons_derrotados.splice(i,1);
+      }
+         
    }
       //console.log(verdade);
 
@@ -317,8 +366,3 @@ function render() {
       inicializadasBoxes = true;
    }
 }
-
-
-
-
-

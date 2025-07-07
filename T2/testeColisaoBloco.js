@@ -17,10 +17,21 @@ var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
 var eixo_z = new THREE.Vector3(0, 0, 1);
 
-function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMovimento,BoxObjetoATestar,speed){
+var x_y= (new THREE.Vector3()).addVectors(eixo_x,eixo_y).normalize();
+
+var x_z= (new THREE.Vector3()).addVectors(eixo_x,eixo_z).normalize();
+
+var y_z= (new THREE.Vector3()).addVectors(eixo_y,eixo_z).normalize();
+
+function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMovimento,BoxObjetoATestar,speed,contarSubida=false){
    let intsc = "";
    let colisao=false;
-            ["x", "z"].forEach(eixo => {
+            let vetor_eixos=null;
+            if(contarSubida)
+               vetor_eixos=["x","y", "z"];
+            else
+               vetor_eixos=["x", "z"];
+            vetor_eixos.forEach(eixo => {
                objeto.position[eixo] += vetorMovimento[eixo]; // TEsta
 
                let boxObjeto = new THREE.Box3().setFromCenterAndSize(
@@ -43,10 +54,14 @@ function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMov
                let fator = 1; // Fator a se multiplicar( Norma da projeção, que é o produto escalar padrão para projeção em vetores de norma 1, como os dos eixos)
                //console.log(intsc);
                if (intsc === "x") {
-                  fator = vetorMovimento.dot(eixo_z); // Projeta em z
+                  fator = Math.sqrt((vetorMovimento.dot(eixo_y))**2 + (vetorMovimento.dot(eixo_z))**2); // Projeta em z
+                  
                }
-               else {
-                  fator = vetorMovimento.dot(eixo_x); // Projeta em x
+               else if (intsc === "z"){
+                  fator =  Math.sqrt((vetorMovimento.dot(eixo_x))**2 + (vetorMovimento.dot(eixo_y))**2); // Projeta em x
+               }
+               else{
+                  fator =  Math.sqrt((vetorMovimento.dot(eixo_x))**2 + (vetorMovimento.dot(eixo_z))**2);
                }
                //console.log(fator);
                speed = Math.abs(fator) * speed;

@@ -17,16 +17,16 @@ import { BoxGeometry } from '../build/three.module.js';
 class Area2 {
     constructor(geomterias_cubos,materiais_cubos) {
         this.geometria_porta = new BoxGeometry(0.2, 4, 2);
-        this.material_porta = setDefaultMaterial("rgb(50,120,90)");
+        this.material_porta =  new THREE.MeshLambertMaterial({ color:"rgb(50,120,90)"});
         this.porta_area_2 = new THREE.Mesh(this.geometria_porta, this.material_porta);
         this.porta_area_2_aberta = false;
         this.porta_2_abrindo = false;
 
         this.geometria_suporte_fechadura = new THREE.BoxGeometry(1.5, 1, 1.5);
-        this.material_suporte_fechadura = setDefaultMaterial("rgb(100,100,100)");
+        this.material_suporte_fechadura = new THREE.MeshLambertMaterial({ color:"rgb(100,100,100)"});
         this.suporte_fechadura = new THREE.Mesh(this.geometria_suporte_fechadura, this.material_suporte_fechadura);
         this.geometria_plataforma_a2 = new BoxGeometry(2, 4, 2);
-        this.material_plataforma_a2 = setDefaultMaterial("rgb(105, 152, 163)");
+        this.material_plataforma_a2 = new THREE.MeshLambertMaterial({ color:"rgb(105, 152, 163)"});
         this.plataforma_area_2 = new THREE.Mesh(this.geometria_plataforma_a2, this.material_plataforma_a2);
 
 
@@ -60,14 +60,19 @@ class Area2 {
         this.fechadura = { mesh: this.suporte_fechadura, box: null };
 
         this.plataforma = { mesh: this.plataforma_area_2, box: null, em_movimento: false, subir: true, tempo_espera: 0, emEspera: false };
-
+        this.porta.mesh.castShadow=true;
+        this.porta.mesh.receiveShadow=true;
+        this.plataforma.mesh.castShadow=true;
+        this.plataforma.mesh.receiveShadow=true;
+        this.fechadura.mesh.castShadow=true;
+        this.fechadura.mesh.receiveShadow=true;
 
 
 
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
 
-        const material_blocos = setDefaultMaterial("rgb(255, 215, 0)");
+        const material_blocos = new THREE.MeshLambertMaterial({ color:"rgb(255, 215, 0)"});
 
 // posições fixas (offsets em relação ao centro da área)
         const posicoes= [
@@ -89,17 +94,17 @@ class Area2 {
         this.blocosExtras = [];
         this.boundingBlocosExtras = [];
         const dimensoes = [
-        { w: 1.6,  d: 1.6,   h: 1.2  },  // bloco 0
-        { w: 1.2,  d: 2.4,   h: 2.0  },  // bloco 1
-        { w: 2.0,  d: 1.2,   h: 1.6  },  // bloco 2
-        { w: 2.4,  d: 0.8,   h: 2.4  },  // bloco 3
-        { w: 1.6,  d: 2.0,   h: 1.6  },  // bloco 4
-        { w: 2.0,  d: 2.0,   h: 1.0  },  // bloco 5
-        { w: 1.2,  d: 1.6,   h: 1.6  },  // bloco 6
-        { w: 1.6,  d: 0.95,  h: 1.4  },  // bloco 7
-        { w: 2.0,  d: 0.8,   h: 2.0  },  // bloco 8
-        { w: 1.8,  d: 1.8,   h: 1.2  },  // bloco 9
-        { w: 2.0,  d: 2.0,   h: 0.8  }   // bloco 10 (central, mais baixo)
+        { w: 1.6,  d: 1.6,   h: 3.2  },  // bloco 0
+        { w: 1.2,  d: 2.4,   h: 4.0  },  // bloco 1
+        { w: 2.0,  d: 1.2,   h: 5.6  },  // bloco 2
+        { w: 2.4,  d: 1.8,   h: 3.4  },  // bloco 3
+        { w: 1.6,  d: 2.0,   h: 2.6  },  // bloco 4
+        { w: 2.0,  d: 2.0,   h: 5.0  },  // bloco 5
+        { w: 1.2,  d: 1.6,   h: 6.6  },  // bloco 6
+        { w: 1.6,  d: 1.95,  h: 2.4  },  // bloco 7
+        { w: 2.0,  d: 1.8,   h: 6.0  },  // bloco 8
+        { w: 1.8,  d: 1.8,   h: 3.2  },  // bloco 9
+        { w: 2.0,  d: 2.0,   h: 0.8  }   // bloco 10 (central, mais baixo)
         ];
         posicoes.forEach((pos, i) => {
         // defina tamanhos variados:
@@ -129,6 +134,9 @@ class Area2 {
         this.b=1.2;
         this.c=0.4;
         this.num_passos_exec=0;
+        this.qtd_movimento_plataforma=0;
+
+
     }
     abrir_porta( limiteZ, multiplicador) {
       
@@ -151,13 +159,13 @@ class Area2 {
 
 
         plataforma.position.y += multiplicador * 0.02;
-        console.log(plataforma.position.y);
+        //console.log(plataforma.position.y);
         plataformaBox.setFromObject(plataforma);
         if (multiplicador * plataforma.position.y > multiplicador * limiteY) {
             let dif = limiteY - plataforma.position.y + multiplicador * 0.02;
             plataforma.position.y = limiteY;
 
-            console.log(plataforma.position.y);
+            //console.log(plataforma.position.y);
             plataformaBox.setFromObject(plataforma);
             this.plataforma.em_movimento = false;
             this.plataforma.subir = (!this.plataforma.subir);
@@ -165,9 +173,10 @@ class Area2 {
                 dif+=0.055;
             else
                 dif-=0.054;
-
+            this.qtd_movimento_plataforma=dif;
             return dif;
         }
+        this.qtd_movimento_plataforma=multiplicador*0.02;
         return multiplicador * 0.02;
 
     }
@@ -191,8 +200,8 @@ class Area2 {
             let bloco_chave_box=this.boundingBlocosExtras[this.indice_bloco_chave];
             bloco_chave.position.y=this.funcao_movimento_elevacao(this.num_passos_exec/this.num_passos_elevacao)+2;
             bloco_chave_box.setFromObject(bloco_chave);
-            console.log(bloco_chave.position.y);
-            console.log(this.num_passos_exec);
+            //console.log(bloco_chave.position.y);
+            //console.log(this.num_passos_exec);
         }
         if(this.num_passos_exec>=this.num_passos_elevacao)
             this.elevar_bloco=false;
