@@ -17,7 +17,9 @@ import { areas, testeGrandesAreas,scene } from './criacaoAreas.js';
 import { LancaMisseis } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
 import { Cacodemon } from './Inimigo02.js';
+import { carregarArquivoGLB } from './funcoesGeometriasExternas.js';
 import { AmbientLight } from '../build/three.module.js';
+
 
 let  light, camera, keyboard, material;
 var stats = new Stats();
@@ -160,6 +162,9 @@ var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
 
 var personagem = new Personagem(obj,camera,boxPersonagem,larg,speedPadrao);
+
+
+
 
 let cacodemon_geometry = new THREE.BoxGeometry(0.6,1.2,0.6);
 
