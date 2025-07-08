@@ -12,6 +12,7 @@ import {
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import {Area2} from './area2.js'
+import { Area1 } from './Area1.js';
 
 
 let scene = new THREE.Scene(); // Create main scene
@@ -19,7 +20,7 @@ let scene = new THREE.Scene(); // Create main scene
 
 
 //var materialCubo = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material 
-var materialCubo1 = new THREE.MeshLambertMaterial({ color: "rgb(47, 235, 9)"}); // cria o material dos cubos da área 1
+var materialCubo1 = new THREE.MeshLambertMaterial({ color: "rgb(255, 255, 255)"}); // cria o material dos cubos da área 1
 var materialCubo2 = new THREE.MeshLambertMaterial({ color: "rgb(185, 51, 27)"}); // cria o material dos cubos da área 2
 var materialCubo3 = new THREE.MeshLambertMaterial({ color: "rgb(12, 26, 92)"}); // cria o material dos cubos da área 3
 var materialCubo4 = new THREE.MeshLambertMaterial({ color: "rgb(221, 158, 22)"}); // cria o material dos cubos da área 4
@@ -50,26 +51,42 @@ var cubeGeo2_area2 = new THREE.BoxGeometry(66.5, 4, 2);
 
 
 
-
-var area1 = {
-   //Cubos:
-   cube0: new THREE.Mesh(cubeGeo0, materialCubo1), //Cubo central-pai.
-   // Cubos que compõem o cenário
-   cube1: new THREE.Mesh(cubeGeo1, materialCubo1),
-   cube2: new THREE.Mesh(cubeGeo2, materialCubo1),
-   cube3: new THREE.Mesh(cubeGeo3, materialCubo1),
-
-   // Vetor das escadas, retorno de fução que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materialCubo2),
-   posicao_ini: new THREE.Vector3(-100, 2, -150), // Posição inicial do cubo central(núcleo) da área
-   cubos: [], // Vetor dos cubos que compõem o cenário
-   boundingCubos: [], // Vetor das boundigBoxes dos cubos acima
-   boundingRampa: null, // boundingBox da rampa da escada
-   boundingDegraus: [], // Vetor com a boudingBox dos degraus
-   ex: 35, // Extensão da área em relação a seu centro no eixo x( Metade do comprimento do lado em x do paralelepípedo)
-   ez: 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
+//Area 1
+var area1 = new Area1([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo2]);
+area1.degraus=criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materiais_cubos[1]);
+for(let i =-33.6;i<=33.6;i=i+5.6)// parede direita
+{
+   let vetorteste2 = new THREE.Vector3(i,4.5,-49.6);
+area1.criaPilar(vetorteste2);
 }
-area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
+for(let i =-33.6;i<=33.6;i=i+5.6)// parede esqureda
+{
+   let vetorteste3 = new THREE.Vector3(i,4.5,49.6);
+area1.criaPilar(vetorteste3);
+}
+for(let i =49.6;i>=-49.6;i=i-5.6)// parede tras
+{
+   let vetorteste3 = new THREE.Vector3(-33.6,4.5,i);
+area1.criaPilar(vetorteste3);
+}
+for(let i =49.6;i>=0;i=i-5.6)// parede escada esquerda
+{
+   let vetorteste3 = new THREE.Vector3(33.6,4.5,i);
+area1.criaPilar(vetorteste3);
+}
+for(let i =-49.6;i<=0;i=i+5.6)// parede escada direita
+{
+   let vetorteste3 = new THREE.Vector3(33.6,4.5,i);
+area1.criaPilar(vetorteste3);
+}
+
+
+
+let vetorchave = new THREE.Vector3(0,4.5,0);
+area1.criarChave(vetorchave,1);
+
+//Fim Area 1
+
 var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2_area2,cubeGeo3],[materialCubo1,materialCubo2]);
 var area3 = {
    cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
