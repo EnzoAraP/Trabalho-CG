@@ -93,7 +93,7 @@ class Area2 {
 
         this.blocosExtras = [];
         this.boundingBlocosExtras = [];
-        const dimensoes = [
+        this.dimensoes = [
         { w: 1.6,  d: 1.6,   h: 3.2  },  // bloco 0
         { w: 1.2,  d: 2.4,   h: 4.0  },  // bloco 1
         { w: 2.0,  d: 1.2,   h: 5.6  },  // bloco 2
@@ -104,11 +104,11 @@ class Area2 {
         { w: 1.6,  d: 1.95,  h: 2.4  },  // bloco 7
         { w: 2.0,  d: 1.8,   h: 6.0  },  // bloco 8
         { w: 1.8,  d: 1.8,   h: 3.2  },  // bloco 9
-        { w: 2.0,  d: 2.0,   h: 0.8  }   // bloco 10 (central, mais baixo)
+        { w: 2.0,  d: 2.0,   h: 2.8  }   // bloco 10 (central, mais baixo)
         ];
         posicoes.forEach((pos, i) => {
         // defina tamanhos variados:
-        const dim = dimensoes[i];
+        const dim = this.dimensoes[i];
 
         const geo   = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
         const mesh  = new THREE.Mesh(geo, material_blocos);
@@ -126,6 +126,7 @@ class Area2 {
         this.num_passos_elevacao=240;
         this.indice_bloco_chave=10;
         this.elevar_bloco=false;
+        this.bloco_elevado=false;
         
         this.limite_elevacao=1.6;
         this.num_blocos_extras=11;
@@ -203,9 +204,10 @@ class Area2 {
             //console.log(bloco_chave.position.y);
             //console.log(this.num_passos_exec);
         }
-        if(this.num_passos_exec>=this.num_passos_elevacao)
+        if(this.num_passos_exec>=this.num_passos_elevacao){
+            this.bloco_elevado=true;
             this.elevar_bloco=false;
-        
+        }
         
         
     }

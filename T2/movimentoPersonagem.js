@@ -26,6 +26,10 @@ class Personagem{
     this.voo=false;
     this.obj=objeto;
     
+    this.chegada_area1=false;
+    
+    this.chegada_area2=false;
+
     this.camera=camera;
 
     this.box=boxPersonagem;
@@ -36,6 +40,8 @@ class Personagem{
     this.speed=speedPadrao;
 
     this.naPlataforma=false;
+
+    this.saiu_plataforma=false;
 
     this.possui_chave1 = true; 
 
@@ -154,8 +160,7 @@ class Personagem{
                   
                }
                if(areas[1].num_passos_exec==0){
-                  areas[1].mudar_limite_elevacao(2);
-                  areas[1].elevar_bloco=true;
+                  areas[1].mudar_limite_elevacao(5);
                }
             }
             
@@ -300,7 +305,11 @@ class Personagem{
             && objeto.position.z <= pos_plataforma_a2.z+0.75 && objeto.position.z >= pos_plataforma_a2.z-0.75 
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          ) ;
-      
+         if(!this.saiu_plataforma && !this.naPlataforma)
+            this.saiu_plataforma=objeto.position.x > pos_plataforma_a2.x || objeto.position.x < pos_plataforma_a2.x
+            || objeto.position.z < pos_plataforma_a2.z || objeto.position.z > pos_plataforma_a2.z; 
+
+        
 
          if(this.naPlataforma && this.area==-1)
             this.area=1;  
@@ -310,7 +319,7 @@ class Personagem{
             && objeto.position.z <= pos_plataforma_a2.z+(3+this.larg) && objeto.position.z >= pos_plataforma_a2.z-(3+this.larg) );
            // console.log(areas[1].plataforma.em_movimento);
          }   
-         else if(!areas[1].plataforma.em_movimento && !areas[1].plataforma.emEspera && this.naPlataforma){
+         else if(!areas[1].plataforma.em_movimento && !areas[1].plataforma.emEspera && this.naPlataforma &&(areas[1].plataforma.subir || this.saiu_plataforma)){
             areas[1].plataforma.emEspera=true;
          }
 
@@ -326,10 +335,14 @@ class Personagem{
                areas[1].plataforma.em_movimento=true;
                areas[1].plataforma.tempo_espera=0;
                areas[1].plataforma.emEspera=false;
+               this.saiu_plataforma=false;
             } 
             }
               
          }
+
+         if(!this.chegada_area2 && this.area==1 && this.saiu_plataforma && this.obj.position.y>=5.99)
+            this.chegada_area2=true;
          
          
          
@@ -364,9 +377,7 @@ class Personagem{
       //console.log("Plat");
    }
 
-   if(areas[1].elevar_bloco)
-      areas[1].fazer_elevar_bloco();
-  // console.log(this.obj.position.y);
+ 
 }
 }
 

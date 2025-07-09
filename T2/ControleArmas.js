@@ -93,24 +93,27 @@ class LancaMisseis{
     }
 
       controle_acerto_inimigos(boxBala,areaBala,scene){
-         if(this.ehJogador)
-            console.log("AAAA");
+         if(this.ehJogador){
+            //console.log("AAAA");
+            }
+         //console.log(this.inimigos);
          for(var i=0;i<this.numInimigos;i++){
             let atual=this.inimigos[i];
+            
             if(atual.grandeArea == areaBala && atual.box.intersectsBox(boxBala)){
                if(this.inimigos[i].levaDano){
-                  
+                  console.log("INTS");
                   this.inimigos[i].sofrerAtaque(this.danoInfligido,scene);
                      if(this.inimigos[i].padeceu){
                         this.inimigos[i].obj.remove(this.inimigos[i].arma.cylinder);
-                        let arma_derrotado=this.inimigos[i].arma;
-                        scene.remove( this.inimigos[i].obj);
+                        let derrotado=this.inimigos[i];
+                        //scene.remove( this.inimigos[i].obj);
                         this.inimigos.splice(i, 1);
                         this.numInimigos--;
                         //console.log("Padece");
                         //console.log(this.inimigos);
                         //console.log(this.numInimigos);
-                        return [true,arma_derrotado];
+                        return [true,derrotado];
                      }
                }
                return [true,null];
@@ -152,12 +155,12 @@ class LancaMisseis{
                       let grande_area_e_fechadura= testeGrandesAreas(proj.mesh, proj.area_proj);
                       proj.area_proj = grande_area_e_fechadura[0];
                       let derr=null;
-                      let colidiu_arma_derr= this.controle_acerto_inimigos(boxBala,proj.area_proj,scene);
-                      colidiu=colidiu_arma_derr[0];
-                      console.log("colidiu?");
-                      console.log(colidiu);
-                      if(colidiu_arma_derr[1]!=null){
-                        derrotados.push(colidiu_arma_derr[1]);
+                      let colidiu_derr= this.controle_acerto_inimigos(boxBala,proj.area_proj,scene);
+                      colidiu=colidiu_derr[0];
+                     // console.log("colidiu?");
+                      //console.log(colidiu);
+                      if(colidiu_derr[1]!=null){
+                        derrotados.push(colidiu_derr[1]);
                       }
                       let redFech=grande_area_e_fechadura[1];
                       if (!colidiu && proj.area_proj != -1) {

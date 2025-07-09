@@ -12,30 +12,51 @@ import {initRenderer,
         initCamera,
       getMaxSize} from "../libs/util/util.js";
 
-function carregarArquivoGLB(caminho, nomeArq, visbilidadeInicial, escala,scene)
+function carregarArquivoGLB(assetManager, caminho, nomeArq, visbilidadeInicial,numero,scene, escala=1)
 {
    var loader = new GLTFLoader( );
    
    loader.load( caminho + nomeArq + '.glb', function ( gltf ) {
-      var obj = gltf.scene;
-      console.log(obj);
+      var obj = gltf.scene.clone(true);
+      //console.log(obj);
       obj.name = nomeArq;
       obj.visible = visbilidadeInicial;
       obj.traverse( function ( child ) {
-         if( child.isMesh ) child.castShadow = true;
+         if( child.isMesh ){ child.castShadow = true; child.receiveShadow=true;}
          if( child.material ) child.material.side = THREE.DoubleSide;         
       });
 
-      var obj = normalizeAndRescale(obj, escala);
-      var obj = fixPosition(obj);
+      obj = normalizeAndRescale(obj,1);
+      obj = fixPosition(obj);
 
       scene.add ( obj );
 
-      assetManager[nome] = obj;
-      console.log(nome);  
+      assetManager[nomeArq+numero] = obj;
+      console.log(nomeArq+numero);  
     });
 
 
+}
+
+// Normalize scale and multiple by the newScale
+function normalizeAndRescale(obj, newScale)
+{
+  var scale = getMaxSize(obj); 
+  obj.scale.set(newScale * (1.0/scale),
+                newScale * (1.0/scale),
+                newScale * (1.0/scale));
+  return obj;
+}
+
+function fixPosition(obj)
+{
+  // Fix position of the object over the ground plane
+  var box = new THREE.Box3().setFromObject( obj );
+  if(box.min.y > 0)
+    obj.translateY(-box.min.y);
+  else
+    obj.translateY(-1*box.min.y);
+  return obj;
 }
 
 export {carregarArquivoGLB}
