@@ -19,6 +19,7 @@ import { Personagem } from './movimentoPersonagem.js';
 import { Cacodemon } from './Inimigo02.js';
 import { carregarArquivoGLB } from './funcoesGeometriasExternas.js';
 import { AmbientLight } from '../build/three.module.js';
+import {lost_Soul} from './Inimigo01.js';
 
 
 let  light, camera, keyboard, material;
@@ -185,7 +186,19 @@ for(var i=0;i<3;i++){
    cacodemons.push(novo_cac);
 
 }
-
+let lost_soul_geometry = new THREE.SphereGeometry(0.5,8,8);
+let lost_soul_material = new THREE.MeshLambertMaterial({color:"rgb(236, 30, 154)"});
+var lost_souls = [];
+for(var i=0; i<5;i++)
+{
+   var obj_lost = new THREE.Mesh(lost_soul_geometry,lost_soul_material);
+   obj_lost.castShadow = true;
+   obj_lost.receiveShadow = true;
+   scene.add(obj_lost);
+   obj_lost.position.set(i,0.5,-i);
+   let novo_lost= new lost_Soul(obj_lost,camera,new THREE.Box3(),0.6,3,personagem);
+   lost_souls.push(novo_lost);
+}
 const lancaMisseis= new LancaMisseis(camera,cacodemons,true);
 
 const textoEsq = document.getElementById('instructions');
@@ -358,6 +371,10 @@ function render() {
          arma_cacodemons_derrotados[i].controle_projeteis(scene,areas,fronteira);
          if(arma_cacodemons_derrotados[i].vetProjetil.length==0)
             arma_cacodemons_derrotados.splice(i,1);
+      }
+      for(var i=0;i<lost_souls.length;i++)
+      {
+         lost_souls[i].movimento(areas,fronteira,groundPlane,delta,false,false,scene);
       }
          
    }

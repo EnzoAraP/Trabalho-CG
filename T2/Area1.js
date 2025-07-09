@@ -65,7 +65,7 @@ this.cube0.add(cilindro);
 }
  criarChave(posicao,cuboLado){
 let pi =Math.PI;
-let cor = new THREE.Color(0,0,0);
+let cor = new THREE.Color(25/255,25/255,25/255);
 let material= new THREE.MeshBasicMaterial({
   color: cor
 }); 
@@ -97,7 +97,7 @@ let secondCSG = firstCSG.subtract(cilindro2CSG);
 let lastCSG = secondCSG.subtract(cilindro3CSG);
  let chave = CSG.toMesh(lastCSG, new THREE.Matrix4());// chave 
  chave.material = new THREE.MeshPhongMaterial({
-  color: 'red'
+  color: cor
  }) 
 
  chave.position.copy(posicao);
