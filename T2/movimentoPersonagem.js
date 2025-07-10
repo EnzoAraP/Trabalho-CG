@@ -23,7 +23,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class Personagem{
    
     constructor(objeto,camera,boxPersonagem,larg,speedPadrao){
-    this.voo=false;
+    this.voo=true;
     this.obj=objeto;
     
     this.chegada_area1=false;
@@ -350,7 +350,7 @@ class Personagem{
    //console.log(moveDir.y);
 
    if (reset == true) {
-      this.obj.position.set(3, 4, 8);
+      this.obj.position.set(-50, 8, -140);
       this.obj.rotation.set(0, 0, 0);
    }
    if (this.voo && moveUp == true) {
