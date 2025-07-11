@@ -277,6 +277,7 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
       "angulo_inclinacao": inclinacao, 
       "altura": altura_total,
       "comprimento": comp_total,
+      "largura": largura,
       "angulo_rotacao": rot // ângulo de rotação em radianos
    }];
 

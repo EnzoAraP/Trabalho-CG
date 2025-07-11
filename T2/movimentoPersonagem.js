@@ -22,7 +22,7 @@ var eixo_y = new THREE.Vector3(0, 1, 0);
 var eixo_z = new THREE.Vector3(0, 0, 1);
 class Personagem{
    
-    constructor(objeto,camera,boxPersonagem,larg,speedPadrao){
+    constructor(objeto,camera,boxPersonagem,larg,speedPadrao,lanca_misseis,metralhadora){
     this.voo=false;
     this.obj=objeto;
     
@@ -41,6 +41,8 @@ class Personagem{
 
     this.naPlataforma=false;
 
+    this.regiaoEscada=false;
+
     this.saiu_plataforma=false;
 
     this.possui_chave1 = true; 
@@ -57,6 +59,18 @@ class Personagem{
 
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);    
 
+
+    this.num_arma_atual=1;
+
+    this.lanca_misseis=lanca_misseis;
+
+    this.metralhadora=metralhadora;
+
+    this.lanca_misseis.obj.visible=true;
+
+    this.metralhadora.obj.visible=false;
+
+    this.arma_atual=this.lanca_misseis;
        
 
     this.eixo_x = new THREE.Vector3(1, 0, 0);
@@ -64,9 +78,40 @@ class Personagem{
     this.eixo_z = new THREE.Vector3(0, 0, 1);
     }
 
- movimento(areas,fronteira,groundPlane,delta,moveForward,moveBackward,moveRight,moveLeft,moveUp,reset) {
+    mudar_arma(num_arma=0){
+      if(num_arma==0)
+      {
+         console.log("ABC");
+         if(this.num_arma_atual==1)
+            num_arma=2;
+         else
+            num_arma=1;
+      }
+      if(num_arma==1){
+         if(this.num_arma_atual!=1)
+         {
+            this.lanca_misseis.obj.visible=true;
+            this.metralhadora.obj.visible=false;
+            this.num_arma_atual=1;
+            this.arma_atual=this.lanca_misseis;
+         }
+      }
+      else if(num_arma==2){
+         if(this.num_arma_atual!=2)
+         {
+            this.lanca_misseis.obj.visible=false;
+            this.metralhadora.obj.visible=true;
+            this.num_arma_atual=2;
+            this.arma_atual=this.metralhadora;
+         }
+      }
+    }
+
+ movimento(areas,fronteira,groundPlane,delta,moveForward,moveBackward,moveRight,moveLeft,moveUp,reset,moveDown=false) {
 
    this.raycaster.ray.origin.copy(this.obj.position);
+
+   
 
    const frontal = new THREE.Vector3(); // Vetor direção da câmera
    this.obj.getWorldDirection(frontal);
@@ -78,11 +123,14 @@ class Personagem{
    direito.crossVectors(frontal, this.eixo_y).normalize();
 
 
+
    const moveDir = new THREE.Vector3(); // Vetor para armazenar movimento
    if (moveForward) moveDir.add(frontal);
    if (moveBackward) moveDir.sub(frontal);
    if (moveRight) moveDir.add(direito);
    if (moveLeft) moveDir.sub(direito);
+   //if(moveDown) moveDir.y=-1;
+   //if(moveUp) moveDir.y=1;
    this.box = new THREE.Box3().setFromCenterAndSize(
                new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.0, this.obj.position.z),
                new THREE.Vector3(this.larg, 2.0, this.larg) // largura, altura, profundidade desejadas
@@ -130,6 +178,7 @@ class Personagem{
                let colisaoComFechadura=speedColisao[1];
                if(colisaoComFechadura && !areas[1].porta.aberta && !areas[1].porta.abrindo && this.possui_chave1){
                   areas[1].porta.abrindo=true;
+                  
                }
             }
             else{
@@ -160,13 +209,32 @@ class Personagem{
                   
                }
                if(areas[1].num_passos_exec==0){
-                  areas[1].mudar_limite_elevacao(5);
+                  areas[1].mudar_limite_elevacao(3);
                }
             }
             
 
          }   
          else{
+            let pos_escada= new THREE.Vector3(0,0,0);
+            pos_escada.copy(areas[this.grandeArea - 1].degraus[0].degraus[0].position);
+            let aumento_nec_para_centralizar=(areas[this.grandeArea - 1].degraus[0].comprimento_degrau - areas[this.grandeArea - 1].degraus[1].comprimento/2);
+            if(this.grandeArea==1 || this.grandeArea==3)
+               aumento_nec_para_centralizar=-aumento_nec_para_centralizar; 
+
+            pos_escada.x-=aumento_nec_para_centralizar;
+            let largura_esc=areas[this.grandeArea-1].degraus[1].largura/2;
+            
+            let comp_esc=areas[this.grandeArea-1].degraus[1].comprimento/2;
+            let objeto=this.obj;
+            this.regiaoEscada = (objeto.position.x <= pos_escada.x+comp_esc && objeto.position.x >= pos_escada.x-(comp_esc)
+            && objeto.position.z <= pos_escada.z+(largura_esc-this.larg/2) && objeto.position.z >= pos_escada.z-(largura_esc-this.larg/2) 
+            //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+         ) ;
+            console.log(objeto.position);
+            console.log(this.regiaoEscada);
+            
+            console.log(pos_escada);
             let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.0001; // Teste da rampa
 
 
@@ -267,8 +335,11 @@ class Personagem{
       isIntersectingGround = this.raycaster.intersectObject(groundPlane).length > 0.0001;
 
    }
+   let condicaoEspecialBordas=(this.area==-1 || this.naPlataforma || this.regiaoEscada);
+   
+
    //console.log(intersectaPlataforma);
-   if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma) {
+   if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma && condicaoEspecialBordas) {
       console.log("queda");
       
       this.obj.position.y -= 5 * delta;
@@ -277,17 +348,17 @@ class Personagem{
          //console.log(area);
          if (this.area != -1) {
             this.box = new THREE.Box3().setFromCenterAndSize(
-               new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.0, this.obj.position.z),
-               new THREE.Vector3(this.larg, 2.0, this.larg) // largura, altura, profundidade desejadas
+               new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.05, this.obj.position.z),
+               new THREE.Vector3(this.larg, 2.1, this.larg) // largura, altura, profundidade desejadas
             );
             if(this.grandeArea!=2)
                isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
             else
                intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length>0.0001;
             isIntersectingGround = false;
-            if(isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2);
+            isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
             if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma){
-               //this.obj.position.y += 5 * delta;
+               this.obj.position.y += 5 * delta;
                console.log("volta");
             }
          }
@@ -301,13 +372,13 @@ class Personagem{
       let objeto=this.obj;
          let pos_plataforma_a2=new THREE.Vector3(areas[1].plataforma.mesh.position.x,areas[1].plataforma.mesh.position.y,areas[1].plataforma.mesh.position.z);
          pos_plataforma_a2.addVectors(pos_plataforma_a2,areas[1].posicao_ini);
-         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x+0.75 && objeto.position.x >= pos_plataforma_a2.x-0.75
-            && objeto.position.z <= pos_plataforma_a2.z+0.75 && objeto.position.z >= pos_plataforma_a2.z-0.75 
+         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x+(1-this.larg/2) && objeto.position.x >= pos_plataforma_a2.x-(1-this.larg/2)
+            && objeto.position.z <= pos_plataforma_a2.z+(1-this.larg/2) && objeto.position.z >= pos_plataforma_a2.z-(1-this.larg/2) 
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          ) ;
          if(!this.saiu_plataforma && !this.naPlataforma)
-            this.saiu_plataforma=objeto.position.x > pos_plataforma_a2.x || objeto.position.x < pos_plataforma_a2.x
-            || objeto.position.z < pos_plataforma_a2.z || objeto.position.z > pos_plataforma_a2.z; 
+            this.saiu_plataforma=objeto.position.x > (pos_plataforma_a2.x+1) || objeto.position.x < (pos_plataforma_a2.x-1)
+            || objeto.position.z > (pos_plataforma_a2.z+1) || objeto.position.z < (pos_plataforma_a2.z-1); 
 
         
 

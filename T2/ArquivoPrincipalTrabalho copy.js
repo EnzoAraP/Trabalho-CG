@@ -28,7 +28,7 @@ var renderer = new THREE.WebGLRenderer();
 //renderer.useLegacyLights = true;
 renderer.shadowMap.enabled = true;
 
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.VSMShadowMap;
 
 renderer.setClearColor(new THREE.Color(color));
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -47,7 +47,7 @@ let camLook = new THREE.Vector3(0, 1.8, -1);
 const voo = true; // Variável que indica se o voo está habilitado ou não.
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-dirLight.position.set(300, 500, 300);
+dirLight.position.set(450, 500, 420);
 dirLight.castShadow = true;
 
 
@@ -55,18 +55,18 @@ dirLight.castShadow = true;
 dirLight.castShadow = true;
 dirLight.intensity = 1;
 // Shadow Parameters
-dirLight.shadow.mapSize.width = 8192;
-dirLight.shadow.mapSize.height = 8192;
-dirLight.shadow.camera.near = 100;
+dirLight.shadow.mapSize.width = 4096;
+dirLight.shadow.mapSize.height = 4096;
+dirLight.shadow.camera.near = 200;
 dirLight.shadow.camera.far = 1000;
 dirLight.shadow.camera.left = -280;
 dirLight.shadow.camera.right = 280;
 dirLight.shadow.camera.bottom = -280;
 dirLight.shadow.camera.top = 280;
-dirLight.shadow.bias = -0.0001;
+dirLight.shadow.bias = -0.0005;
 
 // No effect on Basic and PCFSoft
-dirLight.shadow.radius = 1.5;
+dirLight.shadow.radius = 2.5;
 
 scene.add(dirLight);
 // (opcional) Ajuda para visualizar o volume de sombra
@@ -75,10 +75,10 @@ scene.add(helper);
 
 dirLight.target.position.set(0, 0, 0);
 scene.add(dirLight.target);
-const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
 fillLight.position.set(-350, 430, -350);
 fillLight.castShadow = false;
-fillLight.intensity = 0.4;
+fillLight.intensity = 0.5;
 
 
 // No effect on Basic and PCFSoft
@@ -156,11 +156,7 @@ const speedPadrao = 16; // Valor padrão de velocidade do player
 let speed = speedPadrao; // Valor que armazena velocidade atual do player
 
 
-var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 
-var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
-
-var personagem = new Personagem(obj, camera, boxPersonagem, larg, speedPadrao);
 
 let assetManager = {
    // Properties ---------------------------------
@@ -232,7 +228,7 @@ function carregar_cac() {
 
       obj_cacodemon.position.set(i, 0.3, -i);
       let arma_cac = new LancaMisseis(obj_cacodemon, [personagem], false);
-      let novo_cac = new Cacodemon(obj_cacodemon, camera, new THREE.Box3(), 0.6, 3, arma_cac, personagem);
+      let novo_cac = new Cacodemon(obj_cacodemon, camera, new THREE.Box3(), 0.6, 5, arma_cac, personagem);
       novo_cac.barraFrente = barraVida;
       novo_cac.barraFundo = barraFundo;
       novo_cac.grupoBarras = group;
@@ -243,7 +239,18 @@ function carregar_cac() {
    }
    lancaMisseis.numInimigos = 3;
 }
-const lancaMisseis = new LancaMisseis(camera, cacodemons, true);
+var lancaMisseis = new LancaMisseis(camera, cacodemons, true);
+
+var lancaMissesTeste = new LancaMisseis(camera, cacodemons,true,20,1,"rgb(0,59,200)","rgb(205,83,13)");
+
+var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
+
+var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
+
+
+
+var personagem = new Personagem(obj, camera, boxPersonagem, larg, speedPadrao,lancaMisseis,lancaMissesTeste);
+
 
 const textoEsq = document.getElementById('instructions');
 const blocker = document.getElementById('blocker');
@@ -271,8 +278,9 @@ let moveLeft = false;
 let moveRight = false;
 let reset = false;
 let moveUp = false;
-
-
+let moveDown= false;
+let tecla_arma1=false;
+let tecla_arma2=false;
 
 
 window.addEventListener('keydown', (event) => MovimentoVerificador(event.keyCode, true));
@@ -309,6 +317,16 @@ function MovimentoVerificador(key, value) {
       case 81:
          moveUp = value;
          break;
+      case 80:
+         moveDown = value;
+         break; 
+      case 49:
+         tecla_arma1=value;
+      break; 
+      case 50:
+         tecla_arma2=value;
+      break;       
+
    }
 }
 
@@ -382,6 +400,12 @@ let verdade = false;
 
 const clock = new THREE.Clock();
 
+let mudar_arma=false;
+
+renderer.domElement.addEventListener("wheel", (event) => {
+    mudar_arma=true;
+});
+
 window.addEventListener('mousedown', (event) => {
    if (event.button === 0 || event.button === 2)
       verdade = true;
@@ -395,16 +419,24 @@ function render() {
    assetManager.checkLoaded();
    if (!carregou_vetor_cac && assetManager.allLoaded) {
       carregar_cac();
+      areas[1].posiciona_inimigos(cacodemons);
       carregou_vetor_cac = true;
    }
 
    // fps.update(0.016);
 
    if (controle.isLocked) {
+      if(mudar_arma)
+         personagem.mudar_arma();
+      if(tecla_arma1)
+         personagem.mudar_arma(1);
+      else if(tecla_arma2)
+         personagem.mudar_arma(2);
+      mudar_arma=false;
       let delta = clock.getDelta();
       delta = Math.min(delta, 0.05);
-      personagem.movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset);
-      lancaMisseis.atirar(scene, camera, verdade);
+      personagem.movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset,moveDown);
+      personagem.arma_atual.atirar(scene, camera, verdade);
       stats.update();
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
       if(personagem.chegada_area2){
@@ -435,12 +467,25 @@ function render() {
                cacodemons_derrotados.splice(i, 1);
          }
          if(cacodemons.length==0){
-               if(!areas[1].bloco_elevado && !areas[1].elevar_bloco)
+               if(areas[1].chave2==null)
+               {
+                  let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5),new THREE.MeshBasicMaterial({color: "rgb(231, 19, 19)"}));
+                   areas[1].posicionar_chave2(chave);
+               }
+               if(!areas[1].bloco_elevado && !areas[1].elevar_bloco && personagem.area==1 && personagem.obj.position.y>=5.98 && personagem.saiu_plataforma){
                   areas[1].elevar_bloco=true;
+                  
+               }
               if(areas[1].elevar_bloco)
                   areas[1].fazer_elevar_bloco();
+               areas[1].tentar_retirar_chave2(personagem,scene);
             // console.log(this.obj.position.y);
          }
+      }
+
+      if(areas[1].porta.abrindo && areas[1].chave1==null){
+         let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5),new THREE.MeshBasicMaterial({color: "rgb(95,40,180)"}));
+         areas[1].posicionar_chave1(chave);
       }
 
    }

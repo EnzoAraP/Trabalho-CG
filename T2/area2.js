@@ -75,38 +75,51 @@ class Area2 {
         const material_blocos = new THREE.MeshLambertMaterial({ color:"rgb(255, 215, 0)"});
 
 // posições fixas (offsets em relação ao centro da área)
-        const posicoes= [
+        this.posicoes= [
         // cinco entre meio e periferia (distância = 0.5 * ex/ez)
-        { x: 0.5 * this.ex, z: 0.62 * this.ez },
-        { x:  0.82 * this.ex, z:    -0.7 * this.ez },
-        { x:  -0.2 * this.ex, z:  -0.34 * this.ez },
-        { x: -  0.63 * this.ex, z:   0.18 * this.ez },
-        { x:  0.5 * this.ex, z: 0.08       }, // meio-lateral
-        { x:  0.15 * this.ex,  z:  0.85 * this.ez }, // canto superior levemente deslocado
-        { x: -0.85 * this.ex,  z: -0.20 * this.ez }, // canto inferior esquerdo
-        { x:  0.20 * this.ex,  z: -0.75 * this.ez }, // canto inferior direito
-        { x: -0.75 * this.ex,  z:  0.50 * this.ez }, // lateral esquerda média
-        { x:  0.35 * this.ex,  z: -0.10 * this.ez }, // perto do centro, mas deslocado
+        { x: 0.1 * this.ex, y:2, z: 0.5 * this.ez },
+        { x:  0.2 * this.ex, y:2.7, z:    0.3 * this.ez },
+        { x:  0.4 * this.ex, y:2, z:  0.7 * this.ez },
+        { x:   0.83 * this.ex, y:2, z:   0.12 * this.ez },
+        { x:  -0.3 * this.ex,   y:2, z: 0.6 * this.ez       }, // meio-lateral
+        { x:  -0.52 * this.ex, y:3.2,  z:  0.85 * this.ez }, // canto superior levemente deslocado
+        { x: -0.85 * this.ex, y:2, z: 0.21 * this.ez }, // canto inferior esquerdo
+        { x:  -0.11 * this.ex, y:2, z: 0.48 * this.ez }, // canto inferior direito
+        { x: -0.75 * this.ex, y:4, z:  -0.09 * this.ez }, // lateral esquerda média
+        { x:  -0.39 * this.ex, y:2, z: -0.19 * this.ez }, // perto do centro, mas deslocado
         // bloco central (revelador), será o índice 10
-        { x: 0,           z: 0       }
+        { x: 0,      y:2,     z: 0       },
+        { x: -0.92 * this.ex, y:2,  z: -0.22 * this.ez },
+        { x:  -0.17 * this.ex, y:2, z:    -0.78 * this.ez },
+        { x:  0.29 * this.ex, y:2, z:  -0.84 * this.ez },
+        { x:   0.03 * this.ex, y:2.9, z:   -0.38 * this.ez },
+        { x:  0.47 * this.ex, y:4.1, z: -0.88  * this.ez     }, // meio-lateral
+        { x:  0.9 * this.ex, y:4.1, z: -0.48  * this.ez     }, // meio-lateral
         ];
 
         this.blocosExtras = [];
         this.boundingBlocosExtras = [];
         this.dimensoes = [
-        { w: 1.6,  d: 1.6,   h: 3.2  },  // bloco 0
-        { w: 1.2,  d: 2.4,   h: 4.0  },  // bloco 1
-        { w: 2.0,  d: 1.2,   h: 5.6  },  // bloco 2
-        { w: 2.4,  d: 1.8,   h: 3.4  },  // bloco 3
-        { w: 1.6,  d: 2.0,   h: 2.6  },  // bloco 4
-        { w: 2.0,  d: 2.0,   h: 5.0  },  // bloco 5
-        { w: 1.2,  d: 1.6,   h: 6.6  },  // bloco 6
-        { w: 1.6,  d: 1.95,  h: 2.4  },  // bloco 7
-        { w: 2.0,  d: 1.8,   h: 6.0  },  // bloco 8
-        { w: 1.8,  d: 1.8,   h: 3.2  },  // bloco 9
-        { w: 2.0,  d: 2.0,   h: 2.8  }   // bloco 10 (central, mais baixo)
+        { w: 2.6,  d: 1.6+2,   h: 4.2+2  },  // bloco 0
+        { w: 2.2,  d: 2.4+2,   h: 4.0+2  },  // bloco 1
+        { w: 3.0,  d: 1.2+2,   h: 4.6+2  },  // bloco 2
+        { w: 3.4,  d: 1.8+2,   h: 3.4+2  },  // bloco 3
+        { w: 2.6,  d: 2.0+2,   h: 3.6+2  },  // bloco 4
+        { w: 3.0,  d: 2.0+2,   h: 5.0+2  },  // bloco 5
+        { w: 2.2,  d: 1.6+2,   h: 6.6+2  },  // bloco 6
+        { w: 2.6,  d: 1.9+2,  h: 5.4+2  },  // bloco 7
+        { w: 3.0,  d: 1.8+2,   h: 6.0+2  },  // bloco 8
+        { w: 2.8,  d: 1.8+2,   h: 6.2+2  },  // bloco 9
+        { w: 3.0,  d: 2.0+2,   h: 3.8+2  },   // bloco 10 (central, mais baixo)
+        { w: 2.6,  d: 1.6+2,   h: 4.2+2  },  // bloco 0
+        { w: 2.2,  d: 2.4+2,   h: 4.0+2  },  // bloco 1
+        { w: 3.0,  d: 1.2+2,   h: 5.6+2  },  // bloco 2
+        { w: 3.4,  d: 1.8+2,   h: 3.4+2  },  // bloco 3
+        { w: 3.6,  d: 2.0+2,   h: 5.6+2  },  // bloco 4
+        { w: 3.4,  d: 1.8+2,   h: 6.4+2  },  // bloco 3
+        { w: 2.6,  d: 2.0+2,   h: 7.6+2  },  // bloco 4
         ];
-        posicoes.forEach((pos, i) => {
+        this.posicoes.forEach((pos, i) => {
         // defina tamanhos variados:
         const dim = this.dimensoes[i];
 
@@ -116,7 +129,7 @@ class Area2 {
     mesh.receiveShadow=true;
         // posição XZ
         this.cube0.add(mesh);
-        mesh.position.set(pos.x, dim.h /2 + 2, pos.z);
+        mesh.position.set(pos.x, pos.y + dim.h /2 , pos.z);
 
         this.blocosExtras.push(mesh);
 
@@ -129,13 +142,21 @@ class Area2 {
         this.bloco_elevado=false;
         
         this.limite_elevacao=1.6;
-        this.num_blocos_extras=11;
+        this.num_blocos_extras=17;
 
         this.a=0;
         this.b=1.2;
-        this.c=0.4;
+        this.c=this.posicoes[10].y-2+this.dimensoes[10].h/2;
         this.num_passos_exec=0;
         this.qtd_movimento_plataforma=0;
+
+        this.chave2box=null;
+        this.chave2=null;
+
+        this.chave2Retirada=false;
+
+        this.chave1=null;
+        this.chave1Box=null;
 
 
     }
@@ -149,6 +170,44 @@ class Area2 {
             this.porta.box.setFromObject(this.porta.mesh);
             this.porta.abrindo=false;
             this.porta.aberta=true;
+        }
+
+    }
+    posicionar_chave1(chave){
+        this.fechadura.mesh.add(chave);
+        chave.translateY(0.5);
+        this.chave1Box = new THREE.Box3().setFromObject(chave);
+        const size = new THREE.Vector3();
+        this.chave1Box.getSize(size);
+
+        chave.translateY(size.y/2);
+        this.chave1=chave;
+        this.chave1Box.setFromObject(this.chave1);
+    }
+
+    posicionar_chave2(chave){
+        this.cube0.add(chave);
+        chave.translateY(2);
+        this.chave2Box = new THREE.Box3().setFromObject(chave);
+        const size = new THREE.Vector3();
+        this.chave2Box.getSize(size);
+
+        chave.translateY(size.y/2);
+
+        this.chave2=chave;
+        this.chave2Box.setFromObject(this.chave2);
+
+        
+    }
+
+    tentar_retirar_chave2(personagem,scene){{
+        if((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada)
+            console.log(this.chave2Box);
+            if(personagem.box.intersectsBox(this.chave2Box)){
+                this.cube0.remove(this.chave2);
+                scene.remove(this.chave2);
+                this.chave2Retirada=true;
+            }
         }
 
     }
@@ -184,7 +243,10 @@ class Area2 {
     mudar_limite_elevacao(limiteY){
         if(this.elevar_bloco)
             return;
-        this.limite_elevacao=limiteY-this.c;
+
+        //console.log(this.c);
+        this.limite_elevacao=limiteY+this.c;
+        //console.log(this.limite_elevacao);
         this.a=(-2*this.limite_elevacao+3*this.c)/2;
         this.b=this.limite_elevacao-this.a-this.c;
 
@@ -210,6 +272,19 @@ class Area2 {
         }
         
         
+    }
+
+    posiciona_inimigos(inimigos,indices=[1,5,12]){
+        for(var i=0;i<inimigos.length;i++)
+        {
+            let posicaoInimigo = new THREE.Vector3(0,0,0);
+
+            posicaoInimigo.addVectors(this.cube0.position,this.blocosExtras[indices[i]].position);
+
+            posicaoInimigo.y+=(this.dimensoes[indices[i]].h/2)+1.5;
+
+            inimigos[i].obj.position.copy(posicaoInimigo);
+        }    
     }
 }
 
