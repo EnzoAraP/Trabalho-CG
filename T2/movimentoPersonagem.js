@@ -198,6 +198,7 @@ class Personagem{
                }
                if (this.area == -1) {
                   this.area = this.grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
+                  console.log("Entrou na area " + this.area);
                }
                //console.log(moveDir.y);
             }
@@ -340,6 +341,7 @@ class Personagem{
             }
               
          }
+        
 
          if(!this.chegada_area2 && this.area==1 && this.saiu_plataforma && this.obj.position.y>=5.99)
             this.chegada_area2=true;
@@ -348,7 +350,9 @@ class Personagem{
          
    }
    //console.log(moveDir.y);
-
+   
+         if(!this.chegada_area1 && this.area==0 )
+            this.chegada_area1=true;
    if (reset == true) {
       this.obj.position.set(-50, 8, -140);
       this.obj.rotation.set(0, 0, 0);

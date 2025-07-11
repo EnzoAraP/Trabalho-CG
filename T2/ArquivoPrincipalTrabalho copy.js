@@ -17,6 +17,7 @@ import { areas, testeGrandesAreas, scene } from './criacaoAreas.js';
 import { LancaMisseis } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
 import { Cacodemon } from './Inimigo02.js';
+import { Lost_Soul } from './Inimigo01.js';
 import { carregarArquivoGLB } from './funcoesGeometriasExternas.js';
 import { AmbientLight } from '../build/three.module.js';
 
@@ -41,7 +42,7 @@ light = new AmbientLight(); // Use default light
 let camPos = new THREE.Vector3(0, 10, 0);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0, 1.8, -1);
-
+var Lost_soul_morreram = false;
 
 
 const voo = true; // Variável que indica se o voo está habilitado ou não.
@@ -184,6 +185,30 @@ let assetManager = {
          this.cacodemon[i].visilbility = false;
    }
 }
+let assetManagerLost = {
+   // Properties ---------------------------------
+   lost_Soul1: null,
+   lost_Soul2: null,
+   lost_Soul3: null,
+   lost_Soul4: null,
+   lost_Soul5: null,
+   num: 0,
+   num_total: 1,
+   allLoaded: false,
+
+   // Functions ----------------------------------
+   checkLoaded: function () {
+      if (!this.allLoaded) {
+        // this.allLoaded = (this.lost_Soul1 != null) && (this.lost_Soul2 != null) && (this.lost_Soul3 != null) && (this.lost_Soul4 != null) && (this.lost_Soul5 != null);
+         this.allLoaded = true;  
+      }
+   },
+
+   hideAll: function () {
+      for (var i = 0; i < this.num; i++)
+         this.lost_Soul[i].visilbility = false;
+   }
+}
 
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1);
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1);
@@ -193,7 +218,12 @@ let cacodemon_geometry = new THREE.BoxGeometry(0.6, 1.2, 0.6);
 
 let cacodemon_material = new THREE.MeshLambertMaterial({ color: "rgb(55, 9, 180)" });
 
+let lost_soul_geometry = new THREE.BoxGeometry(0.6, 1.2, 0.6);
+
+let lost_soul_material = new THREE.MeshLambertMaterial({ color: "rgba(180, 9, 120, 1)" });
+
 var cacodemons = [];
+
 var carregou_vetor_cac = false;
 var cacodemons_derrotados = [];
 var cac_acordados=false;
@@ -244,6 +274,60 @@ function carregar_cac() {
    lancaMisseis.numInimigos = 3;
 }
 const lancaMisseis = new LancaMisseis(camera, cacodemons, true);
+//lostSoul
+var lost_soulvet = [];
+var carregou_vetor_lost = false;
+var lost_soul_derrotados = [];
+var lost_soul_acordados=false;
+function carregar_lost_Soul() {
+   for (var i = 0; i < 5; i++) {
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true   
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'lost_soul';
+      const GemotryTemp = new THREE.SphereGeometry(2,7,7);
+      const MaterialTemp = new THREE.MeshLambertMaterial({color: 'red'});
+      
+      let LostTemp = new THREE.Mesh(GemotryTemp,MaterialTemp);
+
+      var obj_lost_soul = LostTemp;
+      obj_lost_soul.castShadow = true;
+      obj_lost_soul.receiveShadow = true;
+
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+      obj_lost_soul.position.set(i, 0.3, -i);
+      let novo_lost_soul = new Lost_Soul(obj_lost_soul, camera, new THREE.Box3(), 0.6, 3, personagem);
+      novo_lost_soul.barraFrente = barraVida;
+      novo_lost_soul.barraFundo = barraFundo;
+      novo_lost_soul.grupoBarras = group;
+      novo_lost_soul.tamBarraVida = larguraBarra;
+      lost_soulvet.push(novo_lost_soul);
+
+
+   }
+}
 
 const textoEsq = document.getElementById('instructions');
 const blocker = document.getElementById('blocker');
@@ -394,9 +478,17 @@ render();
 function render() {
    assetManager.checkLoaded();
    if (!carregou_vetor_cac && assetManager.allLoaded) {
+      console.log("CarregouCac");
       carregar_cac();
       carregou_vetor_cac = true;
    }
+   assetManagerLost.checkLoaded();
+   if(!carregou_vetor_lost && assetManagerLost.allLoaded){
+      console.log("CarregouLost");
+      carregar_lost_Soul();
+      carregou_vetor_lost = true;
+   }
+
 
    // fps.update(0.016);
 
@@ -435,12 +527,55 @@ function render() {
                cacodemons_derrotados.splice(i, 1);
          }
          if(cacodemons.length==0){
+            console.log("NAO SEI OQ FAZER");
                if(!areas[1].bloco_elevado && !areas[1].elevar_bloco)
                   areas[1].elevar_bloco=true;
               if(areas[1].elevar_bloco)
                   areas[1].fazer_elevar_bloco();
             // console.log(this.obj.position.y);
          }
+      }
+      if(personagem.chegada_area1){
+         console.log("Entrou Area1");
+         if(!lost_soul_acordados)
+         {
+            for(var i =0;i<lost_soulvet.length;i++){
+               lost_soulvet[i].acordar();
+            }
+         }
+
+         if (armasNovosDerrotados.length != 0)
+            lost_soul_derrotados = lost_soul_derrotados.concat(armasNovosDerrotados);
+         for (var i = 0; i < lost_soulvet.length; i++) {
+
+            lost_soulvet[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+         }
+         for (var i = 0; i < lost_soul_derrotados.length; i++) {
+            
+            lost_soul_derrotados[i].sumir();
+            if (lost_soul_derrotados[i].sumiu) {
+               console.log("AAA");
+               scene.remove(lost_soul_derrotados[i].obj);
+               scene.remove(lost_soul_derrotados[i].grupoBarras);
+            }
+            if ( cacodemons_derrotados[i].sumiu)
+               lost_soul_derrotados.splice(i, 1);
+         }
+         if(lost_soulvet.length==0  ){
+            console.log("MERDA");
+         
+           //    if(!areas[0].bloco_elevado && !areas[0].elevar_bloco)
+            //      areas[0].elevar_bloco=true;
+            //  if(areas[0].elevar_bloco)
+            //      areas[0].fazer_elevar_bloco();
+             if( !Lost_soul_morreram)
+               {
+               armasNovosDerrotados =[];
+               Lost_soul_morreram = true;
+               }
+            // console.log(this.obj.position.y);
+         }
+         
       }
 
    }

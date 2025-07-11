@@ -4,6 +4,8 @@ import GUI from '../libs/util/dat.gui.module.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import {TrackballControls} from '../build/jsm/controls/TrackballControls.js';
 import {GLTFLoader} from '../build/jsm/loaders/GLTFLoader.js';
+import {OBJLoader} from '../build/jsm/loaders/OBJLoader.js';
+import {MTLLoader} from '../build/jsm/loaders/MTLLoader.js';
 import {ConvexGeometry} from '../build/jsm/geometries/ConvexGeometry.js';
 import {initRenderer, 
         initDefaultBasicLight,
@@ -37,6 +39,7 @@ function carregarArquivoGLB(assetManager, caminho, nomeArq, visbilidadeInicial,n
 
 
 }
+
 
 // Normalize scale and multiple by the newScale
 function normalizeAndRescale(obj, newScale)
