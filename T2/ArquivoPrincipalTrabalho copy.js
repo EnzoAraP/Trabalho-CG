@@ -28,7 +28,10 @@ var renderer = new THREE.WebGLRenderer();
 //renderer.useLegacyLights = true;
 renderer.shadowMap.enabled = true;
 
-renderer.shadowMap.type = THREE.VSMShadowMap;
+let luz_atual=0;
+const op_luz=[[THREE.PCFSoftShadowMap,8192,-0.0001],[THREE.VSMShadowMap,2048,-0.0005]];
+
+renderer.shadowMap.type =  op_luz[luz_atual][0];
 
 renderer.setClearColor(new THREE.Color(color));
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -55,18 +58,22 @@ dirLight.castShadow = true;
 dirLight.castShadow = true;
 dirLight.intensity = 1;
 // Shadow Parameters
-dirLight.shadow.mapSize.width = 4096;
-dirLight.shadow.mapSize.height = 4096;
-dirLight.shadow.camera.near = 200;
+dirLight.shadow.mapSize.width = op_luz[luz_atual][1];
+dirLight.shadow.mapSize.height =  op_luz[luz_atual][1];
+dirLight.shadow.camera.near = 300;
 dirLight.shadow.camera.far = 1000;
-dirLight.shadow.camera.left = -280;
-dirLight.shadow.camera.right = 280;
-dirLight.shadow.camera.bottom = -280;
-dirLight.shadow.camera.top = 280;
-dirLight.shadow.bias = -0.0005;
+dirLight.shadow.camera.left = -150;
+dirLight.shadow.camera.right = 150;
+dirLight.shadow.camera.bottom = -150;
+dirLight.shadow.camera.top = 150;
+dirLight.shadow.bias =  op_luz[luz_atual][2];
 
 // No effect on Basic and PCFSoft
 dirLight.shadow.radius = 2.5;
+
+
+scene.add(dirLight.target);
+
 
 scene.add(dirLight);
 // (opcional) Ajuda para visualizar o volume de sombra
@@ -79,13 +86,37 @@ const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
 fillLight.position.set(-350, 430, -350);
 fillLight.castShadow = false;
 fillLight.intensity = 0.5;
-
+scene.add(fillLight.target);
 
 // No effect on Basic and PCFSoft
 
 
 scene.add(fillLight);
 
+function mudanca_luz(){
+   const posPer = personagem.obj.position;
+
+   const range = 150;
+
+   // Atualiza os limites (centrado no alvo da luz)
+   dirLight.shadow.camera.left = -range;
+   dirLight.shadow.camera.right = range;
+   dirLight.shadow.camera.top = range;
+   dirLight.shadow.camera.bottom = -range;
+
+   // Move a luz e o alvo
+   dirLight.position.set(posPer.x + 450, posPer.y + 500, posPer.z + 420);
+   dirLight.target.position.set(posPer.x, posPer.y, posPer.z);
+
+
+   fillLight.position.set(posPer.x - 450, posPer.y + 500, posPer.z - 420);
+    fillLight.target.position.set(posPer.x, posPer.y, posPer.z);
+   // Atualiza projeção da shadow camera
+   dirLight.shadow.camera.updateProjectionMatrix();
+
+   // Atualiza helper se estiver sendo usado
+   helper.update();
+}
 
 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.copy(camPos);
@@ -414,8 +445,25 @@ window.addEventListener('mousedown', (event) => {
 window.addEventListener('mouseup', (event) => {
    verdade = false;
 });
+
+let contadorMudancaLuz=0;
+
+let mudancaLuz=true;
+
 render();
+
+
 function render() {
+
+   if(mudancaLuz){
+      contadorMudancaLuz++;
+      if(contadorMudancaLuz==2){
+         mudanca_luz();
+         console.log("mudou");
+         contadorMudancaLuz=0;
+      }
+   }
+
    assetManager.checkLoaded();
    if (!carregou_vetor_cac && assetManager.allLoaded) {
       carregar_cac();

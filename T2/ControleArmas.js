@@ -87,6 +87,7 @@ class LancaMisseis {
       const tentativaDisparo = performance.now();
       if (tentativaDisparo - this.tempoUltimoTiro < 50) 
          return;
+      this.numInimigos=this.inimigos.length;
       this.tempoUltimoTiro=tentativaDisparo;
       const origem = new THREE.Vector3();
       camera.getWorldPosition(origem);
@@ -321,6 +322,7 @@ class LancaMisseis {
       if (this.ehJogador) {
          //console.log("AAAA");
       }
+      this.numInimigos=this.inimigos.length;
       //console.log(this.inimigos);
       for (var i = 0; i < this.numInimigos; i++) {
          let atual = this.inimigos[i];
