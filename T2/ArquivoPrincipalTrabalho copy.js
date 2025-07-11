@@ -14,7 +14,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 
 
 import { areas, testeGrandesAreas, scene } from './criacaoAreas.js';
-import { LancaMisseis } from './ControleArmas.js';
+import { LancaMisseis, Metralhadora } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
 import { Cacodemon } from './Inimigo02.js';
 import { carregarArquivoGLB } from './funcoesGeometriasExternas.js';
@@ -29,7 +29,7 @@ var renderer = new THREE.WebGLRenderer();
 renderer.shadowMap.enabled = true;
 
 let luz_atual=0;
-const op_luz=[[THREE.PCFSoftShadowMap,8192,-0.0001],[THREE.VSMShadowMap,2048,-0.0005]];
+const op_luz=[[THREE.PCFSoftShadowMap,4096,-0.0001],[THREE.VSMShadowMap,2048,-0.0005]];
 
 renderer.shadowMap.type =  op_luz[luz_atual][0];
 
@@ -40,6 +40,8 @@ renderer.shadowMap.enabled = true;
 document.getElementById("webgl-output").appendChild(renderer.domElement);
 
 light = new AmbientLight(); // Use default light 
+
+scene.add(light);
 
 let camPos = new THREE.Vector3(0, 10, 0);
 let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
@@ -85,7 +87,7 @@ scene.add(dirLight.target);
 const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
 fillLight.position.set(-350, 430, -350);
 fillLight.castShadow = false;
-fillLight.intensity = 0.5;
+fillLight.intensity = 0.2;
 scene.add(fillLight.target);
 
 // No effect on Basic and PCFSoft
@@ -124,7 +126,7 @@ camera.up.copy(camUp);
 camera.lookAt(camLook);
 
 scene.add(camera);
-console.log("AAAA");
+//console.log("AAAA");
 
 
 
@@ -272,7 +274,7 @@ function carregar_cac() {
 }
 var lancaMisseis = new LancaMisseis(camera, cacodemons, true);
 
-var lancaMissesTeste = new LancaMisseis(camera, cacodemons,true,20,1,"rgb(0,59,200)","rgb(205,83,13)");
+var metralhadora = new Metralhadora(camera,scene, cacodemons);
 
 var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 
@@ -280,7 +282,7 @@ var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
 
 
 
-var personagem = new Personagem(obj, camera, boxPersonagem, larg, speedPadrao,lancaMisseis,lancaMissesTeste);
+var personagem = new Personagem(obj, camera, boxPersonagem, larg, speedPadrao,lancaMisseis,metralhadora);
 
 
 const textoEsq = document.getElementById('instructions');
@@ -393,7 +395,7 @@ function estabeleceBoundingBoxes() {
                }
                else {
                   areas[i].boundingDegraus.push(new THREE.Box3().setFromObject(degraus[k]));
-                  //console.log(areas[i].boundingDegraus[k]);
+                  ////console.log(areas[i].boundingDegraus[k]);
                   const helper = new THREE.Box3Helper(areas[i].boundingDegraus[k], 0xffff00); // Amarelo
                   scene.add(helper);
                }
@@ -440,7 +442,7 @@ renderer.domElement.addEventListener("wheel", (event) => {
 window.addEventListener('mousedown', (event) => {
    if (event.button === 0 || event.button === 2)
       verdade = true;
-   //console.log(controle.pointerSpeed);
+   ////console.log(controle.pointerSpeed);
 });
 window.addEventListener('mouseup', (event) => {
    verdade = false;
@@ -459,7 +461,7 @@ function render() {
       contadorMudancaLuz++;
       if(contadorMudancaLuz==2){
          mudanca_luz();
-         console.log("mudou");
+         //console.log("mudou");
          contadorMudancaLuz=0;
       }
    }
@@ -488,7 +490,7 @@ function render() {
       if(personagem.num_arma_atual==1)
          personagem.arma_atual.atirar(scene, camera, verdade);
       else
-         derrotados2=personagem.arma_atual.atirar2(scene,areas,fronteira,camera,verdade);
+         derrotados2=personagem.arma_atual.atirar(scene,areas,fronteira,camera,verdade);
       stats.update();
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
       
@@ -514,7 +516,7 @@ function render() {
             cacodemons_derrotados[i].arma.controle_projeteis(scene, areas, fronteira);
             cacodemons_derrotados[i].sumir();
             if (cacodemons_derrotados[i].sumiu) {
-               console.log("AAA");
+               //console.log("AAA");
                scene.remove(cacodemons_derrotados[i].obj);
                scene.remove(cacodemons_derrotados[i].grupoBarras);
             }
@@ -534,7 +536,7 @@ function render() {
               if(areas[1].elevar_bloco)
                   areas[1].fazer_elevar_bloco();
                areas[1].tentar_retirar_chave2(personagem,scene);
-            // console.log(this.obj.position.y);
+            // //console.log(this.obj.position.y);
          }
       }
 
@@ -544,8 +546,8 @@ function render() {
       }
 
    }
-   //console.log(verdade);
-   //console.log(groundPlane);
+   ////console.log(verdade);
+   ////console.log(groundPlane);
 
    renderer.render(scene, camera) // Render scene
    requestAnimationFrame(render);

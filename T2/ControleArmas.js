@@ -1,3 +1,5 @@
+
+
 import * as THREE from 'three';
 import KeyboardState from '../libs/util/KeyboardState.js'
 import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
@@ -12,9 +14,364 @@ import {
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { testeGrandesAreas } from './criacaoAreas.js';
+import { SpriteMixer } from '../libs/sprites/SpriteMixer.js';
 
 
 const clock = new THREE.Clock();
+
+class Metralhadora {
+  constructor(donoDaArma, scene,inimigos) {
+
+   this.tempoUltimoTiro = 0;
+   this.inimigos = inimigos;
+   this.numInimigos = this.inimigos.length;
+   this.donoDaArma = donoDaArma;
+
+  
+   this.parou=true;
+   this.atirarAgora=false;
+
+    this.scene = scene;
+
+    this.framesX = 3;
+    this.framesY = 1;
+
+    this.currentFrame = 0;
+    this.totalFrames = this.framesX * this.framesY;
+
+    this.frameWidth = 1 / this.framesX;
+    this.frameHeight = 1 / this.framesY;
+
+    this.animando = false;
+    this.frameDuracaoMs = 100;
+    this.tempoUltimaAtualizacao = 0;
+
+    this.disparando = false;  
+    this.tempoUltimoTiro = 0; 
+    this.cooldownDisparo = 100; 
+
+    this.actionSprite = null;
+
+    new THREE.TextureLoader().load('./2025.1_T2_Assets/chaingun.png', (tex) => {
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+
+      tex.repeat.set(this.frameWidth, this.frameHeight);
+      tex.offset.set(0, 1 - this.frameHeight);
+
+      this.texture = tex;
+
+      let geometry = new THREE.PlaneGeometry(0.8, 0.8);
+      let material = new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.4 
+
+      });
+      this.actionSprite = new THREE.Mesh(geometry, material);
+      this.obj=this.actionSprite;
+      this.actionSprite.position.set(0.0, -1.0, -3.3);
+      this.actionSprite.scale.set(1, 1, 1);
+      this.actionSprite.material.depthTest = false;
+
+      donoDaArma.add(this.actionSprite);
+    });
+  }
+
+  setVisible(flag) {
+    if (this.actionSprite) this.actionSprite.visible = flag;
+  }
+
+  setFrame(frame) {
+    this.currentFrame = frame % this.totalFrames;
+    const x = (this.currentFrame % this.framesX) * this.frameWidth;
+    const y = 1 - this.frameHeight - Math.floor(this.currentFrame / this.framesX) * this.frameHeight;
+    if (this.texture) {
+      this.texture.offset.set(x, y);
+    }
+  }
+
+  iniciarDisparo() {
+    this.disparando = true;
+    this.animando = true;
+    //this.currentFrame = 1; //começa atirando no primeiro clique
+    this.tempoUltimaAtualizacao = performance.now();
+    this.setFrame(this.currentFrame);
+  }
+
+  pararDisparo() {
+    this.disparando = false;
+    this.animando = false;
+    this.currentFrame = 0;
+    this.setFrame(0);
+  }
+
+  atualizar() {
+    const now = performance.now();
+      this.atirarAgora=false;
+    if (this.disparando) {
+      if (now - this.tempoUltimoTiro >= this.cooldownDisparo) {
+        this.tempoUltimoTiro = now;
+        this.dispararAnimacao();
+        this.atirarAgora=true;
+      }
+    } 
+    else {
+      if (this.animando) {
+        this.animando = false;
+        this.currentFrame = 0;
+        this.setFrame(0);
+      }
+    }
+
+    if (this.animando) {
+      if (now - this.tempoUltimaAtualizacao > this.frameDuracaoMs) {
+        this.currentFrame++;
+        if (this.currentFrame >= this.framesX) {
+          this.currentFrame = 0; // loop da animação
+        }
+        this.setFrame(this.currentFrame);
+        this.tempoUltimaAtualizacao = now;
+      }
+    }
+  }
+
+  dispararAnimacao() {
+    if (!this.animando) {
+      this.animando = true;
+      this.currentFrame = 0;
+      this.tempoUltimaAtualizacao = performance.now();
+      this.setFrame(0);
+    }
+  }
+
+
+  atirar(scene,areas, fronteiras, camera, verdade) {
+   if(!verdade){
+      if(!this.parou){
+         this.parou=true;
+         this.pararDisparo();
+      }
+      return;
+      
+   }
+
+   if(this.parou){
+      this.iniciarDisparo();
+      this.atualizar();
+      this.parou=false;
+      return;
+
+   }
+   this.atualizar();
+   const tentativaDisparo = performance.now();
+   if (!this.atirarAgora) 
+      return;
+   console.log("AAt")
+   this.numInimigos=this.inimigos.length;
+   const origem = new THREE.Vector3();
+   camera.getWorldPosition(origem);
+   let distMax = 201;
+   const direcao = new THREE.Vector3();
+   camera.getWorldDirection(direcao).normalize();
+
+   let pontoIntersecao = new THREE.Vector3();
+
+   const raio = new THREE.Ray(origem, direcao);
+   let inimigoAtingido = null;
+
+
+   let posIniAtg=-1;
+   let cont=-1;
+   for (const inimigo of this.inimigos) {
+      cont++;
+      if (!inimigo.box) continue;
+
+      if (raio.intersectBox(inimigo.box, pontoIntersecao)) {
+         const distancia = origem.distanceTo(pontoIntersecao);
+         if (distancia < distMax) {
+            inimigoAtingido = inimigo;
+            distMax = distancia;
+            posIniAtg=cont;
+         }
+      }
+   }
+   let distMaxCubos = 251;
+   let bloqueou = false;
+   if (inimigoAtingido != null) {
+      let distancia=new THREE.Vector3(0,0,0);
+      for (var i = 0; i < 4; i++) {
+         if (origem.distanceTo(areas[i].cube0.position) > distMaxCubos)
+            continue;
+         let cubosBox = areas[i].boundingCubos;
+         let rampaBox = areas[i].boundingRampa;
+         for (var j = 0; j < 3; j++) {
+
+            if (raio.intersectBox(cubosBox[j], pontoIntersecao)) {
+               distancia = origem.distanceTo(pontoIntersecao);
+               if (distancia < distMax) {
+                  bloqueou = true;
+                  break;
+               }
+               else if (distancia < distMaxCubos) {
+                  distMaxCubos = distancia;
+
+               }
+
+            }
+            //console.log("C");
+
+         }
+         if (bloqueou)
+            break;
+         if (i != 1) {
+            let degrausBox = areas[i].boundingDegraus;
+            if (raio.intersectBox(rampaBox, pontoIntersecao)) {
+               distancia = origem.distanceTo(pontoIntersecao);
+               if (distancia < distMax) {
+
+                  ////console.log(degrausBox)
+                  for (var k = 0; k < 8; k++) {
+                     if (raio.intersectBox(degrausBox[k], pontoIntersecao)) {
+                        distancia = origem.distanceTo(pontoIntersecao);
+                        if (distancia < distMax) {
+                           bloqueou = true;
+                           break;
+                        }
+                        else if (distancia < distMaxCubos) {
+                           distMaxCubos = distancia;
+
+                        }
+                     }
+                  }
+               }
+            }
+            else {
+               if (raio.intersectBox(degrausBox[7], pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+            }
+         }
+         else {
+            if (raio.intersectBox(areas[1].fechadura.box, pontoIntersecao)) {
+               distancia = origem.distanceTo(pontoIntersecao);
+               if (distancia < distMax) {
+                  bloqueou = true;
+                  break;
+               }
+               else if (distancia < distMaxCubos) {
+                  distMaxCubos = distancia;
+
+               }
+            }
+
+            //console.log(areas[1].fechadura.box);
+            //console.log(colidiu);
+            if (areas[1].chave1 != null) {
+               if (raio.intersectBox(areas[1].chave1Box, pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+            }
+            if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && raio.intersectBox(areas[1].plataforma.box, pontoIntersecao)) {
+               distancia = origem.distanceTo(pontoIntersecao);
+               if (distancia < distMax) {
+                  bloqueou = true;
+                  break;
+               }
+               else if (distancia < distMaxCubos) {
+                  distMaxCubos = distancia;
+
+               }
+            }
+
+            if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && raio.intersectBox(areas[1].porta.box, pontoIntersecao)) {
+               distancia = origem.distanceTo(pontoIntersecao);
+               if (distancia < distMax) {
+                  bloqueou = true;
+                  break;
+               }
+               else if (distancia < distMaxCubos) {
+                  distMaxCubos = distancia;
+
+               }
+            }
+
+            for (var j = 0; j < areas[1].num_blocos_extras; j++) {
+
+               if (raio.intersectBox(areas[1].boundingBlocosExtras[j], pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+
+            }
+            if (bloqueou)
+               break;
+
+            if ((areas[1].elevar_bloco || areas[1].bloco_elevado) && !areas[1].chave2Retirada && raio.intersectBox(areas[1].chave2Box, pontoIntersecao)) {
+               distancia = origem.distanceTo(pontoIntersecao);
+               if (distancia < distMax) {
+                  bloqueou = true;
+                  break;
+               }
+               else if (distancia < distMaxCubos) {
+                  distMaxCubos = distancia;
+
+               }
+            }
+
+         }
+
+         if (bloqueou)
+            break;
+
+
+      }
+      if(!bloqueou){
+         inimigoAtingido.sofrerAtaque(1,scene);
+         
+            if (inimigoAtingido.padeceu) {
+               inimigoAtingido.obj.remove(inimigoAtingido.arma.cylinder);
+               let derrotado = inimigoAtingido;
+               //scene.remove( this.inimigos[i].obj);
+               this.inimigos.splice(posIniAtg, 1);
+               this.numInimigos--;
+               //console.log("Padece");
+               //console.log(this.inimigos);
+               //console.log(this.numInimigos);
+               return derrotado;
+            }
+
+       
+            
+      }
+   }
+   return null;
+}
+
+}
+
+
+
 class LancaMisseis {
    constructor(donoDaArma, inimigos, ehJogador, dano = 10, velocidadeProjetil = 1.4, corArma = "rgb(226, 17, 17)", corProjetil = "rgb(15, 187, 10)") {
       this.tempoUltimoTiro = 0;
@@ -72,225 +429,7 @@ class LancaMisseis {
 
 
 
-   atirar2(scene,areas, fronteiras, camera, verdade) {
-      if(!verdade){
-         this.parou=true;
-         return;
-         
-      }
-      if(this.parou){
-         this.parou=false;
-         this.tempoUltimoTiro=performance.now();
-         return;
-
-      }
-      const tentativaDisparo = performance.now();
-      if (tentativaDisparo - this.tempoUltimoTiro < 50) 
-         return;
-      this.numInimigos=this.inimigos.length;
-      this.tempoUltimoTiro=tentativaDisparo;
-      const origem = new THREE.Vector3();
-      camera.getWorldPosition(origem);
-      let distMax = 201;
-      const direcao = new THREE.Vector3();
-      camera.getWorldDirection(direcao).normalize();
-
-      let pontoIntersecao = new THREE.Vector3();
-
-      const raio = new THREE.Ray(origem, direcao);
-      let inimigoAtingido = null;
-
-
-      let posIniAtg=-1;
-      let cont=-1;
-      for (const inimigo of this.inimigos) {
-         cont++;
-         if (!inimigo.box) continue;
-
-         if (raio.intersectBox(inimigo.box, pontoIntersecao)) {
-            const distancia = origem.distanceTo(pontoIntersecao);
-            if (distancia < distMax) {
-               inimigoAtingido = inimigo;
-               distMax = distancia;
-               posIniAtg=cont;
-            }
-         }
-      }
-      let distMaxCubos = 251;
-      let bloqueou = false;
-      if (inimigoAtingido != null) {
-         let distancia=new THREE.Vector3(0,0,0);
-         for (var i = 0; i < 4; i++) {
-            if (origem.distanceTo(areas[i].cube0.position) > distMaxCubos)
-               continue;
-            let cubosBox = areas[i].boundingCubos;
-            let rampaBox = areas[i].boundingRampa;
-            for (var j = 0; j < 3; j++) {
-
-               if (raio.intersectBox(cubosBox[j], pontoIntersecao)) {
-                  distancia = origem.distanceTo(pontoIntersecao);
-                  if (distancia < distMax) {
-                     bloqueou = true;
-                     break;
-                  }
-                  else if (distancia < distMaxCubos) {
-                     distMaxCubos = distancia;
-
-                  }
-
-               }
-               //console.log("C");
-
-            }
-            if (bloqueou)
-               break;
-            if (i != 1) {
-               let degrausBox = areas[i].boundingDegraus;
-               if (raio.intersectBox(rampaBox, pontoIntersecao)) {
-                  distancia = origem.distanceTo(pontoIntersecao);
-                  if (distancia < distMax) {
-
-                     ////console.log(degrausBox)
-                     for (var k = 0; k < 8; k++) {
-                        if (raio.intersectBox(degrausBox[k], pontoIntersecao)) {
-                           distancia = origem.distanceTo(pontoIntersecao);
-                           if (distancia < distMax) {
-                              bloqueou = true;
-                              break;
-                           }
-                           else if (distancia < distMaxCubos) {
-                              distMaxCubos = distancia;
-
-                           }
-                        }
-                     }
-                  }
-               }
-               else {
-                  if (raio.intersectBox(degrausBox[7], pontoIntersecao)) {
-                     distancia = origem.distanceTo(pontoIntersecao);
-                     if (distancia < distMax) {
-                        bloqueou = true;
-
-                     }
-                     else if (distancia < distMaxCubos) {
-                        distMaxCubos = distancia;
-
-                     }
-                  }
-               }
-            }
-            else {
-               if (raio.intersectBox(areas[1].fechadura.box, pontoIntersecao)) {
-                  distancia = origem.distanceTo(pontoIntersecao);
-                  if (distancia < distMax) {
-                     bloqueou = true;
-                     break;
-                  }
-                  else if (distancia < distMaxCubos) {
-                     distMaxCubos = distancia;
-
-                  }
-               }
-
-               //console.log(areas[1].fechadura.box);
-               //console.log(colidiu);
-               if (areas[1].chave1 != null) {
-                  if (raio.intersectBox(areas[1].chave1Box, pontoIntersecao)) {
-                     distancia = origem.distanceTo(pontoIntersecao);
-                     if (distancia < distMax) {
-                        bloqueou = true;
-                        break;
-                     }
-                     else if (distancia < distMaxCubos) {
-                        distMaxCubos = distancia;
-
-                     }
-                  }
-               }
-               if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && raio.intersectBox(areas[1].plataforma.box, pontoIntersecao)) {
-                  distancia = origem.distanceTo(pontoIntersecao);
-                  if (distancia < distMax) {
-                     bloqueou = true;
-                     break;
-                  }
-                  else if (distancia < distMaxCubos) {
-                     distMaxCubos = distancia;
-
-                  }
-               }
-
-               if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && raio.intersectBox(areas[1].porta.box, pontoIntersecao)) {
-                  distancia = origem.distanceTo(pontoIntersecao);
-                  if (distancia < distMax) {
-                     bloqueou = true;
-                     break;
-                  }
-                  else if (distancia < distMaxCubos) {
-                     distMaxCubos = distancia;
-
-                  }
-               }
-
-               for (var j = 0; j < areas[1].num_blocos_extras; j++) {
-
-                  if (raio.intersectBox(areas[1].boundingBlocosExtras[j], pontoIntersecao)) {
-                     distancia = origem.distanceTo(pontoIntersecao);
-                     if (distancia < distMax) {
-                        bloqueou = true;
-                        break;
-                     }
-                     else if (distancia < distMaxCubos) {
-                        distMaxCubos = distancia;
-
-                     }
-                  }
-
-               }
-               if (bloqueou)
-                  break;
-
-               if ((areas[1].elevar_bloco || areas[1].bloco_elevado) && !areas[1].chave2Retirada && raio.intersectBox(areas[1].chave2Box, pontoIntersecao)) {
-                  distancia = origem.distanceTo(pontoIntersecao);
-                  if (distancia < distMax) {
-                     bloqueou = true;
-                     break;
-                  }
-                  else if (distancia < distMaxCubos) {
-                     distMaxCubos = distancia;
-
-                  }
-               }
-
-            }
-
-            if (bloqueou)
-               break;
-
-
-         }
-         if(!bloqueou){
-            inimigoAtingido.sofrerAtaque(0.5,scene);
-            
-               if (inimigoAtingido.padeceu) {
-                  inimigoAtingido.obj.remove(inimigoAtingido.arma.cylinder);
-                  let derrotado = inimigoAtingido;
-                  //scene.remove( this.inimigos[i].obj);
-                  this.inimigos.splice(posIniAtg, 1);
-                  this.numInimigos--;
-                  //console.log("Padece");
-                  //console.log(this.inimigos);
-                  //console.log(this.numInimigos);
-                  return derrotado;
-               }
-
-          
-               
-         }
-      }
-      return null;
-   }
-
+   
    atirar(scene, camera, verdade, dist = 1) {
 
       if (verdade == true) {
@@ -499,4 +638,4 @@ class LancaMisseis {
    }
 }
 
-export { LancaMisseis }
+export { LancaMisseis, Metralhadora };

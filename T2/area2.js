@@ -12,7 +12,7 @@ import {
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { BoxGeometry } from '../build/three.module.js';
-
+import { criarChave } from './criacaoChave.js';
 
 class Area2 {
     constructor(geomterias_cubos,materiais_cubos) {
@@ -174,19 +174,23 @@ class Area2 {
 
     }
     posicionar_chave1(chave){
-        this.fechadura.mesh.add(chave);
-        chave.translateY(0.5);
-        this.chave1Box = new THREE.Box3().setFromObject(chave);
+
+        this.chave1=criarChave(this.fechadura.mesh,new THREE.Vector3(0,0,0),0.5,"rgb(240, 7, 7)","rgb(250, 6, 11)");
+
+        
+        this.chave1.translateY(0.5);
+        this.chave1Box = new THREE.Box3().setFromObject(this.chave1);
         const size = new THREE.Vector3();
         this.chave1Box.getSize(size);
 
-        chave.translateY(size.y/2);
-        this.chave1=chave;
+        this.chave1.translateY(size.y/2);
+        
         this.chave1Box.setFromObject(this.chave1);
     }
 
     posicionar_chave2(chave){
-        this.cube0.add(chave);
+        chave=criarChave(this.cube0,new THREE.Vector3(0,0,0),0.5,"rgb(235, 184, 19)","rgb(130, 228, 19)");
+        
         chave.translateY(2);
         this.chave2Box = new THREE.Box3().setFromObject(chave);
         const size = new THREE.Vector3();

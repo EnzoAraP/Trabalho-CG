@@ -60,17 +60,17 @@ class Personagem{
     this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);    
 
 
-    this.num_arma_atual=1;
+    this.num_arma_atual=2;
 
     this.lanca_misseis=lanca_misseis;
 
     this.metralhadora=metralhadora;
 
-    this.lanca_misseis.obj.visible=true;
+    this.lanca_misseis.obj.visible=false;
 
-    this.metralhadora.obj.visible=false;
+    this.metralhadora.setVisible(false);
 
-    this.arma_atual=this.lanca_misseis;
+    this.arma_atual=this.metralhadora;
        
 
     this.eixo_x = new THREE.Vector3(1, 0, 0);
@@ -81,7 +81,7 @@ class Personagem{
     mudar_arma(num_arma=0){
       if(num_arma==0)
       {
-         console.log("ABC");
+         //console.log("ABC");
          if(this.num_arma_atual==1)
             num_arma=2;
          else
@@ -91,7 +91,7 @@ class Personagem{
          if(this.num_arma_atual!=1)
          {
             this.lanca_misseis.obj.visible=true;
-            this.metralhadora.obj.visible=false;
+            this.metralhadora.setVisible(false);
             this.num_arma_atual=1;
             this.arma_atual=this.lanca_misseis;
          }
@@ -100,7 +100,7 @@ class Personagem{
          if(this.num_arma_atual!=2)
          {
             this.lanca_misseis.obj.visible=false;
-            this.metralhadora.obj.visible=true;
+            this.metralhadora.setVisible(true);
             this.num_arma_atual=2;
             this.arma_atual=this.metralhadora;
          }
@@ -188,13 +188,13 @@ class Personagem{
                   this.speed=speedColisao[0];
                   colisaoComAPlataforma=speedColisao[1];
                   if(colisaoComAPlataforma){
-                     //console.log("Plat");
+                     ////console.log("Plat");
                   }
                }
                else{
-               //console.log("Porta");
-               //console.log(colisaoAreaAtual);
-               //console.log(speedColisao[1]);
+               ////console.log("Porta");
+               ////console.log(colisaoAreaAtual);
+               ////console.log(speedColisao[1]);
             }
                
 
@@ -231,10 +231,10 @@ class Personagem{
             && objeto.position.z <= pos_escada.z+(largura_esc-this.larg/2) && objeto.position.z >= pos_escada.z-(largura_esc-this.larg/2) 
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          ) ;
-            console.log(objeto.position);
-            console.log(this.regiaoEscada);
+            //console.log(objeto.position);
+            //console.log(this.regiaoEscada);
             
-            console.log(pos_escada);
+            //console.log(pos_escada);
             let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.0001; // Teste da rampa
 
 
@@ -256,10 +256,10 @@ class Personagem{
                moveDir.y += (altura_total / comp_total);
                let vetorProj = new THREE.Vector3();
                vetorProj.copy(moveDir);
-               //console.log(vetorProj);
+               ////console.log(vetorProj);
                vetorProj.projectOnVector(dir_rampa);
                let moveProjecao = vetorProj.length();
-               //console.log(moveProjecao);
+               ////console.log(moveProjecao);
                if (Math.abs(moveProjecao) > 0.0001) {
                   // Move na direção da rampa : incluir subida/descida
                   moveDir.y = vetorProj.y;
@@ -267,7 +267,7 @@ class Personagem{
                if (this.area == -1) {
                   this.area = this.grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
                }
-               //console.log(moveDir.y);
+               ////console.log(moveDir.y);
             }
          }
 
@@ -318,7 +318,7 @@ class Personagem{
       }
       else {
          if (this.voo) {
-            //console.log(areas[0].degraus[1].rampa)
+            ////console.log(areas[0].degraus[1].rampa)
             if(this.grandeArea!=2)
                isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.grandeArea - 1].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length >0.0001;
             else
@@ -338,14 +338,14 @@ class Personagem{
    let condicaoEspecialBordas=(this.area==-1 || this.naPlataforma || this.regiaoEscada);
    
 
-   //console.log(intersectaPlataforma);
+   ////console.log(intersectaPlataforma);
    if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma && condicaoEspecialBordas) {
-      console.log("queda");
+      //console.log("queda");
       
       this.obj.position.y -= 5 * delta;
       this.raycaster.ray.origin.copy(this.obj.position);
       if (this.grandeArea >= 1) {
-         //console.log(area);
+         ////console.log(area);
          if (this.area != -1) {
             this.box = new THREE.Box3().setFromCenterAndSize(
                new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.05, this.obj.position.z),
@@ -359,7 +359,7 @@ class Personagem{
             isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
             if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma){
                this.obj.position.y += 5 * delta;
-               console.log("volta");
+               //console.log("volta");
             }
          }
 
@@ -385,10 +385,10 @@ class Personagem{
          if(this.naPlataforma && this.area==-1)
             this.area=1;  
          if(!areas[1].plataforma.em_movimento && !areas[1].plataforma.subir && objeto.position.y<=2.2){
-            //console.log("Desce");
+            ////console.log("Desce");
             areas[1].plataforma.em_movimento=(objeto.position.x <= pos_plataforma_a2.x+(3+this.larg) && objeto.position.x >= pos_plataforma_a2.x-(3+this.larg) 
             && objeto.position.z <= pos_plataforma_a2.z+(3+this.larg) && objeto.position.z >= pos_plataforma_a2.z-(3+this.larg) );
-           // console.log(areas[1].plataforma.em_movimento);
+           // //console.log(areas[1].plataforma.em_movimento);
          }   
          else if(!areas[1].plataforma.em_movimento && !areas[1].plataforma.emEspera && this.naPlataforma &&(areas[1].plataforma.subir || this.saiu_plataforma)){
             areas[1].plataforma.emEspera=true;
@@ -418,7 +418,7 @@ class Personagem{
          
          
    }
-   //console.log(moveDir.y);
+   ////console.log(moveDir.y);
 
    if (reset == true) {
       this.obj.position.set(3, 4, 8);
@@ -443,9 +443,9 @@ class Personagem{
       let qtd_mov=areas[1].mover_plataforma(limite,mult);
       if(this.naPlataforma && this.raycaster.intersectObject(areas[1].plataforma.mesh).length>0.01){
          this.obj.position.y+=qtd_mov;
-         console.log(this.obj.position.y);
+         //console.log(this.obj.position.y);
       }
-      //console.log("Plat");
+      ////console.log("Plat");
    }
 
  
