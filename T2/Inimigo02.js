@@ -503,7 +503,7 @@ class Cacodemon {
 
       let moveDir = this.obj.getWorldDirection(new THREE.Vector3());
 
-  
+      moveDir= new THREE.Vector3(0,0,0);
 
 
       this.box = new THREE.Box3().setFromObject(this.obj);

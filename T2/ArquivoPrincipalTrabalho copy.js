@@ -436,9 +436,14 @@ function render() {
       let delta = clock.getDelta();
       delta = Math.min(delta, 0.05);
       personagem.movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset,moveDown);
-      personagem.arma_atual.atirar(scene, camera, verdade);
+      let derrotados2=null;
+      if(personagem.num_arma_atual==1)
+         personagem.arma_atual.atirar(scene, camera, verdade);
+      else
+         derrotados2=personagem.arma_atual.atirar2(scene,areas,fronteira,camera,verdade);
       stats.update();
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
+      
       if(personagem.chegada_area2){
          if(!cac_acordados)
          {
@@ -449,6 +454,8 @@ function render() {
 
          if (armasNovosDerrotados.length != 0)
             cacodemons_derrotados = cacodemons_derrotados.concat(armasNovosDerrotados);
+          if (derrotados2 != null)
+            cacodemons_derrotados.push(derrotados2);
          for (var i = 0; i < cacodemons.length; i++) {
 
             cacodemons[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
