@@ -12,7 +12,7 @@ import {
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import {Area2} from './area2.js'
-
+import { Area1 } from './Area1.js';
 
 let scene = new THREE.Scene(); // Create main scene
 
@@ -50,25 +50,10 @@ var cubeGeo2_area2 = new THREE.BoxGeometry(66.5, 4, 2);
 
 
 
-
-var area1 = {
-   //Cubos:
-   cube0: new THREE.Mesh(cubeGeo0, materialCubo1), //Cubo central-pai.
-   // Cubos que compõem o cenário
-   cube1: new THREE.Mesh(cubeGeo1, materialCubo1),
-   cube2: new THREE.Mesh(cubeGeo2, materialCubo1),
-   cube3: new THREE.Mesh(cubeGeo3, materialCubo1),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 4, 5, 2, 8, 90, materialCubo4),
-   posicao_ini: new THREE.Vector3(-100, 2, 150),
-   // Vetor das escadas, retorno de fução que retorna diversos elementos da escadaria( Ver mais na função): Vetor de objetos dos degraus, rampa para fazer subida e inclinação: 
-   
-   cubos: [], // Vetor dos cubos que compõem o cenário
-   boundingCubos: [], // Vetor das boundigBoxes dos cubos acima
-   boundingRampa: null, // boundingBox da rampa da escada
-   boundingDegraus: [], // Vetor com a boudingBox dos degraus
-   ex: 35, // Extensão da área em relação a seu centro no eixo x( Metade do comprimento do lado em x do paralelepípedo)
-   ez: 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
-}
+//Area 1
+var area1 = new Area1([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo2]);
+area1.degraus=criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materiais_cubos[1]);
+area1.boundingBoxesPilares = [];
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
 var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2_area2,cubeGeo3],[materialCubo1,materialCubo2]);
 var area3 = {
@@ -76,9 +61,9 @@ var area3 = {
    cube1: new THREE.Mesh(cubeGeo1, materialCubo3),
    cube2: new THREE.Mesh(cubeGeo2, materialCubo3),
    cube3: new THREE.Mesh(cubeGeo3, materialCubo3),
-   degraus: criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materialCubo2),
-   posicao_ini: new THREE.Vector3(-100, 2, -150), // Posição inicial do cubo central(núcleo) da área
-   cubos: [],
+  degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 4, 5, 2, 8, 90, materialCubo4),
+   posicao_ini: new THREE.Vector3(-100, 2, 150),
+    cubos: [],
    boundingCubos: [],
    boundingDegraus: [],
    boundingRampa: null,
@@ -91,7 +76,7 @@ var area4 = {
    cube1: new THREE.Mesh(cubeGeo4, materialCubo4),
    cube2: new THREE.Mesh(cubeGeo5, materialCubo4),
    cube3: new THREE.Mesh(cubeGeo6, materialCubo4),
-   degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, materialCubo1),
+      degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, materialCubo1),
    posicao_ini: new THREE.Vector3(150, 2, 0),
    cubos: [],
    boundingCubos: [],

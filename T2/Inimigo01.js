@@ -17,7 +17,7 @@ import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
-import { LancaMisseis } from './ControleArmas.js';
+
 
 var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
@@ -25,9 +25,11 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 
 
 
-class Cacodemon {
+class Lost_Soul {
 
-   constructor(objeto, camera, boxInimigo, larg, speedPadrao, arma, personagem) {
+   constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
+      this.arma=null;
+
       this.voo = true;
       this.obj = objeto;
 
@@ -58,7 +60,7 @@ class Cacodemon {
 
       this.direcao_movimento = new THREE.Vector3(0, 0, 0);
 
-      this.contagemMudanca = 115;
+      this.contagemMudanca = 0;
 
       this.maxMudanca = 120;
 
@@ -88,8 +90,6 @@ class Cacodemon {
 
       this.mult = 1;
 
-      this.arma = arma;
-
       this.tempoDesap = 50;
 
       this.passos_desap=0;
@@ -102,13 +102,11 @@ class Cacodemon {
 
       this.dormindo=true;
 
-      this.vidaMax=50;
+      this.vidaMax=20;
       this.vida = this.vidaMax;
       
       this.levaDano = true;
       this.padeceu = false;
-
-
       this.eixo_x = new THREE.Vector3(1, 0, 0);
       this.eixo_y = new THREE.Vector3(0, 1, 0);
       this.eixo_z = new THREE.Vector3(0, 0, 1);
@@ -116,6 +114,12 @@ class Cacodemon {
       this.anterior_xz = 0;
       this.anterior_yz = 0;
 
+      this.isDashing = false;
+      this.dashFrames =0;
+      this.dashDuration = 15;
+      this.dashSpeed = this.speedPadrao * 18;
+      this.dashDirection = new THREE.Vector3();
+      this.todosMortos = false;
 
 
 
@@ -232,6 +236,15 @@ class Cacodemon {
       // Para giro vertical (em torno do eixo X → plano YZ):
       this.mult = dirAtualYZ.clone().cross(direcaoDesejadaYZ).x < 0 ? -1 : 1;
       this.coef_rot_ver *= this.mult;
+       this.quaternionInicial.copy(this.obj.quaternion);
+
+    const dummy = new THREE.Object3D();
+    dummy.position.copy(this.obj.position);
+    dummy.lookAt(alvoPos);
+    this.quaternionFinal.copy(dummy.quaternion);
+
+    // Preparar para dash após o giro
+    this.prepararDash = true; // flag para iniciar dash após giro
 
 
    }
@@ -258,106 +271,92 @@ class Cacodemon {
       return coef * cubic;
    }
 
-   // Função para acordar inimigos para batalha
    acordar(){
       this.dormindo=false;
       this.obj.visible=true;
       this.grupoBarras.visible=true;
    }
 
-   // Função para operar seu sumiço gradativo
    sumir() {
-      this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Barras continuam viradas ao usuário
+      this.grupoBarras.lookAt(this.personagem_rival.obj.position);
      
-      if (!this.sumiu) { // Se ele ainda não sumiu
-         let taxa_desap=this.taxaDesap; // Estabelece desaparecimento
+      if (!this.sumiu) {
+         let taxa_desap=this.taxaDesap;
          if(!this.transparente)
          {
             this.transparente=true;
             
-            //console.log("AA");
-         this.obj.traverse(function (child) {  // Para cada filho que é mesh
+            console.log("AA");
+         this.obj.traverse(function (child) {
             if (child.isMesh) {
-               //console.log("TP")
-               child.material.transparent = true; // Habilita transparência
+               console.log("TP")
+               child.material.transparent = true;
             }
          });
 
          this.barraFundo.material.transparent=true;
       }
-         this.barraFundo.material.opacity-=taxa_desap; // Faz barra ir desaparecendo
-         //console.log(this.barraFundo.material.opacity);
+         this.barraFundo.material.opacity-=taxa_desap;
+         console.log(this.barraFundo.material.opacity);
           this.obj.traverse(function (child) {
             if (child.isMesh) {
-               child.material.opacity -= taxa_desap; // Faz objetos irem desaparecendo
-               //console.log(child.material.opacity );
+               child.material.opacity -= taxa_desap;
+               console.log(child.material.opacity );
             }
          });
-         this.passos_desap++; // Incrementa despareciment
-         if (this.passos_desap==this.tempoDesap)// Se acabou, indica o sumiço
+         this.passos_desap++;
+         if (this.passos_desap==this.tempoDesap)
             this.sumiu = true;
          
       }
    }
 
-   gerarMovimento(personagem = this.personagem_rival.obj) { // Gera movimento do personagem
-      this.girando = true; // Ativa giro
-      this.tempoDeGiro = 0; //Estabelece tempo de giro
+   gerarMovimento(personagem = this.personagem_rival.obj) {
+      this.girando = true;
+      this.tempoDeGiro = 0;
 
       
-      this.direcao_movimento.subVectors(personagem.position, this.obj.position);  // Direção até o personagem
+      this.direcao_movimento.subVectors(personagem.position, this.obj.position);
       let giroMin = 0;
-      let exp=1.2;
       if (this.direcao_movimento.length() <= 9)
-         giroMin = Math.PI / 2; // Muito perto, pelo menos 90 graus
-      else if(this.direcao_movimento.length()<=20){
-          giroMin = Math.PI / 4; // Mais ou menos perto, ao menos 45
-          exp=0.8;
-      }
-      else if(this.direcao_movimento.length()>=40){
-         exp=2; // Um pouco longe, tende a se aproximar
-      }
-      else if(this.direcao_movimento.length()>=60)
-         exp=5; // Muito longe, tende a se aproximar mais e mais
+         giroMin = Math.PI / 2;
 
 
       let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-      let giroY = (Math.random() ** (exp)) * (3*Math.PI / 8) + giroMin;  // Estabelece giro em relação à direção dele até o personagem
+      let giroY = (Math.random() ** 2) * (Math.PI / 3) + giroMin;
 
-      let positivo = (Math.random() >= 0.5); // Sorteia o sentido
+      let positivo = (Math.random() >= 0.5);
 
       if (!positivo)
          giroY = -giroY;
-      let giroZ = (Math.random() ** 4) * (Math.PI / 6); // Giro vertical
+      let giroZ = (Math.random() ** 4) * (Math.PI / 6);
       if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
-         giroZ /= 5;// Reduz giro em certas condições
+         giroZ /= 5;
       if (this.direcao_movimento.y * this.direcao_movimento.x < 0)
-         giroZ = -giroZ; // Adequa giro em z
+         giroZ = -giroZ;
 
 
 
-      
-      let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY); // Matriz de rotação
+
+      let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY);
 
       this.direcao_movimento.applyMatrix4(rotMatrixY);
 
       if (this.direcao_movimento.y < -0.1 || this.direcao_movimento.y > 0) {
-        
          let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
          this.direcao_movimento.applyMatrix4(rotMatrixZ);
 
       }
 
       let alvoPos = new THREE.Vector3(0, 0, 0);
-      alvoPos.addVectors(this.direcao_movimento, this.obj.position); // Alvo a se mirar em absoluto
-      const origem = this.obj.position.clone(); // Posição do inimigo
+      alvoPos.addVectors(this.direcao_movimento, this.obj.position);
+      const origem = this.obj.position.clone();
 
-      const direcao = alvoPos.clone().sub(origem); // Direção a se mirar em relação ao inimigo
-      const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao); //Ângulo a se girar para alcançar direção
+      const direcao = alvoPos.clone().sub(origem);
+      const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
 
-      const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180); // Em graus
-      
-      // Estabelece tempos de giro, de acordo com o tamanho do ângulo
+      const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
+
       if (giroEmGraus <= 30)
          this.t_max = 1 + Math.floor(giroEmGraus * 2);
       else if (giroEmGraus <= 90)
@@ -365,21 +364,19 @@ class Cacodemon {
       else
          this.t_max = Math.floor((giroEmGraus - 90) * 1.8 + 120);
 
-      this.quaternionInicial.copy(this.obj.quaternion); // Quartenion de origem
+      this.quaternionInicial.copy(this.obj.quaternion);
 
 
 
 
       const dummy = new THREE.Object3D();
       dummy.position.copy(this.obj.position);
-      dummy.lookAt(alvoPos);  // Simula giro total do objeto
-      this.quaternionFinal.copy(dummy.quaternion); // Obtém quartenion final
-
-      
+      dummy.lookAt(alvoPos);
+      this.quaternionFinal.copy(dummy.quaternion);
    }
 
 
-   // ataque_especial com mesmo sistema, mas agora não se altera direção, alemja-se olhar diretamente para a posição atual do personagem
+   // ataque_especial com mesmo sistema
    ataque_especial(scene) {
       this.girando = true;
       this.tempoDeGiro = 0;
@@ -405,6 +402,8 @@ class Cacodemon {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
+      //if(this.dashpossivel())
+      this.prepararDash = true; // flag para iniciar dash após giro
    }
 
 
@@ -414,6 +413,20 @@ class Cacodemon {
 
 
    movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
+      if (this.isDashing) {
+    // Move rapidamente na direção do dash
+    let dashStep = this.dashDirection.clone().multiplyScalar(this.dashSpeed * delta);
+    this.obj.position.add(dashStep);
+    this.dashFrames++;
+
+    // Opcional: ignore colisão durante o dash, ou adicione checagem se quiser parar ao colidir
+
+    if (this.dashFrames >= this.dashDuration) {
+        this.isDashing = false;
+        this.dashFrames = 0;
+    }
+    return; // não executa o resto do movimento durante o dash
+}
 
       if (this.girando && false) {
          this.tempoDeGiro++;
@@ -444,52 +457,64 @@ class Cacodemon {
 
       }
 
-      if(this.dormindo) // Se estiver a dormir, não faz nada
+      if(this.dormindo)
          return;
 
-      //console.log(this.personagem_rival.obj.position);
-      this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Faz barras de vida olharem para o jogador
-      if (this.girando) {// Se estiver girando
-         this.tempoDeGiro++; 
+      this.grupoBarras.lookAt(this.personagem_rival.obj.position);
+      if (this.girando) {
+         this.tempoDeGiro++;
 
          let t = this.tempoDeGiro / this.t_max;
          if (this.contagemPreAtaque != 0)
             t = this.tempoDeGiro / 20;
-         const alpha = Math.min(t, 1); // Relação máxima entre tempos é 1
+         const alpha = Math.min(t, 1);
          const easedAlpha = -2 * alpha ** 3 + 3 * alpha ** 2; // curva suave
 
-         this.obj.quaternion.slerp(this.quaternionFinal, easedAlpha); // Faz o slerp até o quartenion final
-         this.obj.quaternion.normalize();// Normaliza
+         this.obj.quaternion.slerp(this.quaternionFinal, easedAlpha);
+         this.obj.quaternion.normalize();
 
          if (this.tempoDeGiro >= this.t_max) {
             this.girando = false;
             this.tempoDeGiro = 0;
             this.t_max = 0;
+             if (this.tempoDeGiro >= this.t_max) {
+        this.girando = false;
+        this.tempoDeGiro = 0;
+        this.t_max = 0;
+
+        // Inicia o dash se estiver preparado
+        if (this.prepararDash) {
+            this.prepararDash = false;
+            this.iniciarDash();
+            return; // não executa o resto do movimento neste frame
+        }
+    }
+
          }
       }
-      if (this.contagemPreAtaque != 0) {// Giro para o ataque é mais rápido
+      if (this.contagemPreAtaque != 0) {
          this.contagemPreAtaque++;
          if (this.contagemPreAtaque == 20) {
             this.contagemPreAtaque = 0;
-            this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
+            //arma aqui estava ataque especial!!
          }
          return;
       }
-      this.contagemMudanca++; // Incrementa a contagem de mudança
+      this.contagemMudanca++;
 
-      if (this.contagemMudanca >= this.maxMudanca) { // Se chegar o momento,
-         this.contagemEsperaAtaque++; // Mais uma mudança, mais um na contagem do ataque
-         if (this.contagemEsperaAtaque == this.maxEsperaAtaque) { // Se o número de mudanças for igual ao número esperado para atacar, prepara o ataque
-            this.ataque_especial(scene); // Direcionar-se ao jogador
-            this.contagemEsperaAtaque = 0; // Zera espera
-            this.contagemPreAtaque = 1; // inicia pré-ataque
-            this.maxEsperaAtaque = 2 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
+      if (this.contagemMudanca >= this.maxMudanca) {
+         this.contagemEsperaAtaque++;
+         if (this.contagemEsperaAtaque == this.maxEsperaAtaque) {
+            this.ataque_especial(scene);
+            this.contagemEsperaAtaque = 0;
+            this.contagemPreAtaque = 1;
+            this.maxEsperaAtaque = 2 + Math.floor(Math.random() * 3);
          }
          else {
-            this.gerarMovimento(); // Gera movimento padrão de giro e define direção do movimento
+            this.gerarMovimento();
 
-            this.contagemMudanca = 0; // Reinicia
-            this.maxMudanca = 50 + Math.floor(Math.random() * 41); // entre 50 e 90 frames para atacar
+            this.contagemMudanca = 0;
+            this.maxMudanca = 50 + Math.floor(Math.random() * 41);
          }
       }
       this.raycaster.ray.origin.copy(this.obj.position);
@@ -506,7 +531,7 @@ class Cacodemon {
 
       let moveDir = this.obj.getWorldDirection(new THREE.Vector3());
 
-     
+
 
 
       this.box = new THREE.Box3().setFromObject(this.obj);
@@ -537,21 +562,18 @@ class Cacodemon {
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
          }
-         
-            if (this.grandeArea == 1) {
-               //  console.log(areas[0].boundingBoxesPilares);
-
-               for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
-
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
-                  this.speed = speedColisao[0];
-                  if (speedColisao[1] == true) {
-                     console.log("bateu");
-                  }
-               }
-
-               
+         if(this.grandeArea==1)
+          {
+          //  console.log(areas[0].boundingBoxesPilares);
+            
+            for(var i=0;i<areas[0].boundingBoxesPilares.length;i++){
+            
+            let speedColisao = verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
+            this.speed=speedColisao[0];
+             if (!colisaoAreaAtual && speedColisao[1])
+               colisaoAreaAtual = true;
             }
+         }
          if (this.grandeArea == 2) {
 
             let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed,true);
@@ -561,10 +583,6 @@ class Cacodemon {
             if (this.redondezasDaFechadura) {
                speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed,true);
                this.speed = speedColisao[0];
-               if(areas[this.grandeArea-1].chave1!=null){
-                   speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed,true);
-                   this.speed = speedColisao[0];
-               }
 
             }
             else {
@@ -639,13 +657,13 @@ class Cacodemon {
       else if (this.grandeArea == 0) {
          for (var j = 0; j < 4; j++) {
 
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed,true);
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed);
             this.speed = colisaoSpeed[0];
          }
       }
       else {
          if (this.redondezasDaFechadura) {
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed,true);
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed);
             this.speed = colisaoSpeed[0];
          }
       }
@@ -700,8 +718,8 @@ class Cacodemon {
          let objeto = this.obj;
          let pos_plataforma_a2 = new THREE.Vector3(areas[1].plataforma.mesh.position.x, areas[1].plataforma.mesh.position.y, areas[1].plataforma.mesh.position.z);
          pos_plataforma_a2.addVectors(pos_plataforma_a2, areas[1].posicao_ini);
-         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x + 2 && objeto.position.x >= pos_plataforma_a2.x - 2
-            && objeto.position.z <= pos_plataforma_a2.z + 2 && objeto.position.z >= pos_plataforma_a2.z - 2
+         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x + 1 && objeto.position.x >= pos_plataforma_a2.x - 1
+            && objeto.position.z <= pos_plataforma_a2.z + 1 && objeto.position.z >= pos_plataforma_a2.z - 1
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          );
 
@@ -754,22 +772,158 @@ class Cacodemon {
       //console.log(this.obj.position.y);
    }
    sofrerAtaque(danoInfligido, scene) {
-      this.vida -= danoInfligido;// Decrementa vida em caso de ataque
+      this.vida -= danoInfligido;
       
-      console.log("Vida:");
+      console.log("Vida:")
       console.log(this.vida);
-      if (!this.padeceu && this.vida <= 0) { // Se ainda não padeceu e a vida chegou a 0 ou algo menor que isso, coloca 0 na vida e acusa fim do inimigo
+      if (!this.padeceu && this.vida <= 0) {
          this.vida=0;
          this.padeceu = true;
       }
-      // Para adequar a barra;
-   const escala = this.vida / this.vidaMax; // Proporção de vida atual 
+      
+   const escala = this.vida / this.vidaMax;
    this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
 
-   const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2; // Descola para continuar onde estava, à esquerda, na visão do jogador
-   this.barraFrente.position.x = deslocamentoX; // desloca
+   const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2;
+   this.barraFrente.position.x = deslocamentoX;
 
    }
+   iniciarDash() {
+    // Calcula a direção do dash (do inimigo para o jogador)
+    this.dashDirection.subVectors(
+        this.personagem_rival.obj.position,
+        this.obj.position
+    ).setY(0).normalize(); // dash só no plano XZ, remova setY(0) se quiser dash 3D
+
+    this.isDashing = true;
+    this.dashFrames = 0;
 }
 
-export { Cacodemon };
+dashpossivel(scene,areas,fronteira) {
+         
+          let colidiu = false;
+             let velocidadeatual=this.speed;
+             const deslocamento = new THREE.Vector3(this.direcao_movimento.x * velocidadeProjetil, this.direcao_movimento.y * velocidadeProjetil, this.direcao_movimento.z * velocidadeProjetil);
+    
+             this.obj.position.x += deslocamento.x;
+             this.obj.position.y += deslocamento.y;
+             this.obj.position.z += deslocamento.z;
+             if (proj.frames > 0) {
+                proj.frames++;
+                if (proj.frames == 180)
+                   colidiu = true;
+             }
+             else {
+                if (this.obj.position.y < -0.1) {
+                   colidiu = true;
+                   //console.log("B");
+                }
+                else {
+                   if (Math.abs(this.obj.position.x) > 252 || Math.abs(this.obj.position.z) > 252 || Math.abs(this.obj.position.y) > 11.1) {
+                      proj.frames = 1;
+                   }
+                   else {
+                      let boxBala = new THREE.Box3().setFromObject(this.obj);
+                      let grande_area_e_fechadura= testeGrandesAreas(this.obj, this.area);
+                     this.area = grande_area_e_fechadura[0];
+
+                      let redFech=grande_area_e_fechadura[1];
+                      if (!colidiu && this.area != -1) {
+                         if (this.area == 0) {
+                            for (var i = 0; i < 4; i++) {
+                               if (fronteira[i + 4].intersectsBox(boxBala)) {
+                                  colidiu = true;
+                                  //console.log("B");
+                                  break;
+                               }
+                            }
+                         }
+                         else {
+                            i = this.area - 1;
+                            ////console.log(i);
+                            let cubosBox = areas[i].boundingCubos;
+                            let rampaBox = areas[i].boundingRampa;
+                            if(redFech){
+                               colidiu=(areas[1].fechadura.box.intersectsBox(boxBala));
+                               //console.log(areas[1].fechadura.box);
+                               //console.log(colidiu);
+                               if( colidiu){
+                                  //console.log("C-0")
+                                  }
+                               //console.log("0-C")
+    
+                            }
+                            
+                            for (var j = 0; !colidiu && j < 3; j++) {
+                               if (cubosBox[j].intersectsBox(boxBala)) {
+                                  colidiu = true;
+                                  //console.log("C");
+                                  
+                               }
+    
+                            }
+                            if (!colidiu) {
+                               if(i!=1)
+                               { 
+                                  if (rampaBox.intersectsBox(boxBala)) {
+                                     let degrausBox = areas[i].boundingDegraus;
+                                     ////console.log(degrausBox)
+                                     for (var k = 0; k < 8; k++) {
+                                        if (boxBala.intersectsBox(degrausBox[k])) {
+                                           //console.log(degrausBox[k]);
+                                           colidiu = true;
+                                           //console.log("D");
+                                           break;
+    
+                                        }
+                                     }
+                                  }
+                                  else {
+                                     if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
+                                        colidiu = true;
+                                        //console.log("E");
+                                     }
+                                  }
+                               }
+                               else{
+                                  if(areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)){
+                                     colidiu=true;
+                                  }
+                                  else{
+                                     colidiu=areas[1].porta.box.intersectsBox(boxBala);
+                                  } 
+                                  for( var j=0;!colidiu && j<areas[1].num_blocos_extras;j++){
+                                    if(areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)){
+                                       colidiu = true;
+                                       //console.log("F");
+                                    }
+                                  }
+                               }
+                            }
+                         }
+                      }
+                      else{
+                        if( !colidiu && redFech){
+                        
+                               colidiu=(areas[1].fechadura.box.intersectsBox(boxBala));
+                               if( colidiu){
+                                
+                              } 
+    
+                        
+                        }
+                      }
+                      
+                   }
+                }
+             }
+             if (colidiu) {
+                //console.log("Colisão" + proj.frames);
+                return colidiu;
+             }
+          
+
+          return colidiu;
+}
+}
+export { Lost_Soul };

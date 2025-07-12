@@ -26,6 +26,7 @@ var y_z= (new THREE.Vector3()).addVectors(eixo_y,eixo_z).normalize();
 function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMovimento,BoxObjetoATestar,speed,contarSubida=false){
    let intsc = "";
    let colisao=false;
+            
             let vetor_eixos=null;
             if(contarSubida)
                vetor_eixos=["x","y", "z"];
@@ -33,11 +34,17 @@ function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMov
                vetor_eixos=["x", "z"];
             vetor_eixos.forEach(eixo => {
                objeto.position[eixo] += vetorMovimento[eixo]; // TEsta
-
+               
                let boxObjeto = new THREE.Box3().setFromCenterAndSize(
                   new THREE.Vector3(objeto.position.x, objeto.position.y - altura/2, objeto.position.z),
                   new THREE.Vector3(largura_x, altura, largura_z) // largura, altura, profundidade desejadas
                );
+              
+               if(contarSubida){
+                  boxObjeto.setFromObject(objeto);
+
+                  
+               }
 
                if (boxObjeto.intersectsBox(BoxObjetoATestar)) {
 
