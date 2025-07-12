@@ -100,7 +100,7 @@ class Lost_Soul {
 
       this.dormindo=true;
 
-      this.vidaMax=50;
+      this.vidaMax=20;
       this.vida = this.vidaMax;
       
       this.levaDano = true;
@@ -400,6 +400,7 @@ class Lost_Soul {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
+      this.prepararDash = true; // flag para iniciar dash após giro
    }
 
 
@@ -783,6 +784,132 @@ class Lost_Soul {
     this.isDashing = true;
     this.dashFrames = 0;
 }
-}
 
+/*dashpossivel(scene,areas,fronteira) {
+         
+          let colidiu = false;
+             let velocidadeatual=this.speed;
+             const deslocamento = new THREE.Vector3(this.direcao_movimento.x * velocidadeProjetil, this.direcao_movimento.y * velocidadeProjetil, this.direcao_movimento.z * velocidadeProjetil);
+    
+             this.obj.position.x += deslocamento.x;
+             this.obj.position.y += deslocamento.y;
+             this.obj.position.z += deslocamento.z;
+             if (proj.frames > 0) {
+                proj.frames++;
+                if (proj.frames == 180)
+                   colidiu = true;
+             }
+             else {
+                if (this.obj.position.y < -0.1) {
+                   colidiu = true;
+                   //console.log("B");
+                }
+                else {
+                   if (Math.abs(this.obj.position.x) > 252 || Math.abs(this.obj.position.z) > 252 || Math.abs(this.obj.position.y) > 11.1) {
+                      proj.frames = 1;
+                   }
+                   else {
+                      let boxBala = new THREE.Box3().setFromObject(this.obj);
+                      let grande_area_e_fechadura= testeGrandesAreas(this.obj, this.area);
+                     this.area = grande_area_e_fechadura[0];
+
+                      let redFech=grande_area_e_fechadura[1];
+                      if (!colidiu && this.area != -1) {
+                         if (this.area == 0) {
+                            for (var i = 0; i < 4; i++) {
+                               if (fronteira[i + 4].intersectsBox(boxBala)) {
+                                  colidiu = true;
+                                  //console.log("B");
+                                  break;
+                               }
+                            }
+                         }
+                         else {
+                            i = this.area - 1;
+                            ////console.log(i);
+                            let cubosBox = areas[i].boundingCubos;
+                            let rampaBox = areas[i].boundingRampa;
+                            if(redFech){
+                               colidiu=(areas[1].fechadura.box.intersectsBox(boxBala));
+                               //console.log(areas[1].fechadura.box);
+                               //console.log(colidiu);
+                               if( colidiu){
+                                  //console.log("C-0")
+                                  }
+                               //console.log("0-C")
+    
+                            }
+                            
+                            for (var j = 0; !colidiu && j < 3; j++) {
+                               if (cubosBox[j].intersectsBox(boxBala)) {
+                                  colidiu = true;
+                                  //console.log("C");
+                                  
+                               }
+    
+                            }
+                            if (!colidiu) {
+                               if(i!=1)
+                               { 
+                                  if (rampaBox.intersectsBox(boxBala)) {
+                                     let degrausBox = areas[i].boundingDegraus;
+                                     ////console.log(degrausBox)
+                                     for (var k = 0; k < 8; k++) {
+                                        if (boxBala.intersectsBox(degrausBox[k])) {
+                                           //console.log(degrausBox[k]);
+                                           colidiu = true;
+                                           //console.log("D");
+                                           break;
+    
+                                        }
+                                     }
+                                  }
+                                  else {
+                                     if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
+                                        colidiu = true;
+                                        //console.log("E");
+                                     }
+                                  }
+                               }
+                               else{
+                                  if(areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)){
+                                     colidiu=true;
+                                  }
+                                  else{
+                                     colidiu=areas[1].porta.box.intersectsBox(boxBala);
+                                  } 
+                                  for( var j=0;!colidiu && j<areas[1].num_blocos_extras;j++){
+                                    if(areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)){
+                                       colidiu = true;
+                                       //console.log("F");
+                                    }
+                                  }
+                               }
+                            }
+                         }
+                      }
+                      else{
+                        if( !colidiu && redFech){
+                        
+                               colidiu=(areas[1].fechadura.box.intersectsBox(boxBala));
+                               if( colidiu){
+                                
+                              } 
+    
+                        
+                        }
+                      }
+                      
+                   }
+                }
+             }
+             if (colidiu) {
+                //console.log("Colisão" + proj.frames);
+                return colidiu;
+             }
+          
+
+          return colidiu;
+}*/
+}
 export { Lost_Soul };

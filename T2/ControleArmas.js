@@ -16,7 +16,7 @@ import { testeGrandesAreas } from './criacaoAreas.js';
 
 const clock = new THREE.Clock();
 class LancaMisseis{
-   constructor(donoDaArma,inimigos,ehJogador,dano=10,velocidadeProjetil=0.4){
+   constructor(donoDaArma,inimigos,ehJogador,type=null,dano=10,velocidadeProjetil=0.4,inimigos2=null){
         this.tempoUltimoTiro=0;
         this.ehJogador=ehJogador;
         if(ehJogador){
@@ -37,8 +37,8 @@ class LancaMisseis{
         this.cylinder = new THREE.Mesh(this.abstractGunGeometry, this.invisbleMaterial);
         this.projetilMaterial = new THREE.MeshLambertMaterial({ color:"rgb(196, 168, 45)"});
         
-}
-        
+}  
+        this.type = type;
         this.cylinder.position.set(0, 0, 0);
         this.cylinder.rotation.x = -Math.PI / 2; //  Girando a arma para ficar na posição correta
 
@@ -46,7 +46,9 @@ class LancaMisseis{
         //criacao do projetil( vetor que os armazena a todos)
         this.vetProjetil = [];
         this.projetilGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-        this.inimigos=inimigos;
+        this.inimigos1=inimigos;
+        this.inimigos2=inimigos2;
+        this.inimigos=this.inimigos1.concat(this.inimigos2);
         this.numInimigos=this.inimigos.length;
         this.donoDaArma=donoDaArma;
 
@@ -91,20 +93,34 @@ class LancaMisseis{
             }
         }
     }
+      getTodosInimigos() {
+         if(this.inimigos2!=null){
+         console.log(this.inimigos1.concat(this.inimigos2));
+         this.inimigos = this.inimigos1.concat(this.inimigos2);
+    return this.inimigos1.concat(this.inimigos2);
+         }
+         this.inimigos = this.inimigos1;
+         return this.inimigos1;
+}
 
       controle_acerto_inimigos(boxBala,areaBala,scene){
          if(this.ehJogador){
             //console.log("AAAA");
             }
-         //console.log(this.inimigos);
-         for(var i=0;i<this.numInimigos;i++){
-            let atual=this.inimigos[i];
-            
+         console.log(this.inimigos1);
+         console.log(this.inimigos);
+          let inimigostodos = this.getTodosInimigos();
+         console.log(inimigostodos);
+         console.log(inimigostodos.length);
+         for(var i=0;i<inimigostodos.length;i++){
+            let atual = inimigostodos[i];
+            console.log(i);
             if(atual.grandeArea == areaBala && atual.box.intersectsBox(boxBala)){
                if(this.inimigos[i].levaDano){
                   console.log("INTS");
                   this.inimigos[i].sofrerAtaque(this.danoInfligido,scene);
                      if(this.inimigos[i].padeceu){
+                        if(this.type==2)
                         this.inimigos[i].obj.remove(this.inimigos[i].arma.cylinder);
                         let derrotado=this.inimigos[i];
                         //scene.remove( this.inimigos[i].obj);

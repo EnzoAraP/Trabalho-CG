@@ -39,6 +39,31 @@ function carregarArquivoGLB(assetManager, caminho, nomeArq, visbilidadeInicial,n
 
 
 }
+function carregarArquivoObj(assetManager, caminho, nomeArq, visibilidade, caminhomtl, nomeArqMTL, numero, scene) {
+ var loader_mtl = new MTLLoader();
+  var loader_ob = new OBJLoader();
+  loader_mtl.load(caminhomtl + nomeArqMTL + '.mtl', function (mtl) {
+   mtl.preload();
+    for (const material of Object.values(mtl.materials)) {
+      material.side = THREE.DoubleSide;
+    }
+
+    loader_ob.setMaterials(mtl);
+    loader_ob.load(caminho + nomeArq + '.obj', function (obj) {
+      var helper = obj.clone(true);
+      helper.name = nomeArq;
+      helper.visible = visibilidade;
+      helper.traverse(function (child) {
+        if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
+      });
+      helper = normalizeAndRescale(helper, 1);
+      helper = fixPosition(helper);
+      assetManager["lost_Soul"+ numero] = helper;
+      console.log("lost_Soul" + numero);
+       scene.add(helper);
+    });
+  });
+}
 
 
 // Normalize scale and multiple by the newScale
@@ -62,4 +87,4 @@ function fixPosition(obj)
   return obj;
 }
 
-export {carregarArquivoGLB}
+export {carregarArquivoGLB,carregarArquivoObj}

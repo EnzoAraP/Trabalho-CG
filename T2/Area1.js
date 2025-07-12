@@ -32,23 +32,50 @@ class Area1{
        this.ex= 35, // Extensão da área em relação a seu centro no eixo x( Metade do comprimento do lado em x do paralelepípedo)
        this.ez= 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
        this.cubos = [this.cube1, this.cube2, this.cube3];
+       this.pegavel=false;
+       this.materialPlat = new THREE.MeshLambertMaterial({ color: "rgb(185, 51, 27)"}); // cria o material da plataforma
+       this.geometriaPlat = new THREE.BoxGeometry(2,5,2);
+       this.plat = new THREE.Mesh(this.geometriaPlat,this.materialPlat);
+       this.plat.visible =false;
+       this.visivel=false;
     }
     
-  
+subir_Plataforma(){
+  let localPlat = new THREE.Vector3(0,-2,0);
+  let localchave = new THREE.Vector3(0,3,0);
+  this.plat.position.copy(localPlat);
+  this.criarChave(this.plat,localchave,1);
+  this.cube0.add(this.plat);
+  this.plat.visible=true;
+
+}
 
  criaPilar(Posicao) {// Cria n
-let cor = new THREE.Color(5/255,5/255,5/255);
+let cor = new THREE.Color(15/255,125/255,125/255);
+
 let materialinvi= new THREE.MeshLambertMaterial({
-  color: cor
+  color: cor,
+  
+  reflectivity:0.35,
+  refractionRatio: 0.5
+
+});
+let materialcone2= new THREE.MeshLambertMaterial({
+  color: cor,
+  emissive:cor,
+ emissiveIntensity: 0.1,
+  reflectivity:0.35,
+  refractionRatio: 0.5
+
 });
 let pi =Math.PI;
 
 
-let cilindroGeometry = new THREE.CylinderGeometry(1,1,4,5);// cilindro centra do
+let cilindroGeometry = new THREE.CylinderGeometry(1,1,4,10);// cilindro centra do
 let cilindro= new THREE.Mesh(cilindroGeometry,materialinvi);
 let coneaGeometry = new THREE.ConeGeometry(1.4,2,20,10);
 let cone1 = new THREE.Mesh(coneaGeometry,materialinvi);
-let cone2 = new THREE.Mesh(coneaGeometry,materialinvi);
+let cone2 = new THREE.Mesh(coneaGeometry,materialcone2);
 cilindro.position.copy(Posicao);
 cilindro.add(cone1);
 cilindro.add(cone2);
@@ -58,12 +85,12 @@ cone2.position.set(0,1.5,0);
 cone1.castShadow = true;
 cone2.castShadow = true;
 cilindro.castShadow = true;
-cilindro.receiveShadow = false;
-cone1.receiveShadow = false;
-cone2.receiveShadow = false;
+cilindro.receiveShadow = true;
+cone1.receiveShadow = true;
+cone2.receiveShadow = true;
 this.cube0.add(cilindro);
 }
- criarChave(posicao,cuboLado){
+ criarChave(objcolocar,posicao,cuboLado){
 let pi =Math.PI;
 let cor = new THREE.Color(25/255,25/255,25/255);
 let material= new THREE.MeshBasicMaterial({
@@ -97,12 +124,12 @@ let secondCSG = firstCSG.subtract(cilindro2CSG);
 let lastCSG = secondCSG.subtract(cilindro3CSG);
  let chave = CSG.toMesh(lastCSG, new THREE.Matrix4());// chave 
  chave.material = new THREE.MeshPhongMaterial({
-  color: cor
+  color: 'red'
  }) 
 
  chave.position.copy(posicao);
 
-this.cube0.add(chave);
+objcolocar.add(chave);
 }
 
 }
