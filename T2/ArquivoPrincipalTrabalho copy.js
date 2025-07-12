@@ -460,7 +460,7 @@ function estabeleceBoundingBoxes() {
       areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
    }
 
-
+  // areas[0].plat.box = new THREE.Box3().setFromObject(areas[0].plat.mesh);
    areas[1].porta.box = new THREE.Box3().setFromObject(areas[1].porta.mesh);
    const helper2 = new THREE.Box3Helper(areas[1].porta.box, 0xffff00); // Amarelo
    areas[1].fechadura.box = new THREE.Box3().setFromObject(areas[1].fechadura.mesh);
@@ -575,7 +575,6 @@ function render() {
             if ( lost_soul_derrotados[i].sumiu)
                lost_soul_derrotados.splice(i, 1);
          }
-         console.log("Tamanho vetor Lost "+lost_soulvet.length)
          if(lost_soulvet.length==0  ){
             console.log("morreram "+Lost_soul_morreram );
          

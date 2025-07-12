@@ -457,7 +457,6 @@ class Lost_Soul {
       if(this.dormindo)
          return;
 
-      console.log(this.personagem_rival.obj.position);
       this.grupoBarras.lookAt(this.personagem_rival.obj.position);
       if (this.girando) {
          this.tempoDeGiro++;

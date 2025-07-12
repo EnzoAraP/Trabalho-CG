@@ -118,6 +118,22 @@ class Personagem{
             if(!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual=true;
          }
+         if(this.grandeArea==1)
+          {
+          //  console.log(areas[0].boundingBoxesPilares);
+              console.log(areas[0].boundingBoxesPilares.length);
+            for(var i=0;i<areas[0].boundingBoxesPilares.length;i++){
+               console.log("entrouif");
+            console.log(areas[0].boundingBoxesPilares[i]);
+            console.log(this.obj.position);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
+            this.speed=speedColisao[0];
+            if(speedColisao[1]==true)
+            {
+               console.log(bateu);
+            }
+            }
+         }
          if(this.grandeArea==2){
             
             let speedColisao=verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[this.grandeArea-1].porta.box,this.speed);
@@ -297,6 +313,7 @@ class Personagem{
 
       }
    }
+   
    if(this.grandeArea==2 && areas[1].porta.aberta){
       
       let objeto=this.obj;

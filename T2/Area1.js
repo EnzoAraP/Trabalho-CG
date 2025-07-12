@@ -38,6 +38,8 @@ class Area1{
        this.plat = new THREE.Mesh(this.geometriaPlat,this.materialPlat);
        this.plat.visible =false;
        this.visivel=false;
+       this.boundingBoxesPilares=[];
+       this.boundingBoxplat = [];
     }
     
 subir_Plataforma(){
@@ -89,6 +91,7 @@ cilindro.receiveShadow = true;
 cone1.receiveShadow = true;
 cone2.receiveShadow = true;
 this.cube0.add(cilindro);
+return cilindro;
 }
  criarChave(objcolocar,posicao,cuboLado){
 let pi =Math.PI;
