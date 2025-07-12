@@ -258,84 +258,86 @@ class Cacodemon {
       return coef * cubic;
    }
 
+   // Função para acordar inimigos para batalha
    acordar(){
       this.dormindo=false;
       this.obj.visible=true;
       this.grupoBarras.visible=true;
    }
 
+   // Função para operar seu sumiço gradativo
    sumir() {
-      this.grupoBarras.lookAt(this.personagem_rival.obj.position);
+      this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Barras continuam viradas ao usuário
      
-      if (!this.sumiu) {
-         let taxa_desap=this.taxaDesap;
+      if (!this.sumiu) { // Se ele ainda não sumiu
+         let taxa_desap=this.taxaDesap; // Estabelece desaparecimento
          if(!this.transparente)
          {
             this.transparente=true;
             
             //console.log("AA");
-         this.obj.traverse(function (child) {
+         this.obj.traverse(function (child) {  // Para cada filho que é mesh
             if (child.isMesh) {
                //console.log("TP")
-               child.material.transparent = true;
+               child.material.transparent = true; // Habilita transparência
             }
          });
 
          this.barraFundo.material.transparent=true;
       }
-         this.barraFundo.material.opacity-=taxa_desap;
+         this.barraFundo.material.opacity-=taxa_desap; // Faz barra ir desaparecendo
          //console.log(this.barraFundo.material.opacity);
           this.obj.traverse(function (child) {
             if (child.isMesh) {
-               child.material.opacity -= taxa_desap;
+               child.material.opacity -= taxa_desap; // Faz objetos irem desaparecendo
                //console.log(child.material.opacity );
             }
          });
-         this.passos_desap++;
-         if (this.passos_desap==this.tempoDesap)
+         this.passos_desap++; // Incrementa despareciment
+         if (this.passos_desap==this.tempoDesap)// Se acabou, indica o sumiço
             this.sumiu = true;
          
       }
    }
 
-   gerarMovimento(personagem = this.personagem_rival.obj) {
-      this.girando = true;
-      this.tempoDeGiro = 0;
+   gerarMovimento(personagem = this.personagem_rival.obj) { // Gera movimento do personagem
+      this.girando = true; // Ativa giro
+      this.tempoDeGiro = 0; //Estabelece tempo de giro
 
       
-      this.direcao_movimento.subVectors(personagem.position, this.obj.position);
+      this.direcao_movimento.subVectors(personagem.position, this.obj.position);  // Direção até o personagem
       let giroMin = 0;
       let exp=1.2;
       if (this.direcao_movimento.length() <= 9)
-         giroMin = Math.PI / 2;
+         giroMin = Math.PI / 2; // Muito perto, pelo menos 90 graus
       else if(this.direcao_movimento.length()<=20){
-          giroMin = Math.PI / 4;
+          giroMin = Math.PI / 4; // Mais ou menos perto, ao menos 45
           exp=0.8;
       }
       else if(this.direcao_movimento.length()>=40){
-         exp=2;
+         exp=2; // Um pouco longe, tende a se aproximar
       }
       else if(this.direcao_movimento.length()>=60)
-         exp=5;
+         exp=5; // Muito longe, tende a se aproximar mais e mais
 
 
       let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-      let giroY = (Math.random() ** (exp)) * (3*Math.PI / 8) + giroMin;
+      let giroY = (Math.random() ** (exp)) * (3*Math.PI / 8) + giroMin;  // Estabelece giro em relação à direção dele até o personagem
 
-      let positivo = (Math.random() >= 0.5);
+      let positivo = (Math.random() >= 0.5); // Sorteia o sentido
 
       if (!positivo)
          giroY = -giroY;
-      let giroZ = (Math.random() ** 4) * (Math.PI / 6);
+      let giroZ = (Math.random() ** 4) * (Math.PI / 6); // Giro vertical
       if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
-         giroZ /= 5;
+         giroZ /= 5;// Reduz giro em certas condições
       if (this.direcao_movimento.y * this.direcao_movimento.x < 0)
-         giroZ = -giroZ;
+         giroZ = -giroZ; // Adequa giro em z
 
 
 
       
-      let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY);
+      let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY); // Matriz de rotação
 
       this.direcao_movimento.applyMatrix4(rotMatrixY);
 
@@ -347,14 +349,15 @@ class Cacodemon {
       }
 
       let alvoPos = new THREE.Vector3(0, 0, 0);
-      alvoPos.addVectors(this.direcao_movimento, this.obj.position);
-      const origem = this.obj.position.clone();
+      alvoPos.addVectors(this.direcao_movimento, this.obj.position); // Alvo a se mirar em absoluto
+      const origem = this.obj.position.clone(); // Posição do inimigo
 
-      const direcao = alvoPos.clone().sub(origem);
-      const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
+      const direcao = alvoPos.clone().sub(origem); // Direção a se mirar em relação ao inimigo
+      const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao); //Ângulo a se girar para alcançar direção
 
-      const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
-
+      const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180); // Em graus
+      
+      // Estabelece tempos de giro, de acordo com o tamanho do ângulo
       if (giroEmGraus <= 30)
          this.t_max = 1 + Math.floor(giroEmGraus * 2);
       else if (giroEmGraus <= 90)
@@ -362,21 +365,21 @@ class Cacodemon {
       else
          this.t_max = Math.floor((giroEmGraus - 90) * 1.8 + 120);
 
-      this.quaternionInicial.copy(this.obj.quaternion);
+      this.quaternionInicial.copy(this.obj.quaternion); // Quartenion de origem
 
 
 
 
       const dummy = new THREE.Object3D();
       dummy.position.copy(this.obj.position);
-      dummy.lookAt(alvoPos);
-      this.quaternionFinal.copy(dummy.quaternion);
+      dummy.lookAt(alvoPos);  // Simula giro total do objeto
+      this.quaternionFinal.copy(dummy.quaternion); // Obtém quartenion final
 
       
    }
 
 
-   // ataque_especial com mesmo sistema
+   // ataque_especial com mesmo sistema, mas agora não se altera direção, alemja-se olhar diretamente para a posição atual do personagem
    ataque_especial(scene) {
       this.girando = true;
       this.tempoDeGiro = 0;
@@ -441,22 +444,22 @@ class Cacodemon {
 
       }
 
-      if(this.dormindo)
+      if(this.dormindo) // Se estiver a dormir, não faz nada
          return;
 
       //console.log(this.personagem_rival.obj.position);
-      this.grupoBarras.lookAt(this.personagem_rival.obj.position);
-      if (this.girando) {
-         this.tempoDeGiro++;
+      this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Faz barras de vida olharem para o jogador
+      if (this.girando) {// Se estiver girando
+         this.tempoDeGiro++; 
 
          let t = this.tempoDeGiro / this.t_max;
          if (this.contagemPreAtaque != 0)
             t = this.tempoDeGiro / 20;
-         const alpha = Math.min(t, 1);
+         const alpha = Math.min(t, 1); // Relação máxima entre tempos é 1
          const easedAlpha = -2 * alpha ** 3 + 3 * alpha ** 2; // curva suave
 
-         this.obj.quaternion.slerp(this.quaternionFinal, easedAlpha);
-         this.obj.quaternion.normalize();
+         this.obj.quaternion.slerp(this.quaternionFinal, easedAlpha); // Faz o slerp até o quartenion final
+         this.obj.quaternion.normalize();// Normaliza
 
          if (this.tempoDeGiro >= this.t_max) {
             this.girando = false;
@@ -464,29 +467,29 @@ class Cacodemon {
             this.t_max = 0;
          }
       }
-      if (this.contagemPreAtaque != 0) {
+      if (this.contagemPreAtaque != 0) {// Giro para o ataque é mais rápido
          this.contagemPreAtaque++;
          if (this.contagemPreAtaque == 20) {
             this.contagemPreAtaque = 0;
-            this.arma.atirar(scene, this.obj, true, 0.3);
+            this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
          }
          return;
       }
-      this.contagemMudanca++;
+      this.contagemMudanca++; // Incrementa a contagem de mudança
 
-      if (this.contagemMudanca >= this.maxMudanca) {
-         this.contagemEsperaAtaque++;
-         if (this.contagemEsperaAtaque == this.maxEsperaAtaque) {
-            this.ataque_especial(scene);
-            this.contagemEsperaAtaque = 0;
-            this.contagemPreAtaque = 1;
-            this.maxEsperaAtaque = 2 + Math.floor(Math.random() * 3);
+      if (this.contagemMudanca >= this.maxMudanca) { // Se chegar o momento,
+         this.contagemEsperaAtaque++; // Mais uma mudança, mais um na contagem do ataque
+         if (this.contagemEsperaAtaque == this.maxEsperaAtaque) { // Se o número de mudanças for igual ao número esperado para atacar, prepara o ataque
+            this.ataque_especial(scene); // Direcionar-se ao jogador
+            this.contagemEsperaAtaque = 0; // Zera espera
+            this.contagemPreAtaque = 1; // inicia pré-ataque
+            this.maxEsperaAtaque = 2 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
          }
          else {
-            this.gerarMovimento();
+            this.gerarMovimento(); // Gera movimento padrão de giro e define direção do movimento
 
-            this.contagemMudanca = 0;
-            this.maxMudanca = 50 + Math.floor(Math.random() * 41);
+            this.contagemMudanca = 0; // Reinicia
+            this.maxMudanca = 50 + Math.floor(Math.random() * 41); // entre 50 e 90 frames para atacar
          }
       }
       this.raycaster.ray.origin.copy(this.obj.position);
@@ -736,20 +739,20 @@ class Cacodemon {
       //console.log(this.obj.position.y);
    }
    sofrerAtaque(danoInfligido, scene) {
-      this.vida -= danoInfligido;
+      this.vida -= danoInfligido;// Decrementa vida em caso de ataque
       
-      console.log("Vida:")
+      console.log("Vida:");
       console.log(this.vida);
-      if (!this.padeceu && this.vida <= 0) {
+      if (!this.padeceu && this.vida <= 0) { // Se ainda não padeceu e a vida chegou a 0 ou algo menor que isso, coloca 0 na vida e acusa fim do inimigo
          this.vida=0;
          this.padeceu = true;
       }
-      
-   const escala = this.vida / this.vidaMax;
+      // Para adequar a barra;
+   const escala = this.vida / this.vidaMax; // Proporção de vida atual 
    this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
 
-   const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2;
-   this.barraFrente.position.x = deslocamentoX;
+   const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2; // Descola para continuar onde estava, à esquerda, na visão do jogador
+   this.barraFrente.position.x = deslocamentoX; // desloca
 
    }
 }

@@ -14,18 +14,21 @@ import {initRenderer,
 
 function carregarArquivoGLB(assetManager, caminho, nomeArq, visbilidadeInicial,numero,scene, escala=1)
 {
-   var loader = new GLTFLoader( );
+   var loader = new GLTFLoader( );  // Carregador de glb
    
-   loader.load( caminho + nomeArq + '.glb', function ( gltf ) {
-      var obj = gltf.scene.clone(true);
+   loader.load( caminho + nomeArq + '.glb', function ( gltf ) { // Carregamento assíncrono go glb
+      var obj = gltf.scene.clone(true); // Clona da cena do glb o objeto requisitado
       //console.log(obj);
-      obj.name = nomeArq;
-      obj.visible = visbilidadeInicial;
+      obj.name = nomeArq; // Nomeia
+      obj.visible = visbilidadeInicial; 
+
+      // Para cada mesh dentro do grupo, coloca sombras
       obj.traverse( function ( child ) {
          if( child.isMesh ){ child.castShadow = true; child.receiveShadow=true;}
          if( child.material ) child.material.side = THREE.DoubleSide;         
       });
 
+      // Normaliza a escala e fixa a posição:
       obj = normalizeAndRescale(obj,1);
       obj = fixPosition(obj);
 
@@ -41,8 +44,8 @@ function carregarArquivoGLB(assetManager, caminho, nomeArq, visbilidadeInicial,n
 // Normalize scale and multiple by the newScale
 function normalizeAndRescale(obj, newScale)
 {
-  var scale = getMaxSize(obj); 
-  obj.scale.set(newScale * (1.0/scale),
+  var scale = getMaxSize(obj); // Pega tamanho do objeto( Maior dos segmentos)
+  obj.scale.set(newScale * (1.0/scale), // passa para nova escala( Normaliza e depois multiplica pelo escalar)
                 newScale * (1.0/scale),
                 newScale * (1.0/scale));
   return obj;
@@ -51,7 +54,7 @@ function normalizeAndRescale(obj, newScale)
 function fixPosition(obj)
 {
   // Fix position of the object over the ground plane
-  var box = new THREE.Box3().setFromObject( obj );
+  var box = new THREE.Box3().setFromObject( obj ); // BoundingBox para pegar tamanho do objeto
   if(box.min.y > 0)
     obj.translateY(-box.min.y);
   else
