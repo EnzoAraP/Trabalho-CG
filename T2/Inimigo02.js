@@ -331,7 +331,7 @@ class Cacodemon {
       let giroZ = (Math.random() ** 4) * (Math.PI / 6); // Giro vertical
       if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
          giroZ /= 5;// Reduz giro em certas condições
-      if (this.direcao_movimento.y * this.direcao_movimento.x < 0)
+      if (this.direcao_movimento.y  < 0)
          giroZ = -giroZ; // Adequa giro em z
 
 
@@ -549,6 +549,10 @@ class Cacodemon {
                      console.log("bateu");
                   }
                }
+
+               let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, true);
+               this.speed = colisaoPlat[0];
+                  
 
                
             }

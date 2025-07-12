@@ -28,7 +28,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class Lost_Soul {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
-      this.arma=null;
+      this.arma = null;
 
       this.voo = true;
       this.obj = objeto;
@@ -92,7 +92,7 @@ class Lost_Soul {
 
       this.tempoDesap = 50;
 
-      this.passos_desap=0;
+      this.passos_desap = 0;
 
       this.taxaDesap = 0.02;
 
@@ -100,11 +100,11 @@ class Lost_Soul {
 
       this.transparente = false;
 
-      this.dormindo=true;
+      this.dormindo = true;
 
-      this.vidaMax=20;
+      this.vidaMax = 20;
       this.vida = this.vidaMax;
-      
+
       this.levaDano = true;
       this.padeceu = false;
       this.eixo_x = new THREE.Vector3(1, 0, 0);
@@ -115,7 +115,7 @@ class Lost_Soul {
       this.anterior_yz = 0;
 
       this.isDashing = false;
-      this.dashFrames =0;
+      this.dashFrames = 0;
       this.dashDuration = 15;
       this.dashSpeed = this.speedPadrao * 18;
       this.dashDirection = new THREE.Vector3();
@@ -128,12 +128,12 @@ class Lost_Soul {
       this.t_max = 0;
       this.quaternionInicial = new THREE.Quaternion();
       this.quaternionFinal = new THREE.Quaternion();
-      
 
-      this.barraFrente=null;
-      this.barraFundo=null;
-      this.grupoBarras=null;
-      this.tamBarraVida=1.2;
+
+      this.barraFrente = null;
+      this.barraFundo = null;
+      this.grupoBarras = null;
+      this.tamBarraVida = 1.2;
 
    }
    gerarMovimento2(personagem = this.personagem_rival.obj) {
@@ -236,15 +236,15 @@ class Lost_Soul {
       // Para giro vertical (em torno do eixo X → plano YZ):
       this.mult = dirAtualYZ.clone().cross(direcaoDesejadaYZ).x < 0 ? -1 : 1;
       this.coef_rot_ver *= this.mult;
-       this.quaternionInicial.copy(this.obj.quaternion);
+      this.quaternionInicial.copy(this.obj.quaternion);
 
-    const dummy = new THREE.Object3D();
-    dummy.position.copy(this.obj.position);
-    dummy.lookAt(alvoPos);
-    this.quaternionFinal.copy(dummy.quaternion);
+      const dummy = new THREE.Object3D();
+      dummy.position.copy(this.obj.position);
+      dummy.lookAt(alvoPos);
+      this.quaternionFinal.copy(dummy.quaternion);
 
-    // Preparar para dash após o giro
-    this.prepararDash = true; // flag para iniciar dash após giro
+      // Preparar para dash após o giro
+      this.prepararDash = true; // flag para iniciar dash após giro
 
 
    }
@@ -271,69 +271,79 @@ class Lost_Soul {
       return coef * cubic;
    }
 
-   acordar(){
-      this.dormindo=false;
-      this.obj.visible=true;
-      this.grupoBarras.visible=true;
+   acordar() {
+      this.dormindo = false;
+      this.obj.visible = true;
+      this.grupoBarras.visible = true;
    }
 
    sumir() {
       this.grupoBarras.lookAt(this.personagem_rival.obj.position);
-     
+
       if (!this.sumiu) {
-         let taxa_desap=this.taxaDesap;
-         if(!this.transparente)
-         {
-            this.transparente=true;
-            
+         let taxa_desap = this.taxaDesap;
+         if (!this.transparente) {
+            this.transparente = true;
+
             console.log("AA");
+            this.obj.traverse(function (child) {
+               if (child.isMesh) {
+                  console.log("TP")
+                  child.material.transparent = true;
+               }
+            });
+
+            this.barraFundo.material.transparent = true;
+         }
+         this.barraFundo.material.opacity -= taxa_desap;
+         console.log(this.barraFundo.material.opacity);
          this.obj.traverse(function (child) {
             if (child.isMesh) {
-               console.log("TP")
-               child.material.transparent = true;
-            }
-         });
-
-         this.barraFundo.material.transparent=true;
-      }
-         this.barraFundo.material.opacity-=taxa_desap;
-         console.log(this.barraFundo.material.opacity);
-          this.obj.traverse(function (child) {
-            if (child.isMesh) {
                child.material.opacity -= taxa_desap;
-               console.log(child.material.opacity );
+               console.log(child.material.opacity);
             }
          });
          this.passos_desap++;
-         if (this.passos_desap==this.tempoDesap)
+         if (this.passos_desap == this.tempoDesap)
             this.sumiu = true;
-         
+
       }
    }
 
    gerarMovimento(personagem = this.personagem_rival.obj) {
-      this.girando = true;
-      this.tempoDeGiro = 0;
+      this.girando = true; // Ativa giro
+      this.tempoDeGiro = 0; //Estabelece tempo de giro
 
-      
-      this.direcao_movimento.subVectors(personagem.position, this.obj.position);
+
+      this.direcao_movimento.subVectors(personagem.position, this.obj.position);  // Direção até o personagem
       let giroMin = 0;
-      if (this.direcao_movimento.length() <= 9)
-         giroMin = Math.PI / 2;
+      let exp = 1.2;
+      if (this.direcao_movimento.length() <= 6)
+         giroMin = Math.PI / 2; // Muito perto, pelo menos 90 graus
+      else if (this.direcao_movimento.length() <= 12) {
+         giroMin = Math.PI / 4; // Mais ou menos perto, ao menos 45
+         exp = 0.8;
+      }
+      else if (this.direcao_movimento.length() >= 35) {
+         exp = 2; // Um pouco longe, tende a se aproximar
+      }
+      else if (this.direcao_movimento.length() >= 50)
+         exp = 5; // Muito longe, tende a se aproximar mais e mais
 
 
       let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-      let giroY = (Math.random() ** 2) * (Math.PI / 3) + giroMin;
+      let giroY = (Math.random() ** (exp)) * (3 * Math.PI / 8) + giroMin;  // Estabelece giro em relação à direção dele até o personagem
 
-      let positivo = (Math.random() >= 0.5);
+      let positivo = (Math.random() >= 0.5); // Sorteia o sentido
 
       if (!positivo)
          giroY = -giroY;
-      let giroZ = (Math.random() ** 4) * (Math.PI / 6);
+      let giroZ = (Math.random() ** 4) * (Math.PI / 6); // Giro vertical
       if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
-         giroZ /= 5;
-      if (this.direcao_movimento.y * this.direcao_movimento.x < 0)
-         giroZ = -giroZ;
+         giroZ /= 5;// Reduz giro em certas condições
+      if (this.direcao_movimento.y  < 0)
+         giroZ = -giroZ; // Adequa giro em z
+
 
 
 
@@ -414,19 +424,19 @@ class Lost_Soul {
 
    movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
       if (this.isDashing) {
-    // Move rapidamente na direção do dash
-    let dashStep = this.dashDirection.clone().multiplyScalar(this.dashSpeed * delta);
-    this.obj.position.add(dashStep);
-    this.dashFrames++;
+         // Move rapidamente na direção do dash
+         let dashStep = this.dashDirection.clone().multiplyScalar(this.dashSpeed * delta);
+         this.obj.position.add(dashStep);
+         this.dashFrames++;
 
-    // Opcional: ignore colisão durante o dash, ou adicione checagem se quiser parar ao colidir
+         // Opcional: ignore colisão durante o dash, ou adicione checagem se quiser parar ao colidir
 
-    if (this.dashFrames >= this.dashDuration) {
-        this.isDashing = false;
-        this.dashFrames = 0;
-    }
-    return; // não executa o resto do movimento durante o dash
-}
+         if (this.dashFrames >= this.dashDuration) {
+            this.isDashing = false;
+            this.dashFrames = 0;
+         }
+         return; // não executa o resto do movimento durante o dash
+      }
 
       if (this.girando && false) {
          this.tempoDeGiro++;
@@ -457,7 +467,7 @@ class Lost_Soul {
 
       }
 
-      if(this.dormindo)
+      if (this.dormindo)
          return;
 
       this.grupoBarras.lookAt(this.personagem_rival.obj.position);
@@ -477,18 +487,18 @@ class Lost_Soul {
             this.girando = false;
             this.tempoDeGiro = 0;
             this.t_max = 0;
-             if (this.tempoDeGiro >= this.t_max) {
-        this.girando = false;
-        this.tempoDeGiro = 0;
-        this.t_max = 0;
+            if (this.tempoDeGiro >= this.t_max) {
+               this.girando = false;
+               this.tempoDeGiro = 0;
+               this.t_max = 0;
 
-        // Inicia o dash se estiver preparado
-        if (this.prepararDash) {
-            this.prepararDash = false;
-            this.iniciarDash();
-            return; // não executa o resto do movimento neste frame
-        }
-    }
+               // Inicia o dash se estiver preparado
+               if (this.prepararDash) {
+                  this.prepararDash = false;
+                  this.iniciarDash();
+                  return; // não executa o resto do movimento neste frame
+               }
+            }
 
          }
       }
@@ -557,38 +567,37 @@ class Lost_Soul {
 
          let colisaoAreaAtual = false;
          for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed,true);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, true);
             this.speed = speedColisao[0];
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
          }
-         if(this.grandeArea==1)
-          {
-          //  console.log(areas[0].boundingBoxesPilares);
-            
-            for(var i=0;i<areas[0].boundingBoxesPilares.length;i++){
-            
-            let speedColisao = verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
-            this.speed=speedColisao[0];
-             if (!colisaoAreaAtual && speedColisao[1])
-               colisaoAreaAtual = true;
+         if (this.grandeArea == 1) {
+            //  console.log(areas[0].boundingBoxesPilares);
+
+            for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
+
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+               this.speed = speedColisao[0];
+               if (!colisaoAreaAtual && speedColisao[1])
+                  colisaoAreaAtual = true;
             }
          }
          if (this.grandeArea == 2) {
 
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed,true);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, true);
             this.speed = speedColisao[0];
             let colisaoComAPorta = speedColisao[1];
             let colisaoComAPlataforma = false;
             if (this.redondezasDaFechadura) {
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed,true);
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, true);
                this.speed = speedColisao[0];
 
             }
             else {
                if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed,true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, true);
                   this.speed = speedColisao[0];
                   colisaoComAPlataforma = speedColisao[1];
                   if (colisaoComAPlataforma) {
@@ -607,7 +616,7 @@ class Lost_Soul {
             if (this.area == 1 && !this.naPlataforma && !colisaoComAPorta) {
                let colisaoExtras = false;
                for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed,true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, true);
                   this.speed = speedColisao[0];
                   colisaoExtras = speedColisao[1];
 
@@ -765,7 +774,7 @@ class Lost_Soul {
          this.obj.position.y = 0.601;
 
       this.grupoBarras.position.copy(this.obj.position).add(new THREE.Vector3(0, 1.2, 0));
-      
+
 
 
 
@@ -773,157 +782,156 @@ class Lost_Soul {
    }
    sofrerAtaque(danoInfligido, scene) {
       this.vida -= danoInfligido;
-      
+
       console.log("Vida:")
       console.log(this.vida);
       if (!this.padeceu && this.vida <= 0) {
-         this.vida=0;
+         this.vida = 0;
          this.padeceu = true;
       }
-      
-   const escala = this.vida / this.vidaMax;
-   this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
 
-   const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2;
-   this.barraFrente.position.x = deslocamentoX;
+      const escala = this.vida / this.vidaMax;
+      this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
+
+      const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2;
+      this.barraFrente.position.x = deslocamentoX;
 
    }
    iniciarDash() {
-    // Calcula a direção do dash (do inimigo para o jogador)
-    this.dashDirection.subVectors(
-        this.personagem_rival.obj.position,
-        this.obj.position
-    ).setY(0).normalize(); // dash só no plano XZ, remova setY(0) se quiser dash 3D
+      // Calcula a direção do dash (do inimigo para o jogador)
+      this.dashDirection.subVectors(
+         this.personagem_rival.obj.position,
+         this.obj.position
+      ).setY(0).normalize(); // dash só no plano XZ, remova setY(0) se quiser dash 3D
 
-    this.isDashing = true;
-    this.dashFrames = 0;
-}
+      this.isDashing = true;
+      this.dashFrames = 0;
+   }
 
-dashpossivel(scene,areas,fronteira) {
-         
-          let colidiu = false;
-             let velocidadeatual=this.speed;
-             const deslocamento = new THREE.Vector3(this.direcao_movimento.x * velocidadeProjetil, this.direcao_movimento.y * velocidadeProjetil, this.direcao_movimento.z * velocidadeProjetil);
-    
-             this.obj.position.x += deslocamento.x;
-             this.obj.position.y += deslocamento.y;
-             this.obj.position.z += deslocamento.z;
-             if (proj.frames > 0) {
-                proj.frames++;
-                if (proj.frames == 180)
-                   colidiu = true;
-             }
-             else {
-                if (this.obj.position.y < -0.1) {
-                   colidiu = true;
-                   //console.log("B");
-                }
-                else {
-                   if (Math.abs(this.obj.position.x) > 252 || Math.abs(this.obj.position.z) > 252 || Math.abs(this.obj.position.y) > 11.1) {
-                      proj.frames = 1;
-                   }
-                   else {
-                      let boxBala = new THREE.Box3().setFromObject(this.obj);
-                      let grande_area_e_fechadura= testeGrandesAreas(this.obj, this.area);
-                     this.area = grande_area_e_fechadura[0];
+   dashpossivel(scene, areas, fronteira) {
 
-                      let redFech=grande_area_e_fechadura[1];
-                      if (!colidiu && this.area != -1) {
-                         if (this.area == 0) {
-                            for (var i = 0; i < 4; i++) {
-                               if (fronteira[i + 4].intersectsBox(boxBala)) {
-                                  colidiu = true;
-                                  //console.log("B");
-                                  break;
-                               }
-                            }
-                         }
-                         else {
-                            i = this.area - 1;
-                            ////console.log(i);
-                            let cubosBox = areas[i].boundingCubos;
-                            let rampaBox = areas[i].boundingRampa;
-                            if(redFech){
-                               colidiu=(areas[1].fechadura.box.intersectsBox(boxBala));
-                               //console.log(areas[1].fechadura.box);
-                               //console.log(colidiu);
-                               if( colidiu){
-                                  //console.log("C-0")
-                                  }
-                               //console.log("0-C")
-    
-                            }
-                            
-                            for (var j = 0; !colidiu && j < 3; j++) {
-                               if (cubosBox[j].intersectsBox(boxBala)) {
-                                  colidiu = true;
-                                  //console.log("C");
-                                  
-                               }
-    
-                            }
-                            if (!colidiu) {
-                               if(i!=1)
-                               { 
-                                  if (rampaBox.intersectsBox(boxBala)) {
-                                     let degrausBox = areas[i].boundingDegraus;
-                                     ////console.log(degrausBox)
-                                     for (var k = 0; k < 8; k++) {
-                                        if (boxBala.intersectsBox(degrausBox[k])) {
-                                           //console.log(degrausBox[k]);
-                                           colidiu = true;
-                                           //console.log("D");
-                                           break;
-    
-                                        }
-                                     }
-                                  }
-                                  else {
-                                     if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
-                                        colidiu = true;
-                                        //console.log("E");
-                                     }
-                                  }
-                               }
-                               else{
-                                  if(areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)){
-                                     colidiu=true;
-                                  }
-                                  else{
-                                     colidiu=areas[1].porta.box.intersectsBox(boxBala);
-                                  } 
-                                  for( var j=0;!colidiu && j<areas[1].num_blocos_extras;j++){
-                                    if(areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)){
-                                       colidiu = true;
-                                       //console.log("F");
-                                    }
-                                  }
-                               }
-                            }
-                         }
-                      }
-                      else{
-                        if( !colidiu && redFech){
-                        
-                               colidiu=(areas[1].fechadura.box.intersectsBox(boxBala));
-                               if( colidiu){
-                                
-                              } 
-    
-                        
+      let colidiu = false;
+      let velocidadeatual = this.speed;
+      const deslocamento = new THREE.Vector3(this.direcao_movimento.x * velocidadeProjetil, this.direcao_movimento.y * velocidadeProjetil, this.direcao_movimento.z * velocidadeProjetil);
+
+      this.obj.position.x += deslocamento.x;
+      this.obj.position.y += deslocamento.y;
+      this.obj.position.z += deslocamento.z;
+      if (proj.frames > 0) {
+         proj.frames++;
+         if (proj.frames == 180)
+            colidiu = true;
+      }
+      else {
+         if (this.obj.position.y < -0.1) {
+            colidiu = true;
+            //console.log("B");
+         }
+         else {
+            if (Math.abs(this.obj.position.x) > 252 || Math.abs(this.obj.position.z) > 252 || Math.abs(this.obj.position.y) > 11.1) {
+               proj.frames = 1;
+            }
+            else {
+               let boxBala = new THREE.Box3().setFromObject(this.obj);
+               let grande_area_e_fechadura = testeGrandesAreas(this.obj, this.area);
+               this.area = grande_area_e_fechadura[0];
+
+               let redFech = grande_area_e_fechadura[1];
+               if (!colidiu && this.area != -1) {
+                  if (this.area == 0) {
+                     for (var i = 0; i < 4; i++) {
+                        if (fronteira[i + 4].intersectsBox(boxBala)) {
+                           colidiu = true;
+                           //console.log("B");
+                           break;
                         }
-                      }
-                      
-                   }
-                }
-             }
-             if (colidiu) {
-                //console.log("Colisão" + proj.frames);
-                return colidiu;
-             }
-          
+                     }
+                  }
+                  else {
+                     i = this.area - 1;
+                     ////console.log(i);
+                     let cubosBox = areas[i].boundingCubos;
+                     let rampaBox = areas[i].boundingRampa;
+                     if (redFech) {
+                        colidiu = (areas[1].fechadura.box.intersectsBox(boxBala));
+                        //console.log(areas[1].fechadura.box);
+                        //console.log(colidiu);
+                        if (colidiu) {
+                           //console.log("C-0")
+                        }
+                        //console.log("0-C")
 
-          return colidiu;
-}
+                     }
+
+                     for (var j = 0; !colidiu && j < 3; j++) {
+                        if (cubosBox[j].intersectsBox(boxBala)) {
+                           colidiu = true;
+                           //console.log("C");
+
+                        }
+
+                     }
+                     if (!colidiu) {
+                        if (i != 1) {
+                           if (rampaBox.intersectsBox(boxBala)) {
+                              let degrausBox = areas[i].boundingDegraus;
+                              ////console.log(degrausBox)
+                              for (var k = 0; k < 8; k++) {
+                                 if (boxBala.intersectsBox(degrausBox[k])) {
+                                    //console.log(degrausBox[k]);
+                                    colidiu = true;
+                                    //console.log("D");
+                                    break;
+
+                                 }
+                              }
+                           }
+                           else {
+                              if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
+                                 colidiu = true;
+                                 //console.log("E");
+                              }
+                           }
+                        }
+                        else {
+                           if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)) {
+                              colidiu = true;
+                           }
+                           else {
+                              colidiu = areas[1].porta.box.intersectsBox(boxBala);
+                           }
+                           for (var j = 0; !colidiu && j < areas[1].num_blocos_extras; j++) {
+                              if (areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)) {
+                                 colidiu = true;
+                                 //console.log("F");
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+               else {
+                  if (!colidiu && redFech) {
+
+                     colidiu = (areas[1].fechadura.box.intersectsBox(boxBala));
+                     if (colidiu) {
+
+                     }
+
+
+                  }
+               }
+
+            }
+         }
+      }
+      if (colidiu) {
+         //console.log("Colisão" + proj.frames);
+         return colidiu;
+      }
+
+
+      return colidiu;
+   }
 }
 export { Lost_Soul };

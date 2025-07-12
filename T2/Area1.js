@@ -37,6 +37,8 @@ class Area1{
        this.geometriaPlat = new THREE.BoxGeometry(2,5,2);
        this.plat = new THREE.Mesh(this.geometriaPlat,this.materialPlat);
        this.plat.visible =false;
+       this.plat.castShadow=true;
+       this.plat.receiveShadow=true;
        this.visivel=false;
        this.boundingBoxesPilares=[];
        this.boundingBoxplat=null;
@@ -48,9 +50,9 @@ class Area1{
     
 subir_Plataforma(){
   let localPlat = new THREE.Vector3(0,-2,0);
-  let localchave = new THREE.Vector3(0,3,0);
+  let localchave = new THREE.Vector3(0,2.75,0);
   this.plat.position.copy(localPlat);
-  this.criarChave(this.plat,localchave,1);
+  this.criarChave(this.plat,localchave,0.5);
   this.cube0.add(this.plat);
   this.plat.visible=true;
 
@@ -94,7 +96,7 @@ cilindro.castShadow = true;
 cilindro.receiveShadow = true;
 cone1.receiveShadow = true;
 cone2.receiveShadow = true;
-this.cube0.add(cilindro);
+this.cube0.add(cilindro)
 this.pilares.push(cilindro);
 }
  criarChave(objcolocar,posicao,cuboLado){

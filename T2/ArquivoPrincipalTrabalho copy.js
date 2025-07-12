@@ -780,7 +780,7 @@ function render() {
             criou_elevar=true;
             areas[0].plat;
             areas[0].boundingBoxplat.setFromObject(areas[0].plat);
-            elevacaoBloco = new ElevacaoBloco(areas[0].plat,areas[0].boundingBoxplat,-3,2,180);
+            elevacaoBloco = new ElevacaoBloco(areas[0].plat,areas[0].boundingBoxplat,-3.2,2.5,240);
             
             elevacaoBloco.elevar_bloco=true;
 
