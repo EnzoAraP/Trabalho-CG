@@ -39,7 +39,9 @@ class Area1{
        this.plat.visible =false;
        this.visivel=false;
        this.boundingBoxesPilares=[];
-       this.boundingBoxplat = [];
+       this.boundingBoxplat=null;
+       this.pilares = [];
+       this.chave = null;
     }
     
 subir_Plataforma(){
@@ -91,7 +93,7 @@ cilindro.receiveShadow = true;
 cone1.receiveShadow = true;
 cone2.receiveShadow = true;
 this.cube0.add(cilindro);
-return cilindro;
+this.pilares.push(cilindro);
 }
  criarChave(objcolocar,posicao,cuboLado){
 let pi =Math.PI;
@@ -127,11 +129,13 @@ let secondCSG = firstCSG.subtract(cilindro2CSG);
 let lastCSG = secondCSG.subtract(cilindro3CSG);
  let chave = CSG.toMesh(lastCSG, new THREE.Matrix4());// chave 
  chave.material = new THREE.MeshPhongMaterial({
-  color: 'red'
+  color: 'red',
+  transparent: true,
+  opacity: 1
  }) 
-
+ 
  chave.position.copy(posicao);
-
+this.chave=chave;
 objcolocar.add(chave);
 }
 

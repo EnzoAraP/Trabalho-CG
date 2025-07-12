@@ -471,8 +471,71 @@ function estabeleceBoundingBoxes() {
    scene.add(helper3);
    scene.add(helper4);
 
+for(let i =-33.6;i<=33.6;i=i+11.2)// parede direita
+{
+   let vetorteste2 = new THREE.Vector3(i,4.5,-49.6);
+ areas[0].criaPilar(vetorteste2);
+//area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
+//criarBoundingBox(pilar);
 }
+for(let i =-33.6;i<=33.6;i=i+11.2)// parede esqureda
+{
+   let vetorteste3 = new THREE.Vector3(i,4.5,49.6);
+areas[0].criaPilar(vetorteste3);
+//area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
+}
+for(let i =49.6;i>=-49.6;i=i-11.2)// parede tras
+{
+   let vetorteste3 = new THREE.Vector3(-33.6,4.5,i);
+areas[0].criaPilar(vetorteste3);
+//area1.pilares.push(pilar);
+///criarBoundingBox(pilar);
+}
+for(let i =49.6;i>=0;i=i-11.2)// parede escada esquerda
+{
+   let vetorteste3 = new THREE.Vector3(33.6,4.5,i);
+areas[0].criaPilar(vetorteste3);
+//area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
+}
+for(let i =-49.6;i<=0;i=i+11.2)// parede escada direita
+{
+   let vetorteste3 = new THREE.Vector3(33.6,4.5,i);
+areas[0].criaPilar(vetorteste3);
+////area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
+}
+   //area 1 a partir daqui
+   if(areas[0].pilares && areas[0].pilares.length > 0) {
+   
+    for(var i = 0; i < areas[0].pilares.length; i++) {
+  
+      const pilar = areas[0].pilares[i];
+   
+      // Verifique se o pilar e sua malha existem
+      if(pilar) {
+        const box = new THREE.Box3().setFromObject(pilar);
+        console.log(box);
+        areas[0].boundingBoxesPilares.push(box);
+        console.log(areas[0].boundingBoxesPilares);
+         const helper4 = new THREE.Box3Helper(areas[0].boundingBoxesPilares[i], 0xffff00); // Amarelo
+             scene.add(helper4);
 
+      }
+    }
+  }
+   areas[0].subir_Plataforma();
+  const plat= areas[0].plat;
+  const boxPlat = new THREE.Box3().setFromObject(plat);
+  boxPlat.translate(new THREE.Vector3(0, 3, 0)); // sobe +2 no Y
+  areas[0].boundingBoxplat= boxPlat;
+   helper5 = new THREE.Box3Helper(areas[0].boundingBoxplat, 0xffff00); // Amarelo
+  scene.add(helper5);
+ 
+}
+var helper5 =null; // Amarelo
 
 let verdade = false;
 
@@ -488,6 +551,7 @@ window.addEventListener('mouseup', (event) => {
 });
 
 let pode= false;
+let entrou = false;
 const lancaMisseis = new LancaMisseis(camera, lost_soulvet, true,1,undefined,undefined);
 render();
 function render() {
@@ -576,7 +640,7 @@ function render() {
                lost_soul_derrotados.splice(i, 1);
          }
          if(lost_soulvet.length==0  ){
-            console.log("morreram "+Lost_soul_morreram );
+            
          
            //    if(!areas[0].bloco_elevado && !areas[0].elevar_bloco)
             //      areas[0].elevar_bloco=true;
@@ -584,7 +648,7 @@ function render() {
             //      areas[0].fazer_elevar_bloco();
              if(lost_soul_derrotados==0 && !Lost_soul_morreram)
                {
-               console.log("Entrou if");
+               
                lancaMisseis.inimigos = cacodemons;
                lancaMisseis.inimigos1 = cacodemons;
                lancaMisseis.type=2;
@@ -599,8 +663,12 @@ function render() {
          }
          
       }
-      if(pode)
+      if(pode ){
+       personagem.pegou = true;
+      
        areas[0].plat.position.lerp(lerpConfig.destination, lerpConfig.alpha);
+      
+      }
    }
    //console.log(verdade);
    //console.log(groundPlane);

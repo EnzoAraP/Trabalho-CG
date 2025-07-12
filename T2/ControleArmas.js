@@ -107,14 +107,12 @@ class LancaMisseis{
          if(this.ehJogador){
             //console.log("AAAA");
             }
-         console.log(this.inimigos1);
-         console.log(this.inimigos);
+     
           let inimigostodos = this.getTodosInimigos();
-         console.log(inimigostodos);
-         console.log(inimigostodos.length);
+    
          for(var i=0;i<inimigostodos.length;i++){
             let atual = inimigostodos[i];
-            console.log(i);
+     
             if(atual.grandeArea == areaBala && atual.box.intersectsBox(boxBala)){
                if(this.inimigos[i].levaDano){
                   console.log("INTS");
@@ -180,7 +178,22 @@ class LancaMisseis{
                       }
                       let redFech=grande_area_e_fechadura[1];
                       if (!colidiu && proj.area_proj != -1) {
+                        
+                        if(proj.area_proj==1){
+                         for (var i =0;i<areas[0].boundingBoxesPilares.length;i++)
+        {  
+      
+      if(areas[0].boundingBoxesPilares[i].intersectsBox(boxBala)){
+        
+         colidiu=true;
+          console.log(colidiu);
+         break;
+      }
+        }
+      }
+                        
                          if (proj.area_proj == 0) {
+                           
                             for (var i = 0; i < 4; i++) {
                                if (fronteira[i + 4].intersectsBox(boxBala)) {
                                   colidiu = true;

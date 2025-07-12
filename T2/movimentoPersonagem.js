@@ -17,6 +17,7 @@ import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
+
 var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
 var eixo_z = new THREE.Vector3(0, 0, 1);
@@ -42,8 +43,8 @@ class Personagem{
     this.naPlataforma=false;
 
     this.saiu_plataforma=false;
-
-    this.possui_chave1 = true; 
+    this.pegou=false;
+    this.possui_chave1 = false; 
 
     this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
 /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
@@ -121,18 +122,36 @@ class Personagem{
          if(this.grandeArea==1)
           {
           //  console.log(areas[0].boundingBoxesPilares);
-              console.log(areas[0].boundingBoxesPilares.length);
+            
             for(var i=0;i<areas[0].boundingBoxesPilares.length;i++){
-               console.log("entrouif");
-            console.log(areas[0].boundingBoxesPilares[i]);
-            console.log(this.obj.position);
+            
             let speedColisao = verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
             this.speed=speedColisao[0];
             if(speedColisao[1]==true)
             {
-               console.log(bateu);
+               console.log("bateu");
             }
             }
+            if(this.pegou==true){
+              let colisaoPlat =verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxplat,this.speed,false);
+           this.speed=colisaoPlat[0];
+           this.pegou=colisaoPlat[1];
+           if(this.pegou)
+           {
+            console.log("Pegou a chave!");
+      this.possui_chave1 = true; 
+       console.log(areas[0].chave);
+       if (areas[0].chave && areas[0].chave.parent) {
+   areas[0].chave.parent.remove(areas[0].chave); // Remove do pai (plat)
+   areas[0].chave = null; // Limpa referência
+    console.log("Chave removida!");
+}
+else {
+      console.warn("Chave não removida. Verifique se está no parent.");
+   }
+           }
+           
+         }
          }
          if(this.grandeArea==2){
             
@@ -313,7 +332,16 @@ class Personagem{
 
       }
    }
-   
+   if(this.grandeArea==1)
+   {
+        for (var i =0;i<areas[0].boundingBoxesPilares.length;i++)
+        {
+        
+        let colisaoSpeed= verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
+            this.speed=colisaoSpeed[0];
+        }
+      
+   }
    if(this.grandeArea==2 && areas[1].porta.aberta){
       
       let objeto=this.obj;

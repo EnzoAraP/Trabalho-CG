@@ -519,6 +519,18 @@ class Cacodemon {
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
          }
+          if(this.grandeArea==1)
+          {
+          //  console.log(areas[0].boundingBoxesPilares);
+            
+            for(var i=0;i<areas[0].boundingBoxesPilares.length;i++){
+            
+            let speedColisao = verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
+            this.speed=speedColisao[0];
+             if (!colisaoAreaAtual && speedColisao[1])
+               colisaoAreaAtual = true;
+            }
+         }
          if (this.grandeArea == 2) {
 
             let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed);

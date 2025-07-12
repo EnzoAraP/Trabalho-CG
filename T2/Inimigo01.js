@@ -400,6 +400,7 @@ class Lost_Soul {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
+      if(this.dashpossivel())
       this.prepararDash = true; // flag para iniciar dash após giro
    }
 
@@ -554,26 +555,38 @@ class Lost_Soul {
 
          let colisaoAreaAtual = false;
          for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed,true);
             this.speed = speedColisao[0];
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
          }
+         if(this.grandeArea==1)
+          {
+          //  console.log(areas[0].boundingBoxesPilares);
+            
+            for(var i=0;i<areas[0].boundingBoxesPilares.length;i++){
+            
+            let speedColisao = verifica_colisoes_com_blocos(this.obj,this.larg,2,this.larg,moveDir,areas[0].boundingBoxesPilares[i],this.speed,true);
+            this.speed=speedColisao[0];
+             if (!colisaoAreaAtual && speedColisao[1])
+               colisaoAreaAtual = true;
+            }
+         }
          if (this.grandeArea == 2) {
 
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed,true);
             this.speed = speedColisao[0];
             let colisaoComAPorta = speedColisao[1];
             let colisaoComAPlataforma = false;
             if (this.redondezasDaFechadura) {
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed);
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed,true);
                this.speed = speedColisao[0];
 
             }
             else {
                if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed,true);
                   this.speed = speedColisao[0];
                   colisaoComAPlataforma = speedColisao[1];
                   if (colisaoComAPlataforma) {
@@ -784,7 +797,7 @@ class Lost_Soul {
     this.dashFrames = 0;
 }
 
-/*dashpossivel(scene,areas,fronteira) {
+dashpossivel(scene,areas,fronteira) {
          
           let colidiu = false;
              let velocidadeatual=this.speed;
@@ -909,6 +922,6 @@ class Lost_Soul {
           
 
           return colidiu;
-}*/
+}
 }
 export { Lost_Soul };

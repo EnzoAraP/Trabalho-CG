@@ -21,6 +21,7 @@ import { Cacodemon } from './Inimigo02.js';
 import { } from './funcoesGeometriasExternas.js';
 import { AmbientLight } from '../build/three.module.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import { Area1 } from './Area1.js';
 
 let light, camera, keyboard, material;
 var stats = new Stats();

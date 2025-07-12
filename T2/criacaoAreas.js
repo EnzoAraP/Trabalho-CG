@@ -54,44 +54,51 @@ var cubeGeo2_area2 = new THREE.BoxGeometry(66.5, 4, 2);
 var area1 = new Area1([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo2]);
 area1.degraus=criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materiais_cubos[1]);
 area1.boundingBoxesPilares = [];
+/*
 function criarBoundingBox(mesh) {
     let box = new THREE.Box3().setFromObject(mesh);
     area1.boundingBoxesPilares.push(box);
     const helper2 = new THREE.Box3Helper(box, 0xffff00); // Amarelo
     scene.add(helper2);
 }
+    
 for(let i =-33.6;i<=33.6;i=i+11.2)// parede direita
 {
    let vetorteste2 = new THREE.Vector3(i,4.5,-49.6);
 let pilar = area1.criaPilar(vetorteste2);
-criarBoundingBox(pilar);
+//area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
 //criarBoundingBox(pilar);
 }
 for(let i =-33.6;i<=33.6;i=i+11.2)// parede esqureda
 {
    let vetorteste3 = new THREE.Vector3(i,4.5,49.6);
 let pilar = area1.criaPilar(vetorteste3);
-criarBoundingBox(pilar);
+//area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
 }
 for(let i =49.6;i>=-49.6;i=i-11.2)// parede tras
 {
    let vetorteste3 = new THREE.Vector3(-33.6,4.5,i);
 let pilar =area1.criaPilar(vetorteste3);
-criarBoundingBox(pilar);
+//area1.pilares.push(pilar);
+///criarBoundingBox(pilar);
 }
 for(let i =49.6;i>=0;i=i-11.2)// parede escada esquerda
 {
    let vetorteste3 = new THREE.Vector3(33.6,4.5,i);
 let pilar =area1.criaPilar(vetorteste3);
-criarBoundingBox(pilar);
+//area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
 }
 for(let i =-49.6;i<=0;i=i+11.2)// parede escada direita
 {
    let vetorteste3 = new THREE.Vector3(33.6,4.5,i);
 let pilar =area1.criaPilar(vetorteste3);
-criarBoundingBox(pilar);
+////area1.pilares.push(pilar);
+//criarBoundingBox(pilar);
 }
-
+*/
 
 
 //let vetorchave = new THREE.Vector3(0,4.5,0);
