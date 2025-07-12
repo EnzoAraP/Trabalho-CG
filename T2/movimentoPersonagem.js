@@ -153,7 +153,7 @@ class Personagem{
 
 
             // Verifica se saiu da área com blocos, indo para o plano base.
-            if (this.obj.position.x > (xi + ex + this.larg) || this.obj.position.x < (xi - ex - this.larg) || this.obj.position.z > (zi + ez + this.larg) || this.obj.position.z < (zi - ez - this.larg)) {
+            if (this.obj.position.x > (xi + ex + (this.larg)*0.7) || this.obj.position.x < (xi - ex - this.larg*0.7) || this.obj.position.z > (zi + ez + this.larg*0.7) || this.obj.position.z < (zi - ez - this.larg*0.7)) {
 
                this.area = -1;
             }
@@ -372,8 +372,8 @@ class Personagem{
       let objeto=this.obj;
          let pos_plataforma_a2=new THREE.Vector3(areas[1].plataforma.mesh.position.x,areas[1].plataforma.mesh.position.y,areas[1].plataforma.mesh.position.z);
          pos_plataforma_a2.addVectors(pos_plataforma_a2,areas[1].posicao_ini);
-         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x+(1-this.larg/2) && objeto.position.x >= pos_plataforma_a2.x-(1-this.larg/2)
-            && objeto.position.z <= pos_plataforma_a2.z+(1-this.larg/2) && objeto.position.z >= pos_plataforma_a2.z-(1-this.larg/2) 
+         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x+(2) && objeto.position.x >= pos_plataforma_a2.x-(2-this.larg/2)
+            && objeto.position.z <= pos_plataforma_a2.z+(2-this.larg/2) && objeto.position.z >= pos_plataforma_a2.z-(2-this.larg/2) 
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          ) ;
          if(!this.saiu_plataforma && !this.naPlataforma)
@@ -430,7 +430,7 @@ class Personagem{
    //}
 
    if(areas[1].porta.abrindo){
-      areas[1].abrir_porta(2,1);
+      areas[1].abrir_porta(4,1);
   
    }
    else if(areas[1].porta.aberta && areas[1].plataforma.em_movimento){

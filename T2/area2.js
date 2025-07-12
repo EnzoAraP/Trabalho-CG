@@ -16,7 +16,7 @@ import { criarChave } from './criacaoChave.js';
 
 class Area2 {
     constructor(geomterias_cubos,materiais_cubos) {
-        this.geometria_porta = new BoxGeometry(0.2, 4, 2);
+        this.geometria_porta = new BoxGeometry(0.2, 4, 4);
         this.material_porta =  new THREE.MeshLambertMaterial({ color:"rgb(50,120,90)"});
         this.porta_area_2 = new THREE.Mesh(this.geometria_porta, this.material_porta);
         this.porta_area_2_aberta = false;
@@ -25,13 +25,17 @@ class Area2 {
         this.geometria_suporte_fechadura = new THREE.BoxGeometry(1.5, 1, 1.5);
         this.material_suporte_fechadura = new THREE.MeshLambertMaterial({ color:"rgb(100,100,100)"});
         this.suporte_fechadura = new THREE.Mesh(this.geometria_suporte_fechadura, this.material_suporte_fechadura);
-        this.geometria_plataforma_a2 = new BoxGeometry(2, 4, 2);
+        this.geometria_plataforma_a2 = new BoxGeometry(4, 4, 4);
         this.material_plataforma_a2 = new THREE.MeshLambertMaterial({ color:"rgb(105, 152, 163)"});
         this.plataforma_area_2 = new THREE.Mesh(this.geometria_plataforma_a2, this.material_plataforma_a2);
 
+        var cubeGeo1 = new THREE.BoxGeometry(70, 4, 48);
+        var cubeGeo2 = new THREE.BoxGeometry(66, 4, 4);
+        var cubeGeo3 = new THREE.BoxGeometry(70, 4, 48);
 
-
-
+        geomterias_cubos[1]=cubeGeo1;
+        geomterias_cubos[2]=cubeGeo2;
+        geomterias_cubos[3]=cubeGeo3;
         this.cube0 = new THREE.Mesh(geomterias_cubos[0], materiais_cubos[0]),
             this.cube1 = new THREE.Mesh(geomterias_cubos[1], materiais_cubos[1]),
             this.cube2 = new THREE.Mesh(geomterias_cubos[2], materiais_cubos[1]),
@@ -45,7 +49,9 @@ class Area2 {
             this.ex = 35,
             this.ez = 51,
 
-
+            //this.cube1.translateZ(0.5);
+            //this.cube3.translateZ(-0.5);
+            this.cube2.translateX(-1.75);
             this.cube0.add(this.suporte_fechadura);
         this.cube0.add(this.porta_area_2);
         this.cube0.add(this.plataforma_area_2);
@@ -53,8 +59,8 @@ class Area2 {
         this.suporte_fechadura.translateX(40);
         this.suporte_fechadura.translateZ(-5);
         this.suporte_fechadura.translateY(0.5 - 2);
-        this.porta_area_2.translateX(35.1);
-        this.plataforma_area_2.translateX(34);
+        this.porta_area_2.translateX(34.9);
+        this.plataforma_area_2.translateX(33);
         this.plataforma_area_2.translateY(-3.949);
         this.porta = { mesh: this.porta_area_2, box: null, abrindo: false, aberta: false };
         this.fechadura = { mesh: this.suporte_fechadura, box: null };
@@ -81,7 +87,7 @@ class Area2 {
         { x:  0.2 * this.ex, y:2.7, z:    0.3 * this.ez },
         { x:  0.4 * this.ex, y:2, z:  0.7 * this.ez },
         { x:   0.83 * this.ex, y:2, z:   0.12 * this.ez },
-        { x:  -0.3 * this.ex,   y:2, z: 0.6 * this.ez       }, // meio-lateral
+        { x:  -0.3 * this.ex,   y:4.9, z: 0.6 * this.ez       }, // meio-lateral
         { x:  -0.52 * this.ex, y:3.2,  z:  0.85 * this.ez }, // canto superior levemente deslocado
         { x: -0.85 * this.ex, y:2, z: 0.21 * this.ez }, // canto inferior esquerdo
         { x:  -0.11 * this.ex, y:2, z: 0.48 * this.ez }, // canto inferior direito
@@ -93,8 +99,8 @@ class Area2 {
         { x:  -0.17 * this.ex, y:2, z:    -0.78 * this.ez },
         { x:  0.29 * this.ex, y:2, z:  -0.84 * this.ez },
         { x:   0.03 * this.ex, y:2.9, z:   -0.38 * this.ez },
-        { x:  0.47 * this.ex, y:4.1, z: -0.88  * this.ez     }, // meio-lateral
-        { x:  0.9 * this.ex, y:4.1, z: -0.48  * this.ez     }, // meio-lateral
+        { x:  0.47 * this.ex, y:3.2, z: -0.88  * this.ez     }, // meio-lateral
+        { x:  0.9 * this.ex, y:4.9, z: -0.48  * this.ez     }, // meio-lateral
         ];
 
         this.blocosExtras = [];
@@ -158,11 +164,19 @@ class Area2 {
         this.chave1=null;
         this.chave1Box=null;
 
+        this.comecou_a_abrir=false;
+
 
     }
     abrir_porta( limiteZ, multiplicador) {
-      
-        this.porta.mesh.position.z += multiplicador * 0.01;
+        if(!this.comecou_a_abrir){
+            this.porta.mesh.translateY(-0.01);
+            this.porta.mesh.translateX(-0.01);
+            
+            this.comecou_a_abrir=true;
+        }
+
+        this.porta.mesh.position.z += multiplicador * 0.015;
        
         this.porta.box.setFromObject(this.porta.mesh);
         if (multiplicador * this.porta.mesh.position.z >= multiplicador * limiteZ) {
@@ -170,6 +184,7 @@ class Area2 {
             this.porta.box.setFromObject(this.porta.mesh);
             this.porta.abrindo=false;
             this.porta.aberta=true;
+            this.porta.mesh.position.z += multiplicador * 0.015;
         }
 
     }

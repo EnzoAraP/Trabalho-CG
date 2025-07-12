@@ -29,7 +29,7 @@ var renderer = new THREE.WebGLRenderer();
 renderer.shadowMap.enabled = true;
 
 let luz_atual=0;
-const op_luz=[[THREE.PCFSoftShadowMap,4096,-0.0001],[THREE.VSMShadowMap,2048,-0.0005]];
+const op_luz=[[THREE.PCFSoftShadowMap,4096,-0.0002],[THREE.VSMShadowMap,2048,-0.0005]];
 
 renderer.shadowMap.type =  op_luz[luz_atual][0];
 
@@ -40,6 +40,8 @@ renderer.shadowMap.enabled = true;
 document.getElementById("webgl-output").appendChild(renderer.domElement);
 
 light = new AmbientLight(); // Use default light 
+
+light.intensity=0.5;
 
 scene.add(light);
 
@@ -62,8 +64,8 @@ dirLight.intensity = 1;
 // Shadow Parameters
 dirLight.shadow.mapSize.width = op_luz[luz_atual][1];
 dirLight.shadow.mapSize.height =  op_luz[luz_atual][1];
-dirLight.shadow.camera.near = 300;
-dirLight.shadow.camera.far = 1000;
+dirLight.shadow.camera.near = 561;
+dirLight.shadow.camera.far = 983;
 dirLight.shadow.camera.left = -150;
 dirLight.shadow.camera.right = 150;
 dirLight.shadow.camera.bottom = -150;
@@ -87,13 +89,17 @@ scene.add(dirLight.target);
 const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
 fillLight.position.set(-350, 430, -350);
 fillLight.castShadow = false;
-fillLight.intensity = 0.2;
+fillLight.intensity = 0.6;
 scene.add(fillLight.target);
 
 // No effect on Basic and PCFSoft
 
 
 scene.add(fillLight);
+
+
+
+
 
 function mudanca_luz(){
    const posPer = personagem.obj.position;

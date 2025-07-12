@@ -682,8 +682,8 @@ class Cacodemon {
          let objeto = this.obj;
          let pos_plataforma_a2 = new THREE.Vector3(areas[1].plataforma.mesh.position.x, areas[1].plataforma.mesh.position.y, areas[1].plataforma.mesh.position.z);
          pos_plataforma_a2.addVectors(pos_plataforma_a2, areas[1].posicao_ini);
-         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x + 1 && objeto.position.x >= pos_plataforma_a2.x - 1
-            && objeto.position.z <= pos_plataforma_a2.z + 1 && objeto.position.z >= pos_plataforma_a2.z - 1
+         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x + 2 && objeto.position.x >= pos_plataforma_a2.x - 2
+            && objeto.position.z <= pos_plataforma_a2.z + 2 && objeto.position.z >= pos_plataforma_a2.z - 2
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          );
 
