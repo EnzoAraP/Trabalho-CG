@@ -83,7 +83,7 @@ scene.add(dirLight.target);
 scene.add(dirLight);
 // (opcional) Ajuda para visualizar o volume de sombra
 const helper = new THREE.CameraHelper(dirLight.shadow.camera);
-scene.add(helper);
+//scene.add(helper);
 
 dirLight.target.position.set(0, 0, 0);
 scene.add(dirLight.target);
@@ -502,7 +502,7 @@ function estabeleceBoundingBoxes() {
                   areas[i].boundingDegraus.push(new THREE.Box3().setFromObject(degraus[k]));
                   ////console.log(areas[i].boundingDegraus[k]);
                   const helper = new THREE.Box3Helper(areas[i].boundingDegraus[k], 0xffff00); // Amarelo
-                  scene.add(helper);
+                 // scene.add(helper);
                }
             }
             areas[i].boundingRampa = new THREE.Box3().setFromObject(areas[i].degraus[1].rampa);
@@ -527,9 +527,9 @@ function estabeleceBoundingBoxes() {
    const helper3 = new THREE.Box3Helper(areas[1].fechadura.box, 0xffff00); // Amarelo
    areas[1].plataforma.box = new THREE.Box3().setFromObject(areas[1].plataforma.mesh);
    const helper4 = new THREE.Box3Helper(areas[1].plataforma.box, 0xffff00); // Amarelo
-   scene.add(helper2);
-   scene.add(helper3);
-   scene.add(helper4);
+ //  scene.add(helper2);
+//   scene.add(helper3);
+  // scene.add(helper4);
 
    for (let i = -33.6; i <= 33.6; i = i + 11.2)// parede direita
    {
@@ -581,7 +581,7 @@ function estabeleceBoundingBoxes() {
             areas[0].boundingBoxesPilares.push(box);
             console.log(areas[0].boundingBoxesPilares);
             const helper4 = new THREE.Box3Helper(areas[0].boundingBoxesPilares[i], 0xffff00); // Amarelo
-            scene.add(helper4);
+          //  scene.add(helper4);
 
          }
       }
@@ -592,7 +592,7 @@ function estabeleceBoundingBoxes() {
    boxPlat.translate(new THREE.Vector3(0, 3, 0)); // sobe +2 no Y
    areas[0].boundingBoxplat = boxPlat;
    let helper5 = new THREE.Box3Helper(areas[0].boundingBoxplat, 0xffff00); // Amarelo
-   scene.add(helper5);
+  // scene.add(helper5);
 
 }
 

@@ -39,12 +39,6 @@ function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMov
                   new THREE.Vector3(objeto.position.x, objeto.position.y - altura/2, objeto.position.z),
                   new THREE.Vector3(largura_x, altura, largura_z) // largura, altura, profundidade desejadas
                );
-              
-               if(contarSubida){
-                  boxObjeto.setFromObject(objeto);
-
-                  
-               }
 
                if (boxObjeto.intersectsBox(BoxObjetoATestar)) {
 

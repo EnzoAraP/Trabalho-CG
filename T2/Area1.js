@@ -132,10 +132,16 @@ let firstCSG = cuboCSG.subtract(cilindro1CSG);// retira cilindros um a um;
 let secondCSG = firstCSG.subtract(cilindro2CSG);
 let lastCSG = secondCSG.subtract(cilindro3CSG);
  let chave = CSG.toMesh(lastCSG, new THREE.Matrix4());// chave 
+ let cor2;
+ cor="rgb(0,0,0)";
+ cor2="rgb(100,10,0)";
  chave.material = new THREE.MeshPhongMaterial({
-  color: 'red',
-  transparent: true,
-  opacity: 1
+  color: cor, 
+        emissive: cor2,
+        specular: 0xffffff, 
+        shininess: 50,
+        reflectivity: 0.35,
+        refractionRatio: 0.5
  }) 
  
  chave.position.copy(posicao);

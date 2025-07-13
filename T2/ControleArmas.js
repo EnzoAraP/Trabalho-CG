@@ -64,7 +64,7 @@ class Metralhadora {
 
          let geometry = new THREE.PlaneGeometry(0.8, 0.8);
          let material = new THREE.MeshBasicMaterial({
-            map: tex, transparent: true, alphaTest: 0.4
+            map: tex, transparent: true, alphaTest: 0.5
 
          });
          this.actionSprite = new THREE.Mesh(geometry, material);

@@ -506,7 +506,11 @@ class Lost_Soul {
          this.contagemPreAtaque++;
          if (this.contagemPreAtaque == 20) {
             this.contagemPreAtaque = 0;
-            //arma aqui estava ataque especial!!
+            if (this.prepararDash) {
+                  this.prepararDash = false;
+                  this.iniciarDash();
+                  return; // não executa o resto do movimento neste frame
+               }
          }
          return;
       }
