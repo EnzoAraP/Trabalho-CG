@@ -14,7 +14,7 @@ import {
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import { testeGrandesAreas } from './criacaoAreas.js';
-import { SpriteMixer } from '../libs/sprites/SpriteMixer.js';
+import { SpriteMixer } from '../libs/sprites_antigo/SpriteMixer.js';
 
 
 const clock = new THREE.Clock();
