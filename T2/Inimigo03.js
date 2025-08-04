@@ -228,8 +228,8 @@ class Soldado {
         this.direcao_movimento.applyMatrix4(rotMatrixY);
 
         if (this.direcao_movimento.y < -0.1 || this.direcao_movimento.y > 0) {
-            let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
-            this.direcao_movimento.applyMatrix4(rotMatrixZ);
+            //let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
+            //this.direcao_movimento.applyMatrix4(rotMatrixZ);
 
         }
         let dirAtualXZ = this.obj.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
@@ -373,6 +373,7 @@ class Soldado {
     gerarMovimento(personagem = this.personagem_rival.obj) { 
         if(this.actionSprite==null)
             return;
+
         this.obj=this.actionSprite;
 
         this.girando = true; // Ativa giro
@@ -527,6 +528,8 @@ class Soldado {
                 this.maxMudanca = 50 + Math.floor(Math.random() * 41); // entre 50 e 90 frames para atacar
             }
         }
+        if(this.obj==null)
+            return;
         this.raycaster.ray.origin.copy(this.obj.position);
 
         const frontal = new THREE.Vector3(); // Vetor direção da câmera
@@ -540,9 +543,9 @@ class Soldado {
 
 
         let moveDir = this.obj.getWorldDirection(new THREE.Vector3());
-        this.actionSprite.translateX(1);
+       
 
-
+        moveDir.y=0;
 
         this.box = new THREE.Box3().setFromObject(this.obj);
         if (this.grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
