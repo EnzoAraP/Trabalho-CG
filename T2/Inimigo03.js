@@ -30,7 +30,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 
 class Soldado {
 
-    constructor(objeto, camera, boxInimigo, larg, speedPadrao, arma, personagem,scene) {
+    constructor(objeto, camera, boxInimigo, larg, speedPadrao, arma, personagem, scene) {
         this.voo = true;
         this.obj = objeto;
 
@@ -136,198 +136,14 @@ class Soldado {
 
         this.carregarSprites(scene);
 
-    }
-
-    carregarSprites(scene) {
-
-
-        this.spriteMixer, this.actionSprite = null, this.running, this.lastRunning, this.shooting = false, this.shootingFlag=0, this.actions = {};
-        this.dead = false; // Flag to control the die action
-        this.parallelMovement = true; // Variable to control parallel movement
-
-        this.spriteMixer = SpriteMixer();
-
-        // Make sure to use the texture once it's fully loaded, by
-        // passing a callback function to the loader.
-        let loader = new THREE.TextureLoader();
-        let texture = loader.load("../assets/textures/sprites/zombieman.png", (texture) => {
-
-            // An ActionSprite is instantiated with these arguments :
-            // - which THREE.Texture to use
-            // - the number of columns in your animation
-            // - the number of rows in your animation
-            this.actionSprite = this.spriteMixer.ActionSprite(texture, 8, 8);
-            
-            this.actionSprite.position.y = 0.9; // Adjust the height of the sprite
-            this.actionSprite.setFrame(0, 0); // set initial frame of the sprite
-
-            // - which actionSprite to use
-            // - duration of ONE FRAME in the animation, in milliseconds
-            // - line and column of the beginning of the action
-            // - line and column of the end of the action
-            this.actions.runDown = this.spriteMixer.Action(this.actionSprite, 100, 0, 0, 3, 0);
-            this.actions.runLD = this.spriteMixer.Action(this.actionSprite, 100, 0, 1, 3, 1); // Left Down
-            this.actions.runLeft = this.spriteMixer.Action(this.actionSprite, 100, 0, 2, 3, 2);
-            this.actions.runLU = this.spriteMixer.Action(this.actionSprite, 100, 0, 3, 3, 3); // Left Up
-            this.actions.runUp = this.spriteMixer.Action(this.actionSprite, 100, 0, 4, 3, 4);
-            this.actions.runRU = this.spriteMixer.Action(this.actionSprite, 100, 0, 5, 3, 5); // Right Up    
-            this.actions.runRight = this.spriteMixer.Action(this.actionSprite, 100, 0, 6, 3, 6);
-            this.actions.runRD = this.spriteMixer.Action(this.actionSprite, 100, 0, 7, 3, 7); // Right Down     
-
-            this.actions.Die = this.spriteMixer.Action(this.actionSprite, 150, 7, 0, 7, 3); // Die action
-
-            this.actions.ShootingDown = this.spriteMixer.Action(this.actionSprite, 100, 4, 0, 5, 0);
-            this.actions.ShootingLD = this.spriteMixer.Action(this.actionSprite, 100, 4, 1, 5, 1);
-            this.actions.ShootingLeft = this.spriteMixer.Action(this.actionSprite, 100, 4, 2, 5, 2);
-            this.actions.ShootingLU = this.spriteMixer.Action(this.actionSprite, 100, 4, 3, 5, 3);
-            this.actions.ShootingUp = this.spriteMixer.Action(this.actionSprite, 100, 4, 4, 5, 4);
-            this.actions.ShootingRU = this.spriteMixer.Action(this.actionSprite, 100, 4, 5, 5, 5);
-            this.actions.ShootingRight = this.spriteMixer.Action(this.actionSprite, 100, 4, 6, 5, 6);
-            this.actions.ShootingRD = this.spriteMixer.Action(this.actionSprite, 100, 4, 7, 5, 7);
-
-            this.actionSprite.scale.set(2, 2, 2);
-            scene.add(this.actionSprite);
-        });
-        texture.colorSpace = THREE.SRGBColorSpace; // Fix sprite color space 
-
-        this.obj=this.actionSprite;
-    }
-
-   
-
-    gerarMovimento2(personagem = this.personagem_rival.obj) {
-
-        if(this.actionSprite==null)
-            return;
-        this.obj=this.actionSprite;
-        this.girando = true;
-        this.direcao_movimento.subVectors(personagem.position, this.obj.position);
-        let giroMin = 0;
-        if (this.direcao_movimento.length() <= 6)
-            giroMin = Math.PI / 3;
-
-
-        let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-        let giroY = (Math.random() ** 2) * (Math.PI / 3) + giroMin;
-
-        let positivo = (Math.random() >= 0.5);
-
-        if (!positivo)
-            giroY = -giroY;
-        let giroZ = (Math.random() ** 4) * (Math.PI / 6);
-        if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
-            giroZ /= 5;
-        if (this.direcao_movimento.y * this.direcao_movimento.x < 0)
-            giroZ = -giroZ;
-
-
-
-
-        let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY);
-
-        this.direcao_movimento.applyMatrix4(rotMatrixY);
-
-        if (this.direcao_movimento.y < -0.1 || this.direcao_movimento.y > 0) {
-            //let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
-            //this.direcao_movimento.applyMatrix4(rotMatrixZ);
-
-        }
-        let dirAtualXZ = this.obj.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
-        const direcaoDesejadaXZ = this.direcao_movimento.clone().setY(0).normalize();
-
-
-
-        this.coef_rot_hor = dirAtualXZ.angleTo(direcaoDesejadaXZ);
-
-        let dirAtualYZ = this.obj.getWorldDirection(new THREE.Vector3()).setX(0).normalize();
-        const direcaoDesejadaYZ = this.direcao_movimento.clone().setX(0).normalize()
-
-        this.coef_rot_ver = dirAtualYZ.angleTo(direcaoDesejadaYZ);
-
-        let max_coef = this.coef_rot_hor >= this.coef_rot_ver ? this.coef_rot_hor : this.coef_rot_ver;
-
-
-        const giroEmGraus = Math.abs(THREE.MathUtils.radToDeg(max_coef));
-        if (giroEmGraus <= 30)
-            this.t_max = 1 + Math.floor(giroEmGraus) * 2;
-        else if (giroEmGraus <= 90)
-            this.t_max = Math.floor((giroEmGraus - 30)) + 60;
-        else
-            this.t_max = Math.floor((giroEmGraus - 90)) * 1.8 + 120;
-        // Para giro horizontal (em torno do eixo Y → plano XZ):
-        this.mult = dirAtualXZ.clone().cross(direcaoDesejadaXZ).y < 0 ? -1 : 1;
-        this.coef_rot_hor *= this.mult;
-
-        // Para giro vertical (em torno do eixo X → plano YZ):
-        this.mult = dirAtualYZ.clone().cross(direcaoDesejadaYZ).x < 0 ? -1 : 1;
-        this.coef_rot_ver *= this.mult;
-
-
+        this.moveUp = false;
+        this.moveDown = false;
+        this.moveRight = false;
+        this.moveLeft = false;
 
     }
 
-    ataque_especial2(scene) {
-
-        if(this.actionSprite==null)
-            return;
-        this.obj=this.actionSprite;
-        this.girando = true;
-        this.direcao_movimento.subVectors(this.personagem_rival.obj.position, this.obj.position);
-        let dirAtualXZ = this.obj.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
-        const direcaoDesejadaXZ = this.direcao_movimento.clone().setY(0).normalize();
-
-
-
-        this.coef_rot_hor = dirAtualXZ.angleTo(direcaoDesejadaXZ);
-
-        let dirAtualYZ = this.obj.getWorldDirection(new THREE.Vector3()).setX(0).normalize();
-        const direcaoDesejadaYZ = this.direcao_movimento.clone().setX(0).normalize()
-
-        this.coef_rot_ver = dirAtualYZ.angleTo(direcaoDesejadaYZ);
-
-        let max_coef = this.coef_rot_hor >= this.coef_rot_ver ? this.coef_rot_hor : this.coef_rot_ver;
-
-
-        const giroEmGraus = Math.abs(THREE.MathUtils.radToDeg(max_coef));
-        if (giroEmGraus <= 30)
-            this.t_max = 1 + Math.floor(giroEmGraus / 2);
-        else if (giroEmGraus <= 90)
-            this.t_max = Math.floor((giroEmGraus - 30) / 3) + 15;
-        else
-            this.t_max = Math.floor((giroEmGraus - 90) / 10) + 25;
-        // Para giro horizontal (em torno do eixo Y → plano XZ):
-        this.mult = dirAtualXZ.clone().cross(direcaoDesejadaXZ).y < 0 ? -1 : 1;
-        this.coef_rot_hor *= this.mult;
-
-        // Para giro vertical (em torno do eixo X → plano YZ):
-        this.mult = dirAtualYZ.clone().cross(direcaoDesejadaYZ).x < 0 ? -1 : 1;
-        this.coef_rot_ver *= this.mult;
-
-
-    }
-
-    funcaoRotacaoHor(x) {
-        if (Math.abs(this.coef_rot_hor) < 1e-15)
-            return 0;
-
-        const t = this.t_max;
-        const coef = this.coef_rot_hor / (t * t);
-        const cubic = -2 * (x ** 3) / t + 3 * (x ** 2);
-
-        return coef * cubic; // Já está em radianos
-    }
-
-    funcaoRotacaoVert(x) {
-        if (Math.abs(this.coef_rot_ver) < 1e-15)
-            return 0;
-
-        const t = this.t_max;
-        const coef = this.coef_rot_ver / (t * t);
-        const cubic = -2 * (x ** 3) / t + 3 * (x ** 2);
-
-        return coef * cubic;
-    }
-
+    
     // Função para acordar inimigos para batalha
     acordar() {
         this.dormindo = false;
@@ -337,7 +153,7 @@ class Soldado {
 
     // Função para operar seu sumiço gradativo
     sumir() {
-        this.obj=this.actionSprite;
+        this.obj = this.actionSprite;
         this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Barras continuam viradas ao usuário
 
         if (!this.sumiu) { // Se ele ainda não sumiu
@@ -370,13 +186,75 @@ class Soldado {
         }
     }
 
-    gerarMovimento(personagem = this.personagem_rival.obj) { 
-        if(this.actionSprite==null)
+
+    carregarSprites(scene) {
+
+
+        this.spriteMixer, this.actionSprite = null, this.running, this.lastRunning, this.shooting = false, this.shootingFlag = 0, this.actions = {};
+        this.dead = false; // Flag to control the die action
+        this.parallelMovement = true; // Variable to control parallel movement
+
+        this.spriteMixer = SpriteMixer();
+
+        // Make sure to use the texture once it's fully loaded, by
+        // passing a callback function to the loader.
+        let loader = new THREE.TextureLoader();
+        let texture = loader.load("../assets/textures/sprites/zombieman.png", (texture) => {
+
+            // An ActionSprite is instantiated with these arguments :
+            // - which THREE.Texture to use
+            // - the number of columns in your animation
+            // - the number of rows in your animation
+            this.actionSprite = this.spriteMixer.ActionSprite(texture, 8, 8);
+
+            this.actionSprite.position.y = 0.9; // Adjust the height of the sprite
+            this.actionSprite.setFrame(0, 0); // set initial frame of the sprite
+
+            // - which actionSprite to use
+            // - duration of ONE FRAME in the animation, in milliseconds
+            // - line and column of the beginning of the action
+            // - line and column of the end of the action
+            this.actions.runDown = this.spriteMixer.Action(this.actionSprite, 100, 0, 0, 3, 0);
+            this.actions.runLD = this.spriteMixer.Action(this.actionSprite, 100, 0, 1, 3, 1); // Left Down
+            this.actions.runLeft = this.spriteMixer.Action(this.actionSprite, 100, 0, 2, 3, 2);
+            this.actions.runLU = this.spriteMixer.Action(this.actionSprite, 100, 0, 3, 3, 3); // Left Up
+            this.actions.runUp = this.spriteMixer.Action(this.actionSprite, 100, 0, 4, 3, 4);
+            this.actions.runRU = this.spriteMixer.Action(this.actionSprite, 100, 0, 5, 3, 5); // Right Up    
+            this.actions.runRight = this.spriteMixer.Action(this.actionSprite, 100, 0, 6, 3, 6);
+            this.actions.runRD = this.spriteMixer.Action(this.actionSprite, 100, 0, 7, 3, 7); // Right Down     
+
+            this.actions.Die = this.spriteMixer.Action(this.actionSprite, 150, 7, 0, 7, 3); // Die action
+
+            this.actions.ShootingDown = this.spriteMixer.Action(this.actionSprite, 100, 4, 0, 5, 0);
+            this.actions.ShootingLD = this.spriteMixer.Action(this.actionSprite, 100, 4, 1, 5, 1);
+            this.actions.ShootingLeft = this.spriteMixer.Action(this.actionSprite, 100, 4, 2, 5, 2);
+            this.actions.ShootingLU = this.spriteMixer.Action(this.actionSprite, 100, 4, 3, 5, 3);
+            this.actions.ShootingUp = this.spriteMixer.Action(this.actionSprite, 100, 4, 4, 5, 4);
+            this.actions.ShootingRU = this.spriteMixer.Action(this.actionSprite, 100, 4, 5, 5, 5);
+            this.actions.ShootingRight = this.spriteMixer.Action(this.actionSprite, 100, 4, 6, 5, 6);
+            this.actions.ShootingRD = this.spriteMixer.Action(this.actionSprite, 100, 4, 7, 5, 7);
+
+            this.actionSprite.scale.set(2, 2, 2);
+            scene.add(this.actionSprite);
+        });
+        texture.colorSpace = THREE.SRGBColorSpace; // Fix sprite color space 
+
+        this.obj = this.actionSprite;
+    }
+
+
+
+
+
+    gerarMovimento(personagem = this.personagem_rival.obj) {
+        if (this.actionSprite == null)
             return;
+        this.obj = this.actionSprite;
 
-        this.obj=this.actionSprite;
+        this.acordar();
+        
 
-        this.girando = true; // Ativa giro
+        this.girando = false; // Ativa giro
         this.tempoDeGiro = 0; //Estabelece tempo de giro
 
 
@@ -397,13 +275,13 @@ class Soldado {
 
 
         let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-        let giroY = (Math.random() ** (exp)) * (3 * Math.PI / 8) + giroMin;  // Estabelece giro em relação à direção dele até o personagem
+        let giroY = (Math.random() ** (exp)) * Math.PI / 2 + giroMin;  // Estabelece giro em relação à direção dele até o personagem
 
         let positivo = (Math.random() >= 0.5); // Sorteia o sentido
 
-        if (!positivo)
+        if (!positivo) {
             giroY = -giroY;
-
+        }
 
 
 
@@ -431,7 +309,22 @@ class Soldado {
 
         this.quaternionInicial.copy(this.obj.quaternion); // Quartenion de origem
 
-
+        this.moveUp = this.moveDown = this.moveRight = this.moveLeft = false;
+        const giroYG = THREE.MathUtils.radToDeg(giroY);
+        if (giroYG <= 67.5 && giroYG >= -67.5) {
+             this.moveDown = true;
+        }
+        if (giroYG >= 22.5 && giroYG <= 157.5) {
+            this.moveLeft = true;
+        }
+        if (giroYG >= 112.5 || giroYG <= -112.5) {
+           
+            this.moveUp = true;
+        }
+        if (giroYG <= -22.5 && giroYG >= -157.5) {
+            
+            this.moveRight = true;
+        }
 
 
         const dummy = new THREE.Object3D();
@@ -440,12 +333,14 @@ class Soldado {
         this.quaternionFinal.copy(dummy.quaternion); // Obtém quartenion final
 
 
+        console.log(`${giroYG},${this.moveDown},${this.moveLeft},${this.moveUp},${this.moveRight}`);
+
     }
 
 
     // ataque_especial com mesmo sistema, mas agora não se altera direção, alemja-se olhar diretamente para a posição atual do personagem
     ataque_especial(scene) {
-        this.girando = true;
+        this.girando = false;
         this.tempoDeGiro = 0;
 
         const alvoPos = this.personagem_rival.obj.position.clone();
@@ -474,12 +369,64 @@ class Soldado {
 
     // Dentro do movimento()
 
+    animacao_sprite(moveDir, delta) {
+        // 1) mixer
+        this.spriteMixer.update(delta);
 
 
+        if (this.moveLeft) {
+            if (!this.moveUp && !this.moveDown) {
+                this.lastRunning = this.running = 'left';
+                if (!this.actions.runLeft.isInLoop) this.actions.runLeft.playLoop();
+            } else if (this.moveDown) {
+                this.lastRunning = this.running = 'ld';
+                if (!this.actions.runLD.isInLoop) this.actions.runLD.playLoop();
+            } else {
+                this.lastRunning = this.running = 'lu';
+                if (!this.actions.runLU.isInLoop) this.actions.runLU.playLoop();
+            }
+        }
+
+        else if (this.moveRight) {
+            if (!this.moveUp && !this.moveDown) {
+                this.lastRunning = this.running = 'right';
+                if (!this.actions.runRight.isInLoop) this.actions.runRight.playLoop();
+            } else if (this.moveDown) {
+                this.lastRunning = this.running = 'rd';
+                if (!this.actions.runRD.isInLoop) this.actions.runRD.playLoop();
+
+            } else {
+                this.lastRunning = this.running = 'ru';
+                if (!this.actions.runRU.isInLoop) this.actions.runRU.playLoop();
+            }
+        }
+
+        else { // Finally, check if only UP or DOWN is pressed
+            if (this.moveUp) { // Only left pressed
+                this.lastRunning = this.running = 'up'; // Set running direction to up
+                if (!this.actions.runUp.isInLoop) this.actions.runUp.playLoop();
+            } else {
+                this.lastRunning = this.running = 'down'; // Set running direction to down
+                if (!this.actions.runDown.isInLoop) this.actions.runDown.playLoop();
+            }
+        }
+    }
+
+    resetIsInLoopFlags(chaves) {
+        if (this.actions.runDown && !chaves[0]) this.actions.runDown.isInLoop = false;
+        if (this.actions.runLeft && !chaves[1]) this.actions.runLeft.isInLoop = false;
+        if (this.actions.runUp && !chaves[2]) this.actions.runUp.isInLoop = false;
+        if (this.actions.runRight && !chaves[3]) this.actions.runRight.isInLoop = false;
+
+        if (this.actions.runLD && !chaves[1] && !chaves[0]) this.actions.runLD.isInLoop = false;
+        if (this.actions.runLU && !chaves[1] && !chaves[2]) this.actions.runLU.isInLoop = false;
+        if (this.actions.runRD && !chaves[3] && !chaves[2]) this.actions.runRD.isInLoop = false;
+        if (this.actions.runRU && !chaves[3] && !chaves[2]) this.actions.runRU.isInLoop = false;
+    }
 
     movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
 
-        
+
         if (this.dormindo) // Se estiver a dormir, não faz nada
             return;
 
@@ -507,7 +454,7 @@ class Soldado {
             this.contagemPreAtaque++;
             if (this.contagemPreAtaque == 20) {
                 this.contagemPreAtaque = 0;
-                this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
+                //this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
             }
             return;
         }
@@ -515,7 +462,7 @@ class Soldado {
 
         if (this.contagemMudanca >= this.maxMudanca) { // Se chegar o momento,
             this.contagemEsperaAtaque++; // Mais uma mudança, mais um na contagem do ataque
-            if (this.contagemEsperaAtaque == this.maxEsperaAtaque) { // Se o número de mudanças for igual ao número esperado para atacar, prepara o ataque
+            if (false && this.contagemEsperaAtaque == this.maxEsperaAtaque) { // Se o número de mudanças for igual ao número esperado para atacar, prepara o ataque
                 this.ataque_especial(scene); // Direcionar-se ao jogador
                 this.contagemEsperaAtaque = 0; // Zera espera
                 this.contagemPreAtaque = 1; // inicia pré-ataque
@@ -528,33 +475,60 @@ class Soldado {
                 this.maxMudanca = 50 + Math.floor(Math.random() * 41); // entre 50 e 90 frames para atacar
             }
         }
-        if(this.obj==null)
+        if (this.obj == null)
             return;
         this.raycaster.ray.origin.copy(this.obj.position);
-
+        
+         
         const frontal = new THREE.Vector3(); // Vetor direção da câmera
-        this.obj.getWorldDirection(frontal);
-
+         frontal.subVectors(this.personagem_rival.obj.position, this.obj.position); 
+       
+        frontal.y = 0;// Tira parte em y para movimento x-z
 
         frontal.normalize();
 
         const direito = new THREE.Vector3(); // Vetor perpendicular à direita
         direito.crossVectors(frontal, this.eixo_y).normalize();
 
+    let chaves=[false,false,false,false]
+        let moveDir = new THREE.Vector3(); // Vetor para armazenar movimento
+        if (this.moveUp){ moveDir.sub(frontal); chaves[2]=true;}
+        if (this.moveDown){ moveDir.add(frontal); chaves[0]=true;}
+        if (this.moveRight){ moveDir.sub(direito); chaves[3]=true;}
+        if (this.moveLeft){ moveDir.add(direito);chaves[1]=true;}
+        
+        this.resetIsInLoopFlags(chaves); // Reset the isInLoop flags for all actions 
 
-        let moveDir = this.obj.getWorldDirection(new THREE.Vector3());
+         this.animacao_sprite(null, delta);
+        
+
+        
+
+
+
+
        
 
-        moveDir.y=0;
+        moveDir.y = 0;
+
+        if (this.actionSprite) {
+            if (this.parallelMovement) {
+                const euler = new THREE.Euler(); // Converter o quaternion da câmera para Euler
+                euler.setFromQuaternion(this.camera.quaternion, 'YXZ'); // Acerta ordem da transformação    
+                this.actionSprite.rotation.y = euler.y; // Copia rotação para o sprite para mantê-lo perpendicular à camera
+            } else {
+                this.actionSprite.rotation.y = 0;
+            }
+        }
 
         this.box = new THREE.Box3().setFromObject(this.obj);
         if (this.grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
 
-            
+
 
             moveDir.normalize().multiplyScalar(this.speed * delta); // Normaliza e multiplica pela velocidade, considerando o delta(Diferença entre quadros)
 
-            
+
 
             if (this.area != -1) { // Se estivermos sobre uma área de blocos
 
@@ -794,11 +768,16 @@ class Soldado {
 
         this.grupoBarras.position.copy(this.obj.position).add(new THREE.Vector3(0, 1.2, 0));
 
+        this.actionSprite.position.copy(this.obj.position);
+        this.actionSprite.quaternion.copy(this.obj.quaternion);
+
+        // e então:
 
 
 
         //console.log(this.obj.position.y);
     }
+
     sofrerAtaque(danoInfligido, scene) {
         this.vida -= danoInfligido;// Decrementa vida em caso de ataque
 
