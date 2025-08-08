@@ -20,13 +20,15 @@ import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 import { LancaMisseis } from './ControleArmas.js';
 
 import { SpriteMixer } from '../libs/sprites/SpriteMixer.js';
+import { armaSoldado } from './armaSoldado.js';
+
 
 var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
 var eixo_z = new THREE.Vector3(0, 0, 1);
 
 
-
+const clock = new THREE.Clock();
 
 class Soldado {
 
@@ -35,6 +37,8 @@ class Soldado {
         this.obj = objeto;
 
         this.camera = camera;
+
+        this.tempoTiro=200;
 
         this.box = boxInimigo;
         this.personagem_rival = personagem;
@@ -46,6 +50,10 @@ class Soldado {
         this.naPlataforma = false;
 
         this.possui_chave1 = true;
+
+        this.preparando_ataque=false;
+
+        this.perturbacao_tiro=0;
 
         this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
         /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
@@ -79,7 +87,7 @@ class Soldado {
 
         this.eixoRotacao = new THREE.Vector3(0, 0, 0);
 
-        this.tempoDeGiro = 0;
+        this.espera_tiro = 0;
 
         this.girando = false;
 
@@ -103,7 +111,7 @@ class Soldado {
 
         this.transparente = false;
 
-        this.dormindo = true;
+        this.dormindo = false;
 
         this.vidaMax = 50;
         this.vida = this.vidaMax;
@@ -111,6 +119,8 @@ class Soldado {
         this.levaDano = true;
         this.padeceu = false;
 
+
+        this.posicao_anterior_inimigo=new THREE.Vector3();
 
         this.eixo_x = new THREE.Vector3(1, 0, 0);
         this.eixo_y = new THREE.Vector3(0, 1, 0);
@@ -123,7 +133,7 @@ class Soldado {
 
 
         this.girando = false;
-        this.tempoDeGiro = 0;
+        this.espera_tiro = 0;
         this.t_max = 0;
         this.quaternionInicial = new THREE.Quaternion();
         this.quaternionFinal = new THREE.Quaternion();
@@ -141,6 +151,8 @@ class Soldado {
         this.moveRight = false;
         this.moveLeft = false;
 
+
+        this.armaSoldado = new armaSoldado(this.obj,scene,[this.personagem_rival]);
     }
 
     
@@ -186,34 +198,6 @@ class Soldado {
         }
     }
 
-
-
-       ataque_especial(scene) {
-        this.girando = false;
-        this.tempoDeGiro = 0;
-
-        const alvoPos = this.personagem_rival.obj.position.clone();
-        const origem = this.obj.position.clone();
-
-        const direcao = alvoPos.clone().sub(origem);
-        const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
-        const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
-
-        if (giroEmGraus <= 30)
-            this.t_max = 1 + Math.floor(giroEmGraus * 2);
-        else if (giroEmGraus <= 90)
-            this.t_max = Math.floor((giroEmGraus - 30)) + 60;
-        else
-            this.t_max = Math.floor((giroEmGraus - 90) * 1.8 + 120);
-        if (this.t_max > 15)
-            this.t_max
-        this.quaternionInicial.copy(this.obj.quaternion);
-
-        const dummy = new THREE.Object3D();
-        dummy.position.copy(this.obj.position);
-        dummy.lookAt(alvoPos);
-        this.quaternionFinal.copy(dummy.quaternion);
-    }
     carregarSprites(scene) {
 
 
@@ -252,7 +236,7 @@ class Soldado {
 
             this.actions.Die = this.spriteMixer.Action(this.actionSprite, 150, 7, 0, 7, 3); // Die action
 
-            this.actions.ShootingDown = this.spriteMixer.Action(this.actionSprite, 100, 4, 0, 5, 0);
+            this.actions.ShootingDown = this.spriteMixer.Action(this.actionSprite, this.tempoTiro, 4, 0, 5, 0);
             this.actions.ShootingLD = this.spriteMixer.Action(this.actionSprite, 100, 4, 1, 5, 1);
             this.actions.ShootingLeft = this.spriteMixer.Action(this.actionSprite, 100, 4, 2, 5, 2);
             this.actions.ShootingLU = this.spriteMixer.Action(this.actionSprite, 100, 4, 3, 5, 3);
@@ -281,8 +265,8 @@ class Soldado {
         this.acordar();
         
 
-        this.girando = false; // Ativa giro
-        this.tempoDeGiro = 0; //Estabelece tempo de giro
+        this.preparando_ataque = false; // Ativa giro
+        this.espera_tiro = 0; //Estabelece tempo de giro
 
 
         this.direcao_movimento.subVectors(personagem.position, this.obj.position);  // Direção até o personagem
@@ -426,6 +410,32 @@ class Soldado {
         if (this.actions.runRU && !(chaves[3] && chaves[2])) this.actions.runRU.isInLoop = false;
     }
 
+    
+
+
+       ataque_especial(scene) {
+        this.preparando_ataque = true;
+        this.espera_tiro = 0;
+        this.resetIsInLoopFlags([false,false,false,false]);
+
+        this.actionSprite.setFrame(4, 0);
+
+        this.recalcular_perturbacao_tiro();
+
+        
+            
+     
+         
+    }
+
+    recalcular_perturbacao_tiro(){
+        let exp=5;
+        this.perturbacao_tiro = (Math.random() ** (exp)) * Math.PI/35;
+        let negativo = (Math.random()<0.5);
+        if(negativo)
+            this.perturbacao_tiro=-this.perturbacao_tiro;
+    }
+
     movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
 
 
@@ -434,29 +444,44 @@ class Soldado {
 
         //console.log(this.personagem_rival.obj.position);
         this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Faz barras de vida olharem para o jogador
-        if (this.girando) {// Se estiver girando
-            this.tempoDeGiro++;
-
-            let t = this.tempoDeGiro / this.t_max;
-            if (this.contagemPreAtaque != 0)
-                t = this.tempoDeGiro / 20;
-            const alpha = Math.min(t, 1); // Relação máxima entre tempos é 1
-            const easedAlpha = -2 * alpha ** 3 + 3 * alpha ** 2; // curva suave
-
-            this.obj.quaternion.slerp(this.quaternionFinal, easedAlpha); // Faz o slerp até o quartenion final
-            this.obj.quaternion.normalize();// Normaliza
-
-            if (this.tempoDeGiro >= this.t_max) {
-                this.girando = false;
-                this.tempoDeGiro = 0;
-                this.t_max = 0;
-            }
-        }
         if (this.contagemPreAtaque != 0) {// Giro para o ataque é mais rápido
             this.contagemPreAtaque++;
+            this.spriteMixer.update(delta)
             if (this.contagemPreAtaque == 20) {
-                this.contagemPreAtaque = 0;
-                //this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
+                this.numTiros=0;
+                this.numTirosMax=4;
+                this.numero_troca=1+Math.round(Math.random()*3);
+                console.log("Atacando");
+                this.personagem_rival.obj.getWorldPosition(this.posicao_anterior_inimigo);
+                this.tempoControle = performance.now();
+                this.actions.ShootingDown.playLoop();
+            }
+            else if(this.contagemPreAtaque>20){
+                 console.log("Atacando2");
+                this.tempoAtual = performance.now();
+                
+                if(this.tempoAtual>=this.tempoControle+2*this.tempoTiro){
+                    this.tempoControle = this.tempoAtual;
+                    this.numTiros++;
+                    this.armaSoldado.atirar(scene,areas,fronteira,this.obj,true,this.perturbacao_tiro,this.posicao_anterior_inimigo);
+                    this.personagem_rival.obj.getWorldPosition(this.posicao_anterior_inimigo);
+             
+                    if(this.numTiros==this.numTirosMax){
+                        this.contagemPreAtaque = 0;
+                        this.actions.ShootingDown.inLoop=false;
+                    }   
+                    else{
+                        this.recalcular_perturbacao_tiro();
+                    } 
+                    
+                    
+                    
+                }
+                else{
+                    if((this.contagemEsperaAtaque-20)%this.numero_troca==0){
+                        this.personagem_rival.obj.getWorldPosition(this.posicao_anterior_inimigo);
+                    }
+                }
             }
             return;
         }
@@ -464,11 +489,12 @@ class Soldado {
 
         if (this.contagemMudanca >= this.maxMudanca) { // Se chegar o momento,
             this.contagemEsperaAtaque++; // Mais uma mudança, mais um na contagem do ataque
-            if (false && this.contagemEsperaAtaque == this.maxEsperaAtaque) { // Se o número de mudanças for igual ao número esperado para atacar, prepara o ataque
+            if ( this.contagemEsperaAtaque == this.maxEsperaAtaque) { // Se o número de mudanças for igual ao número esperado para atacar, prepara o ataque
                 this.ataque_especial(scene); // Direcionar-se ao jogador
                 this.contagemEsperaAtaque = 0; // Zera espera
                 this.contagemPreAtaque = 1; // inicia pré-ataque
-                this.maxEsperaAtaque = 2 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
+                this.maxEsperaAtaque = 4 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
+                return;
             }
             else {
                 this.gerarMovimento(); // Gera movimento padrão de giro e define direção do movimento

@@ -504,7 +504,29 @@ class Personagem {
       }
 
 
+
    }
+
+   
+      sofrerAtaque(danoInfligido, scene) {
+         console.log("Atacado fui, non!");
+         return;
+        this.vida -= danoInfligido;// Decrementa vida em caso de ataque
+
+        console.log("Vida:");
+        console.log(this.vida);
+        if (!this.padeceu && this.vida <= 0) { // Se ainda não padeceu e a vida chegou a 0 ou algo menor que isso, coloca 0 na vida e acusa fim do inimigo
+            this.vida = 0;
+            this.padeceu = true;
+        }
+        // Para adequar a barra;
+        const escala = this.vida / this.vidaMax; // Proporção de vida atual 
+        this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
+
+        const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2; // Descola para continuar onde estava, à esquerda, na visão do jogador
+        this.barraFrente.position.x = deslocamentoX; // desloca
+
+    }
 }
 
 export { Personagem };

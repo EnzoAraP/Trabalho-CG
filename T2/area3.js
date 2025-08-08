@@ -42,7 +42,8 @@ class Area3 {
         let planegeometry = new THREE.BoxGeometry(70, 0.1, 96); // Plano base 500x500
         let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
         let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das muralhas em x
-        let materialP = new THREE.MeshLambertMaterial({ color: "rgba(240, 3, 3, 1)" });
+        let texturaPlano = "./"
+        let materialP = this.estabelecerMaterial('./texturas_geral/area2/hangar_concrete_floor_compressed.webp', 10, 7, 0, 0, "rgba(65, 65, 65, 1)");
 
         this.plano = new THREE.Mesh(planegeometry, materialP);
 
@@ -63,10 +64,36 @@ class Area3 {
 
         // Criação dos cubos da área:
 
+        let texturaCubes = "./texturas_geral/area2/textura_hangar.jpg";
+        let texturaMap = null;
+        /*
+        let material_cubos_principais=this.material_cubosaa = [
+                    this.estabelecerMaterial( texturaCubes, 2, 8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
+                    this.estabelecerMaterial( texturaCubes, 2, 8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
+                    this.estabelecerMaterial( texturaCubes, 15, 10, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),// y+
+                    new THREE.MeshBasicMaterial(),
+                    this.estabelecerMaterial( texturaCubes, 8,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //z+
+                    this.estabelecerMaterial( texturaCubes, 8,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
+        
+                ];
+        let material_cubos_principais2=this.material_cubosaa = [
+                    this.estabelecerMaterial( texturaCubes, 11,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
+                    this.estabelecerMaterial( texturaCubes, 11,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
+                     new THREE.MeshBasicMaterial(),// y+
+                    new THREE.MeshBasicMaterial(),
+                    this.estabelecerMaterial( texturaCubes, 1,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //z+
+                    this.estabelecerMaterial( texturaCubes, 1,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
+        
+                ];
+                */
+
+        let material_cubos_principais = this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap);
+        let material_cubos_principais2 = this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap);
+
         this.cube0 = new THREE.Mesh(geomterias_cubos[0], materiais_cubos[0]),
-            this.cube1 = new THREE.Mesh(geomterias_cubos[1], materiais_cubos[1]),
-            this.cube2 = new THREE.Mesh(geomterias_cubos[2], materiais_cubos[1]),
-            this.cube3 = new THREE.Mesh(geomterias_cubos[3], materiais_cubos[1]),
+            this.cube1 = new THREE.Mesh(geomterias_cubos[1], material_cubos_principais),
+            this.cube2 = new THREE.Mesh(geomterias_cubos[2], material_cubos_principais2),
+            this.cube3 = new THREE.Mesh(geomterias_cubos[3], material_cubos_principais),
             this.degraus = [],
             this.posicao_ini = new THREE.Vector3(-100, this.altura_geral / 2, 150),
             this.cubos = [],
@@ -113,10 +140,12 @@ class Area3 {
         this.fechadura.mesh.castShadow = true;
         this.fechadura.mesh.receiveShadow = true;
 
+        this.boundingCubos = [],
+            this.boundingRampa = null,
+            this.boundingDegraus = [],
 
 
-
-        this.cubos = [this.cube1, this.cube2, this.cube3];
+            this.cubos = [this.cube1, this.cube2, this.cube3];
 
 
         // Posições dos blocos que ficam em cima da área 2:
@@ -150,10 +179,19 @@ class Area3 {
 
 
 
+        let material_cubos_principais3 = [
+            this.estabelecerMaterial(texturaCubes, 5, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap), //x+
+            this.estabelecerMaterial(texturaCubes, 5, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap),
+            new THREE.MeshBasicMaterial(),// y+
+            new THREE.MeshBasicMaterial(),
+            this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap), //z+
+            this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap)
+
+        ];
 
         var cubeGeo4 = new THREE.BoxGeometry(2, this.altura_geral, (96 - 2 * this.compPorta) / 2);
-        this.cube4 = new THREE.Mesh(cubeGeo4, materiais_cubos[1]);
-        this.cube5 = new THREE.Mesh(cubeGeo4, materiais_cubos[1]);
+        this.cube4 = new THREE.Mesh(cubeGeo4, material_cubos_principais3);
+        this.cube5 = new THREE.Mesh(cubeGeo4, material_cubos_principais3);
         this.cube0.add(this.cube4);
         this.cube0.add(this.cube5);
         this.cube4.translateX(34);
@@ -169,11 +207,20 @@ class Area3 {
         shape.absellipse(0, 0, 49.9, 19.8, Math.PI, 0, true); // meia elipse
 
         const extrudeSettings = {
-            depth: 1.8, bevelEnabled: true, curveSegments: 256, // Mais pontos no contorno da elipse
+            depth: 1.8, bevelEnabled: true, curveSegments: 128, // Mais pontos no contorno da elipse
             steps: 1           // Quantidade de divisões na profundidade
         };
+
+        let texturaFachada = "./texturas_geral/area2/fachada_hangar.jpg";
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-        const material = new THREE.MeshBasicMaterial({});
+        /*let material = [
+                    this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
+                    this.estabelecerMaterial(texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
+                    this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
+        
+                ];
+                */
+        let material = this.estabelecerMaterial(texturaFachada, 1 / 8, 1 / 8, 0, 0, "rgba(21, 46, 0, 1)");
         this.hangar = new THREE.Mesh(geometry, material);
         this.cube0.add(this.hangar);
         this.hangar.translateY(this.altura_geral / 2 + 0.2);
@@ -194,7 +241,7 @@ class Area3 {
         const pontosPerfil = [];
         const raioX = 50;
         const raioY = 20;
-        const segmentos = 256;
+        const segmentos = 128;
 
         for (let i = 0; i <= segmentos; i++) {
             const theta = Math.PI - (i / segmentos) * Math.PI; // de PI a 0
@@ -236,9 +283,22 @@ class Area3 {
         geometria.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
         geometria.setIndex(indices);
         geometria.computeVertexNormals();
+        const uvs = [];
 
+        for (let i = 0; i <= segmentosZ; i++) {
+            const z = (i / segmentosZ) * comprimento;
+            for (let j = 0; j < pontosPerfil.length; j++) {
+                const u = i / segmentosZ; // ao longo do eixo Z
+                const v = j / (pontosPerfil.length - 1); // ao longo do arco
+                uvs.push(u, v);
+            }
+        }
+
+        geometria.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
         // Material e Mesh
-        const material2 = new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+        //const material2 = new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+        const material2 = this.estabelecerMaterial(texturaCubes, 1, 25, 0, 0, "rgba(0, 102, 0, 1)");
+        material2.side = THREE.DoubleSide;
         const tetoOval = new THREE.Mesh(geometria, material2);
 
 
@@ -260,18 +320,18 @@ class Area3 {
 
     carregar_aviao() {
 
-       this.assetManager = {
+        this.assetManager = {
             // Properties ---------------------------------
             plane: null,
             planeBox: null,
             allLoaded: false,
-            in_position:false,
+            in_position: false,
 
             // Functions ----------------------------------
             checkLoaded: function () {
                 if (!this.allLoaded) {
                     if (
-                        this.plane ) {
+                        this.plane) {
                         this.allLoaded = true;
                     }
                 }
@@ -282,33 +342,36 @@ class Area3 {
                     this.plane.visible = this.L200.visible = this.tank.visible = false;
             }
         }
-        loadOBJFile(this.assetManager,'../assets/objects/', 'plane', 20, 0, true);
-        
-        
+        loadOBJFile(this.assetManager, '../assets/objects/', 'plane', 20, 0, true);
+
+
     }
 
-    posicionar_aviao(){
-        
-        if(this.assetManager.in_position)
+    posicionar_aviao() {
+
+        if (this.assetManager.in_position)
             return;
-        if(this.assetManager.planeBox==null)
-            this.assetManager.planeBox= new THREE.Box3();
+        if (this.assetManager.planeBox == null)
+            this.assetManager.planeBox = new THREE.Box3();
         this.assetManager.checkLoaded();
         console.log(this.assetManager.allLoaded);
-        if(!this.assetManager.allLoaded)
+        if (!this.assetManager.allLoaded)
             return;
-        
+
         this.cube0.add(this.assetManager.plane);
         this.assetManager.plane.translateY(-8);
-        this.assetManager.planeBox=new THREE.Box3().setFromObject(this.assetManager.plane);
+        this.assetManager.planeBox = new THREE.Box3().setFromObject(this.assetManager.plane);
         console.log(this.assetManager.plane);
-        this.assetManager.in_position=true;
+        this.assetManager.in_position = true;
 
     }
 
-    estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)") {
-        let material = new THREE.MeshBasicMaterial({ color: cor });
-        material.map = this.loader.load(arquivo);
+    estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)", normalMap = null, doubleSide = false) {
+
+        let material = new THREE.MeshBasicMaterial({ color: cor, doubleSide: false });
+        let textura_car = this.loader.load(arquivo);
+        material.map = textura_car;
+
 
         material.map.wrapS = THREE.RepeatWrapping;
         material.map.wrapT = THREE.RepeatWrapping;
@@ -316,6 +379,7 @@ class Area3 {
         material.map.repeat.set(repeticoesU, repeticoesV);
         material.map.offset.x = offsetX;
         material.map.offset.y = offsetY;
+
         return material;
 
     }
