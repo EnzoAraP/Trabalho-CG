@@ -103,7 +103,7 @@ class Soldado {
 
         this.transparente = false;
 
-        this.dormindo = false;
+        this.dormindo = true;
 
         this.vidaMax = 50;
         this.vida = this.vidaMax;
@@ -187,6 +187,33 @@ class Soldado {
     }
 
 
+
+       ataque_especial(scene) {
+        this.girando = false;
+        this.tempoDeGiro = 0;
+
+        const alvoPos = this.personagem_rival.obj.position.clone();
+        const origem = this.obj.position.clone();
+
+        const direcao = alvoPos.clone().sub(origem);
+        const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
+        const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
+
+        if (giroEmGraus <= 30)
+            this.t_max = 1 + Math.floor(giroEmGraus * 2);
+        else if (giroEmGraus <= 90)
+            this.t_max = Math.floor((giroEmGraus - 30)) + 60;
+        else
+            this.t_max = Math.floor((giroEmGraus - 90) * 1.8 + 120);
+        if (this.t_max > 15)
+            this.t_max
+        this.quaternionInicial.copy(this.obj.quaternion);
+
+        const dummy = new THREE.Object3D();
+        dummy.position.copy(this.obj.position);
+        dummy.lookAt(alvoPos);
+        this.quaternionFinal.copy(dummy.quaternion);
+    }
     carregarSprites(scene) {
 
 
@@ -339,39 +366,14 @@ class Soldado {
 
 
     // ataque_especial com mesmo sistema, mas agora não se altera direção, alemja-se olhar diretamente para a posição atual do personagem
-    ataque_especial(scene) {
-        this.girando = false;
-        this.tempoDeGiro = 0;
-
-        const alvoPos = this.personagem_rival.obj.position.clone();
-        const origem = this.obj.position.clone();
-
-        const direcao = alvoPos.clone().sub(origem);
-        const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
-        const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
-
-        if (giroEmGraus <= 30)
-            this.t_max = 1 + Math.floor(giroEmGraus * 2);
-        else if (giroEmGraus <= 90)
-            this.t_max = Math.floor((giroEmGraus - 30)) + 60;
-        else
-            this.t_max = Math.floor((giroEmGraus - 90) * 1.8 + 120);
-        if (this.t_max > 15)
-            this.t_max
-        this.quaternionInicial.copy(this.obj.quaternion);
-
-        const dummy = new THREE.Object3D();
-        dummy.position.copy(this.obj.position);
-        dummy.lookAt(alvoPos);
-        this.quaternionFinal.copy(dummy.quaternion);
-    }
+ 
 
 
     // Dentro do movimento()
 
     animacao_sprite(moveDir, delta) {
         // 1) mixer
-        this.spriteMixer.update(delta);
+        
 
 
         if (this.moveLeft) {
@@ -418,10 +420,10 @@ class Soldado {
         if (this.actions.runUp && !chaves[2]) this.actions.runUp.isInLoop = false;
         if (this.actions.runRight && !chaves[3]) this.actions.runRight.isInLoop = false;
 
-        if (this.actions.runLD && !chaves[1] && !chaves[0]) this.actions.runLD.isInLoop = false;
-        if (this.actions.runLU && !chaves[1] && !chaves[2]) this.actions.runLU.isInLoop = false;
-        if (this.actions.runRD && !chaves[3] && !chaves[2]) this.actions.runRD.isInLoop = false;
-        if (this.actions.runRU && !chaves[3] && !chaves[2]) this.actions.runRU.isInLoop = false;
+        if (this.actions.runLD && !(chaves[1] && chaves[0])) this.actions.runLD.isInLoop = false;
+        if (this.actions.runLU && !(chaves[1] && chaves[2])) this.actions.runLU.isInLoop = false;
+        if (this.actions.runRD && !(chaves[3] && chaves[0])) this.actions.runRD.isInLoop = false;
+        if (this.actions.runRU && !(chaves[3] && chaves[2])) this.actions.runRU.isInLoop = false;
     }
 
     movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
@@ -489,8 +491,10 @@ class Soldado {
 
         const direito = new THREE.Vector3(); // Vetor perpendicular à direita
         direito.crossVectors(frontal, this.eixo_y).normalize();
+    
 
-    let chaves=[false,false,false,false]
+
+        let chaves=[false,false,false,false]
         let moveDir = new THREE.Vector3(); // Vetor para armazenar movimento
         if (this.moveUp){ moveDir.sub(frontal); chaves[2]=true;}
         if (this.moveDown){ moveDir.add(frontal); chaves[0]=true;}
@@ -499,7 +503,10 @@ class Soldado {
         
         this.resetIsInLoopFlags(chaves); // Reset the isInLoop flags for all actions 
 
-         this.animacao_sprite(null, delta);
+    this.animacao_sprite(null, delta);
+    
+    this.spriteMixer.update(delta);
+        
         
 
         
@@ -511,15 +518,7 @@ class Soldado {
 
         moveDir.y = 0;
 
-        if (this.actionSprite) {
-            if (this.parallelMovement) {
-                const euler = new THREE.Euler(); // Converter o quaternion da câmera para Euler
-                euler.setFromQuaternion(this.camera.quaternion, 'YXZ'); // Acerta ordem da transformação    
-                this.actionSprite.rotation.y = euler.y; // Copia rotação para o sprite para mantê-lo perpendicular à camera
-            } else {
-                this.actionSprite.rotation.y = 0;
-            }
-        }
+        
 
         this.box = new THREE.Box3().setFromObject(this.obj);
         if (this.grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
@@ -548,7 +547,7 @@ class Soldado {
 
             let colisaoAreaAtual = false;
             for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-                let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, true);
+                let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, delta, true);
                 this.speed = speedColisao[0];
                 if (!colisaoAreaAtual && speedColisao[1])
                     colisaoAreaAtual = true;
@@ -559,14 +558,14 @@ class Soldado {
 
                 for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
 
-                    let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+                    let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, delta, true);
                     this.speed = speedColisao[0];
                     if (speedColisao[1] == true) {
                         console.log("bateu");
                     }
                 }
 
-                let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, true);
+                let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, delta, true);
                 this.speed = colisaoPlat[0];
 
 
@@ -574,15 +573,15 @@ class Soldado {
             }
             if (this.grandeArea == 2) {
 
-                let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, true);
+                let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, delta, true);
                 this.speed = speedColisao[0];
                 let colisaoComAPorta = speedColisao[1];
                 let colisaoComAPlataforma = false;
                 if (this.redondezasDaFechadura) {
-                    speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, true);
+                    speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, delta, true);
                     this.speed = speedColisao[0];
                     if (areas[this.grandeArea - 1].chave1 != null) {
-                        speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, true);
+                        speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, delta, true);
                         this.speed = speedColisao[0];
                     }
 
@@ -590,7 +589,7 @@ class Soldado {
                 else {
                     if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
 
-                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, true);
+                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, delta, true);
                         this.speed = speedColisao[0];
                         colisaoComAPlataforma = speedColisao[1];
                         if (colisaoComAPlataforma) {
@@ -609,7 +608,7 @@ class Soldado {
                 if (this.area == 1 && !this.naPlataforma && !colisaoComAPorta) {
                     let colisaoExtras = false;
                     for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
-                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, true);
+                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, delta, true);
                         this.speed = speedColisao[0];
                         colisaoExtras = speedColisao[1];
 
@@ -659,13 +658,13 @@ class Soldado {
         else if (this.grandeArea == 0) {
             for (var j = 0; j < 4; j++) {
 
-                let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed, true);
+                let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed, delta, true);
                 this.speed = colisaoSpeed[0];
             }
         }
         else {
             if (this.redondezasDaFechadura) {
-                let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed, true);
+                let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed, delta, true);
                 this.speed = colisaoSpeed[0];
             }
         }
@@ -769,11 +768,21 @@ class Soldado {
         this.grupoBarras.position.copy(this.obj.position).add(new THREE.Vector3(0, 1.2, 0));
 
         this.actionSprite.position.copy(this.obj.position);
-        this.actionSprite.quaternion.copy(this.obj.quaternion);
+        //this.actionSprite.quaternion.copy(this.obj.quaternion);
 
         // e então:
+         
 
 
+        if (this.actionSprite) {
+            if (this.parallelMovement) {
+                const euler = new THREE.Euler(); // Converter o quaternion da câmera para Euler
+                euler.setFromQuaternion(this.camera.quaternion, 'YXZ'); // Acerta ordem da transformação    
+                this.actionSprite.rotation.y = euler.y; // Copia rotação para o sprite para mantê-lo perpendicular à camera
+            } else {
+                this.actionSprite.rotation.y = 0;
+            }
+        }
 
         //console.log(this.obj.position.y);
     }

@@ -155,6 +155,10 @@ let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das
 
 let groundPlane = new THREE.Mesh(planegeometry, material);
 
+material.map= new THREE.TextureLoader().load('./texturas_geral/area2/seamless-metal-cargo-box-texture.jpg');
+material.map.repeat.x=20;
+material.map.repeat.y=20;
+
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
    let novoPlano = new THREE.Mesh(border_planeGeometry_YZ, material2);
@@ -509,7 +513,7 @@ function estabeleceBoundingBoxes() {
 
 
          areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos[j]));
-         if (i != 1) {
+         if (i != 1 && i != 2) {
             let degraus = areas[i].degraus[0].degraus;
 
 
@@ -546,7 +550,20 @@ function estabeleceBoundingBoxes() {
       areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
    }
 
+   
+   areas[2].porta1.box = new THREE.Box3().setFromObject(areas[2].porta1.mesh);
+   areas[2].porta2.box = new THREE.Box3().setFromObject(areas[2].porta2.mesh);
+   const helper22 = new THREE.Box3Helper(areas[2].porta1.box, 0xffff00); // Amarelo
+   scene.add(helper22);
+   areas[2].fachadaOvalbox1 = new THREE.Box3().setFromObject(areas[2].fachadaOval1);
+   const helper32 = new THREE.Box3Helper(areas[1].fechadura.box, 0xffff00); // Amarelo
+   areas[2].fachadaOvalbox2 = new THREE.Box3().setFromObject(areas[2].fachadaOval2);
+   areas[2].tetoOvalBox = new THREE.Box3().setFromObject(areas[2].tetoOval);
+   const helper42 = new THREE.Box3Helper(areas[1].plataforma.box, 0xffff00); // Amarelo
 
+   areas[2].boundingCube4 = new THREE.Box3().setFromObject(areas[2].cube4);
+   areas[2].boundingCube5 = new THREE.Box3().setFromObject(areas[2].cube5);
+   
    areas[1].porta.box = new THREE.Box3().setFromObject(areas[1].porta.mesh);
    const helper2 = new THREE.Box3Helper(areas[1].porta.box, 0xffff00); // Amarelo
    areas[1].fechadura.box = new THREE.Box3().setFromObject(areas[1].fechadura.mesh);
@@ -619,6 +636,8 @@ function estabeleceBoundingBoxes() {
    areas[0].boundingBoxplat = boxPlat;
    let helper5 = new THREE.Box3Helper(areas[0].boundingBoxplat, 0xffff00); // Amarelo
   // scene.add(helper5);
+   
+   
 
 }
 
@@ -654,6 +673,36 @@ var Lost_soul_morreram = false;
 var criou_elevar=false;
 
 let elevacaoBloco = null;
+
+
+// Create the cube
+let loader = new THREE.TextureLoader();
+let geometry = new THREE.BoxGeometry(10, 5, 5);
+let cubeMaterials = [
+    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 2), //x+
+    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 1, 1, 'orange'), //x-   Texture + color
+    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //y+
+    new THREE.MeshBasicMaterial ({color:'rgb(0,200,100)'}), //y-  Just a color
+    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //z+
+    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1) //z-
+];
+let cube = new THREE.Mesh(geometry, cubeMaterials);
+
+cube.scale.set(10,10,10);
+scene.add(cube);
+
+cube.position.set(100,100,100);
+// To access textures individually, you should use their indexes
+console.log(cube.material[0].map)
+
+function setMaterial(file, repeatU = 1, repeatV = 1, color = 'rgb(255,255,255)'){
+   let mat = new THREE.MeshBasicMaterial({ map: loader.load(file), color:color});
+      mat.map.colorSpace = THREE.SRGBColorSpace;
+   mat.map.wrapS = mat.map.wrapT = THREE.RepeatWrapping;
+   mat.map.minFilter = mat.map.magFilter = THREE.LinearFilter;
+   mat.map.repeat.set(repeatU,repeatV); 
+   return mat;
+}
 
 render();
 
@@ -835,11 +884,13 @@ function render() {
    }
    ////console.log(verdade);
    ////console.log(groundPlane);
-
+   
    renderer.render(scene, camera) // Render scene
    requestAnimationFrame(render);
    if (!inicializadasBoxes) {
       estabeleceBoundingBoxes();
+      
       inicializadasBoxes = true;
    }
+   areas[2].posicionar_aviao();
 }

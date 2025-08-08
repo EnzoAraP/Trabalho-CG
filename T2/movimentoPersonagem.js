@@ -16,6 +16,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
+import { Area3 } from './area3.js';
 
 var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
@@ -45,7 +46,9 @@ class Personagem {
 
       this.saiu_plataforma = false;
 
-      this.possui_chave1 = false;
+      this.possui_chave1 = true;
+
+      this.possui_chave2 = true;
 
       this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
       /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
@@ -104,11 +107,11 @@ class Personagem {
       }
    }
 
-   movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset,scene, moveDown = false) {
+   movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset, scene, moveDown = false) {
 
       this.raycaster.ray.origin.copy(this.obj.position);
 
-
+      
 
       const frontal = new THREE.Vector3(); // Vetor direção da câmera
       this.obj.getWorldDirection(frontal);
@@ -158,7 +161,7 @@ class Personagem {
             let colisaoAreaAtual = false;
 
             for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed);
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed,delta);
                this.speed = speedColisao[0];
                if (!colisaoAreaAtual && speedColisao[1])
                   colisaoAreaAtual = true;
@@ -182,7 +185,7 @@ class Personagem {
                   if (pegouS && !this.possui_chave1) {
                      console.log("Pegou a chave!");
                      this.possui_chave1 = true;
-                     
+
                   }
 
                }
@@ -190,12 +193,12 @@ class Personagem {
 
             if (this.grandeArea == 2) {
 
-               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed);
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed,delta);
                this.speed = speedColisao[0];
                let colisaoComAPorta = speedColisao[1];
                let colisaoComAPlataforma = false;
                if (this.redondezasDaFechadura) {
-                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed);
+                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed,delta);
                   this.speed = speedColisao[0];
                   let colisaoComFechadura = speedColisao[1];
                   if (colisaoComFechadura && !areas[1].porta.aberta && !areas[1].porta.abrindo && this.possui_chave1) {
@@ -206,7 +209,7 @@ class Personagem {
                else {
                   if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
 
-                     let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed);
+                     let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed,delta);
                      this.speed = speedColisao[0];
                      colisaoComAPlataforma = speedColisao[1];
                      if (colisaoComAPlataforma) {
@@ -225,7 +228,7 @@ class Personagem {
                if (this.area == 1 && !this.naPlataforma && !colisaoComAPorta) {
                   let colisaoExtras = false;
                   for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
-                     let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed);
+                     let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed,delta);
                      this.speed = speedColisao[0];
                      colisaoExtras = speedColisao[1];
 
@@ -236,6 +239,24 @@ class Personagem {
                }
 
 
+            }
+            else if (this.grandeArea == 3) {
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta1.box, this.speed,delta);
+               this.speed = speedColisao[0];
+               console.log(speedColisao[1]);
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta2.box, this.speed,delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube4, this.speed,delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube5, this.speed,delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].assetManager.planeBox, this.speed,delta);
+               this.speed = speedColisao[0];
+               
             }
             else {
                let pos_escada = new THREE.Vector3(0, 0, 0);
@@ -297,13 +318,13 @@ class Personagem {
          else if (this.grandeArea == 0) {
             for (var j = 0; j < 4; j++) {
 
-               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, fronteira[j + 4], this.speed);
+               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, fronteira[j + 4], this.speed,delta);
                this.speed = colisaoSpeed[0];
             }
          }
          else {
             if (this.redondezasDaFechadura) {
-               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[1].fechadura.box, this.speed);
+               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[1].fechadura.box, this.speed,delta);
                this.speed = colisaoSpeed[0];
                let colisaoComFechadura = colisaoSpeed[1];
                if (colisaoComFechadura && !areas[1].porta.aberta && !areas[1].porta.abrindo && this.possui_chave1) {
@@ -323,6 +344,8 @@ class Personagem {
          let grandeArea_e_fechadura = testeGrandesAreas(this.obj, this.grandeArea);
          this.grandeArea = grandeArea_e_fechadura[0];
          this.redondezasDaFechadura = grandeArea_e_fechadura[1];
+
+         console.log(moveDir);
       }
 
 
@@ -332,18 +355,18 @@ class Personagem {
       this.raycaster.ray.origin.copy(this.obj.position);
       if (this.grandeArea >= 1) {
          if (this.area != -1) {
-            if (this.grandeArea != 2)
+            if (this.grandeArea != 2 && this.grandeArea != 3)
                isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
-            else
+            else if (this.grandeArea == 2)
                intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
             isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
          }
          else {
             if (this.voo) {
                ////console.log(areas[0].degraus[1].rampa)
-               if (this.grandeArea != 2)
+               if (this.grandeArea != 2 && this.grandeArea != 3)
                   isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.grandeArea - 1].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
-               else
+               else if (this.grandeArea == 2)
                   intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
                isIntersectingGround = this.raycaster.intersectObjects([groundPlane, ...areas[this.grandeArea - 1].cubos]).length > 0.00001;
             }
@@ -373,9 +396,9 @@ class Personagem {
                   new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.05, this.obj.position.z),
                   new THREE.Vector3(this.larg, 2.1, this.larg) // largura, altura, profundidade desejadas
                );
-               if (this.grandeArea != 2)
+               if (this.grandeArea != 2 && this.grandeArea != 3)
                   isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
-               else
+               else if (this.grandeArea == 2)
                   intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
                isIntersectingGround = false;
                isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
@@ -435,7 +458,7 @@ class Personagem {
 
          if (!this.chegada_area2 && this.area == 1 && this.saiu_plataforma && this.obj.position.y >= 5.99)
             this.chegada_area2 = true;
-         
+
 
 
       }
@@ -450,10 +473,19 @@ class Personagem {
       if (this.voo && moveUp == true) {
          this.obj.position.y += 20 * delta; // Se voo estiver ativado
       }
+
+
       //}
+     
+      areas[2].teste_abertura_porta(this.obj,this.possui_chave2);
 
       if (areas[1].porta.abrindo) {
          areas[1].abrir_porta(4, 1);
+
+      }
+      if (areas[2].porta1.abrindo) {
+         areas[2].abrir_porta(35, 1);
+         console.log("catapimbas");
 
       }
       else if (areas[1].porta.aberta && areas[1].plataforma.em_movimento) {

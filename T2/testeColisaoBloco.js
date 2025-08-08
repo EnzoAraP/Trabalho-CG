@@ -27,6 +27,21 @@ function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMov
    let intsc = "";
    let colisao=false;
             
+               const minDim = 0.5;
+            const size = new THREE.Vector3();
+            BoxObjetoATestar.getSize(size);
+            
+            // Aplica o limite mínimo
+            size.x = Math.max(size.x, minDim);
+            size.y = Math.max(size.y, minDim);
+            size.z = Math.max(size.z, minDim);
+            
+            // Se quiser criar uma nova box com esse tamanho e o mesmo centro:
+            const center = new THREE.Vector3();
+            BoxObjetoATestar.getCenter(center);
+            
+            const newBox = new THREE.Box3().setFromCenterAndSize(center, size);
+
             let vetor_eixos=null;
             if(contarSubida)
                vetor_eixos=["x","y", "z"];
@@ -40,7 +55,7 @@ function verifica_colisoes_com_blocos(objeto,largura_x,altura,largura_z,vetorMov
                   new THREE.Vector3(largura_x, altura, largura_z) // largura, altura, profundidade desejadas
                );
 
-               if (boxObjeto.intersectsBox(BoxObjetoATestar)) {
+               if (boxObjeto.intersectsBox(newBox)) {
 
                   intsc = eixo; // Eixo intersectado
                   colisao=true;

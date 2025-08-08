@@ -91,4 +91,35 @@ function fixPosition(obj)
   return obj;
 }
 
-export {carregarArquivoGLB,carregarArquivoObj}
+
+function loadOBJFile(assetManager,modelPath, modelName, desiredScale, angle, visibility)
+{
+  var mtlLoader = new MTLLoader( );
+  mtlLoader.setPath( modelPath );
+  mtlLoader.load( modelName + '.mtl', function ( materials ) {
+      materials.preload();
+
+      var objLoader = new OBJLoader( );
+      objLoader.setMaterials(materials);
+      objLoader.setPath(modelPath);
+      objLoader.load( modelName + ".obj", function ( obj ) {
+        obj.visible = visibility;
+        obj.name = modelName;
+        // Set 'castShadow' property for each children of the group
+        obj.traverse( function (child)
+        {
+           if( child.isMesh )   child.castShadow = true;
+           if( child.material ) child.material.side = THREE.DoubleSide; 
+        });
+
+        var obj = normalizeAndRescale(obj, desiredScale);
+        var obj = fixPosition(obj);
+        obj.rotateY(THREE.MathUtils.degToRad(angle));
+
+        
+        assetManager[modelName] = obj;        
+      });
+  });
+}
+
+export {carregarArquivoGLB,carregarArquivoObj,loadOBJFile}

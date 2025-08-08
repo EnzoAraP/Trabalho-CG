@@ -532,7 +532,7 @@ class Cacodemon {
 
          let colisaoAreaAtual = false;
          for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed,true);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, delta,true);
             this.speed = speedColisao[0];
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
@@ -543,14 +543,14 @@ class Cacodemon {
 
                for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, delta, true);
                   this.speed = speedColisao[0];
                   if (speedColisao[1] == true) {
                      console.log("bateu");
                   }
                }
 
-               let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, true);
+               let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, delta, true);
                this.speed = colisaoPlat[0];
                   
 
@@ -558,15 +558,15 @@ class Cacodemon {
             }
          if (this.grandeArea == 2) {
 
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed,true);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, delta,true);
             this.speed = speedColisao[0];
             let colisaoComAPorta = speedColisao[1];
             let colisaoComAPlataforma = false;
             if (this.redondezasDaFechadura) {
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed,true);
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, delta,true);
                this.speed = speedColisao[0];
                if(areas[this.grandeArea-1].chave1!=null){
-                   speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed,true);
+                   speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, delta,true);
                    this.speed = speedColisao[0];
                }
 
@@ -574,7 +574,7 @@ class Cacodemon {
             else {
                if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed,true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, delta,true);
                   this.speed = speedColisao[0];
                   colisaoComAPlataforma = speedColisao[1];
                   if (colisaoComAPlataforma) {
@@ -593,7 +593,7 @@ class Cacodemon {
             if (this.area == 1 && !this.naPlataforma && !colisaoComAPorta) {
                let colisaoExtras = false;
                for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed,true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, delta,true);
                   this.speed = speedColisao[0];
                   colisaoExtras = speedColisao[1];
 
@@ -643,13 +643,13 @@ class Cacodemon {
       else if (this.grandeArea == 0) {
          for (var j = 0; j < 4; j++) {
 
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed,true);
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed, delta,true);
             this.speed = colisaoSpeed[0];
          }
       }
       else {
          if (this.redondezasDaFechadura) {
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed,true);
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed, delta,true);
             this.speed = colisaoSpeed[0];
          }
       }

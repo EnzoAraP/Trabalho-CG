@@ -13,7 +13,6 @@ import {
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 import {Area2} from './area2.js'
 import { Area1 } from './Area1.js';
-import { Area3 } from './area3.js';
 
 let scene = new THREE.Scene(); // Create main scene
 
@@ -35,7 +34,7 @@ var materiais_cubos=[
 ];
 
 
-var cubeGeo0 = new THREE.BoxGeometry(0,0,0);// Geometria do cubo central que é o pai de toda estrutura de uma área
+var cubeGeo0 = new THREE.BoxGeometry(0.25, 0.1, 0.25);// Geometria do cubo central que é o pai de toda estrutura de uma área
 var cubeGeo = new THREE.BoxGeometry(70, 2.2, 50);
 
 //Geometrias de da cada cubo(1,2,3 são as geometrias dos cubos das áreas menores e 4,5,6 são a dos cubos da área maior(4) ) :
@@ -57,8 +56,21 @@ area1.degraus=criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, m
 area1.boundingBoxesPilares = [];
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
 var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2_area2,cubeGeo3],[materialCubo1,materialCubo2]);
-var area3 = new Area3([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo3]);
-
+var area3 = {
+   cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
+   cube1: new THREE.Mesh(cubeGeo1, materialCubo3),
+   cube2: new THREE.Mesh(cubeGeo2, materialCubo3),
+   cube3: new THREE.Mesh(cubeGeo3, materialCubo3),
+  degraus: criar_degraus(new THREE.Vector3(-65.5, 0, 150), 4, 5, 2, 8, 90, materialCubo4),
+   posicao_ini: new THREE.Vector3(-100, 2, 150),
+    cubos: [],
+   boundingCubos: [],
+   boundingDegraus: [],
+   boundingRampa: null,
+   ex: 35,
+   ez: 51
+}
+area3.cubos = [area3.cube1, area3.cube2, area3.cube3];
 var area4 = {
    cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
    cube1: new THREE.Mesh(cubeGeo4, materialCubo4),
@@ -81,7 +93,6 @@ var areas = [area1, area2, area3, area4]; // Vetor que armazena todos os element
 for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
    
    scene.add(areas[i].cube0);
-   console.log(areas[i].cube0);
    areas[i].cube0.translateX(areas[i].posicao_ini.x);
    areas[i].cube0.translateY(areas[i].posicao_ini.y);
    areas[i].cube0.translateZ(areas[i].posicao_ini.z);
@@ -95,15 +106,12 @@ for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
             desc=-0.25;
          if (i == 3)
             desc = -desc;
-         if(i==2)
-            desc=-34;
+
          areas[i].cubos[j].translateX(desc);
          continue;
       }
       if (i < 3) {
          areas[i].cubos[j].translateZ((26 * j) - 26);
-         if(i==2)
-            areas[i].cubos[j].translateZ((23*j)-23);
          //areas[i].cubos[j].translateX(2.5);
       }
       else {
@@ -260,7 +268,7 @@ function criar_degraus(posicao_ini, altura_total, comp_total, largura, num, rot,
 
 }
 
-/*
+
 const shape = new THREE.Shape();
         shape.absellipse(0, 0, 10, 5, Math.PI, 0, true); // meia elipse
 
@@ -327,7 +335,7 @@ scene.add(tetoOval);
 
 // Posicionamento
 tetoOval.position.y = 3;
-*/
+
 
 /*
 const shape2 = new THREE.Shape();
