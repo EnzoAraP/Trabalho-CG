@@ -11,7 +11,7 @@ import {
     setDefaultMaterial
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
-import { BoxGeometry } from '../build/three.module.js';
+import { BoxGeometry, TextureLoader } from '../build/three.module.js';
 import { CSG } from '../libs/other/CSGMesh.js'  
 class Area1{
   constructor(geomterias_cubos,materiais_cubos){
@@ -82,24 +82,30 @@ criarPedra(Posicao,largura,comprimento)
 let cor = new THREE.Color(15/255,125/255,125/255);
 
 let materialinvi= new THREE.MeshLambertMaterial({
-  color: cor,
+  
   
   reflectivity:0.35,
   refractionRatio: 0.5
 
 });
 let materialcone2= new THREE.MeshLambertMaterial({
-  color: cor,
-  emissive:cor,
- emissiveIntensity: 0.1,
+
+// emissiveIntensity: 0.1,
   reflectivity:0.35,
   refractionRatio: 0.5
 
 });
 let pi =Math.PI;
-
-
+var textureLoader = new THREE.TextureLoader()
+var  stone = textureLoader.load('../T3/AssetsT3/pilar.jpg');//carrega textura do pilar
+var dismap = textureLoader.load('../T3/AssetsT3/mapatentativa1.jpg'); // carrega displacment map feito
 let cilindroGeometry = new THREE.CylinderGeometry(1,1,4,10);// cilindro centra do
+materialinvi.map = stone;
+materialinvi.displacementMap = dismap; /// adiciona displacement map
+materialinvi.displacementScale = 0.1;
+materialcone2.map = stone;
+materialinvi.displacementMap = dismap;/// adiciona displacement map
+materialinvi.displacementScale = 0.1;
 let cilindro= new THREE.Mesh(cilindroGeometry,materialinvi);
 let coneaGeometry = new THREE.ConeGeometry(1.4,2,20,10);
 let cone1 = new THREE.Mesh(coneaGeometry,materialinvi);
