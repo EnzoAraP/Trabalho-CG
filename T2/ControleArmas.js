@@ -224,7 +224,7 @@ class Metralhadora {
             }
             if (bloqueou)
                break;
-            if (i != 1) { // Verificações de escadas
+            if (i != 1 && i!=2) { // Verificações de escadas
                let degrausBox = areas[i].boundingDegraus;
                if (raio.intersectBox(rampaBox, pontoIntersecao)) { // Se adentra bloco onde está a escada, faz a mesma verificação para os degraus
                   distancia = origem.distanceTo(pontoIntersecao);
@@ -272,7 +272,7 @@ class Metralhadora {
                }
 
             }
-            else {   // Verificação para as coisas especiais da área 2, começando pelo suporte da fechadura
+            else if(i==1){   // Verificação para as coisas especiais da área 2, começando pelo suporte da fechadura
                if (raio.intersectBox(areas[1].fechadura.box, pontoIntersecao)) {
                   distancia = origem.distanceTo(pontoIntersecao);
                   if (distancia < distMax) {
@@ -354,6 +354,63 @@ class Metralhadora {
                   }
                }
 
+            }
+            else if(i==2){
+               if (raio.intersectBox(areas[i].porta1.box, pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+               if (raio.intersectBox(areas[i].porta2.box, pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+               if (raio.intersectBox(areas[i].boundingCube4, pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+               if (raio.intersectBox(areas[i].boundingCube5, pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
+               if (raio.intersectBox(areas[i].assetManager.planeBox, pontoIntersecao)) {
+                  distancia = origem.distanceTo(pontoIntersecao);
+                  if (distancia < distMax) {
+                     bloqueou = true;
+                     break;
+                  }
+                  else if (distancia < distMaxCubos) {
+                     distMaxCubos = distancia;
+
+                  }
+               }
             }
 
             if (bloqueou)

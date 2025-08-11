@@ -19,8 +19,8 @@ import { criarChave } from './criacaoChave.js';
 class Area2 {
     constructor(geomterias_cubos, materiais_cubos) {
 
-        
-        
+
+
         this.loader = new THREE.TextureLoader();
         // Geometria e materias da porta, do bloco fechadura e da porta: 
 
@@ -29,15 +29,15 @@ class Area2 {
         this.material_porta = new THREE.MeshLambertMaterial({ color: "rgb(50,120,90)" });
 
 
-        let textura_porta='./texturas_geral/area2/metal-door-texture-compressed.jpg';
+        let textura_porta = './texturas_geral/area2/metal-door-texture-compressed.jpg';
 
-        let rep_porta=1/2;
-        this.material_porta=[
-            this.estabelecerMaterial( textura_porta, 1/2,1, 0, 0),
-            this.estabelecerMaterial( textura_porta, 1/2,1, 0, 0),
-            this.estabelecerMaterial( textura_porta, 1/2,1, 0, 0),
+        let rep_porta = 1 / 2;
+        this.material_porta = [
+            this.estabelecerMaterial(textura_porta, 1 / 2, 1, 0, 0),
+            this.estabelecerMaterial(textura_porta, 1 / 2, 1, 0, 0),
+            this.estabelecerMaterial(textura_porta, 1 / 2, 1, 0, 0),
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterial( textura_porta, 1/8,1, 0, 0),
+            this.estabelecerMaterial(textura_porta, 1 / 8, 1, 0, 0),
             new THREE.MeshBasicMaterial()
 
         ];
@@ -55,15 +55,15 @@ class Area2 {
 
 
         this.material_plataforma_a2 = [
-            this.estabelecerMaterial( texturaPlatA2, 1,1, 0, 0),
+            this.estabelecerMaterial(texturaPlatA2, 1, 1, 0, 0),
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterial( texturaPlatA2, 1,1, 0, 0),
+            this.estabelecerMaterial(texturaPlatA2, 1, 1, 0, 0),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial()
 
         ];
-      
+
         //this.material_plataforma_a2= new THREE.MeshBasicMaterial({color: "rgb(0,0,0)"})
 
         this.plataforma_area_2 = new THREE.Mesh(this.geometria_plataforma_a2, this.material_plataforma_a2);
@@ -77,22 +77,22 @@ class Area2 {
         geomterias_cubos[2] = cubeGeo2;
         geomterias_cubos[3] = cubeGeo3;
 
-         let texturaCubes= "./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp";
-         let texturaChao= "./texturas_geral/area2/mad_metal_reduzido.webp"
+        let texturaCubes = "./texturas_geral/area2/Arte_Conceitual.jpg";
+        let texturaChao = "./texturas_geral/area2/mad_metal_reduzido.webp"
         this.material_cubosaa = [
-            this.estabelecerMaterial( texturaCubes, 12, 1, 0, 0), //x+
-            this.estabelecerMaterial( texturaCubes, 12, 1, 0, 0),
-            this.estabelecerMaterial( texturaChao, 15, 10, 0, 0),// y+
+            this.estabelecerMaterial(texturaCubes, 12, 2, 0, 0), //x+
+            this.estabelecerMaterial(texturaCubes, 12, 2, 0, 0),
+            this.estabelecerMaterial(texturaChao, 15, 10, 0, 0),// y+
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterial( texturaCubes, 16, 1, 0, 0,"rgba(240, 146, 5, 1)"), //z+
-            this.estabelecerMaterial( texturaCubes, 16, 1, 0, 0,"rgba(240, 146, 5, 1)")
+            this.estabelecerMaterial(texturaCubes, 16, 2, 0, 0, "rgba(240, 146, 5, 1)"), //z+
+            this.estabelecerMaterial(texturaCubes, 16, 2, 0, 0, "rgba(240, 146, 5, 1)")
 
         ];
 
         this.material_cubosb = [
-            this.estabelecerMaterial( texturaCubes, 1, 1, 0, 0,"rgb(5, 232, 240)"),
-            this.estabelecerMaterial( texturaCubes, 1, 1, 0, 0),
-            this.estabelecerMaterial( texturaChao,15, 1/2, 0, 0),
+            this.estabelecerMaterial(texturaCubes, 1, 1, 0, 0, "rgb(5, 232, 240)"),
+            this.estabelecerMaterial(texturaCubes, 1, 1, 0, 0),
+            this.estabelecerMaterial(texturaChao, 15, 1 / 2, 0, 0),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial()
@@ -100,9 +100,9 @@ class Area2 {
         ];
         // Criação dos cubos da área:
         this.cube0 = new THREE.Mesh(geomterias_cubos[0], materiais_cubos[0]),
-            this.cube1 = new THREE.Mesh(geomterias_cubos[1],  this.material_cubosaa),
-            this.cube2 = new THREE.Mesh(geomterias_cubos[2],  this.material_cubosb),
-            this.cube3 = new THREE.Mesh(geomterias_cubos[3],  this.material_cubosaa),
+            this.cube1 = new THREE.Mesh(geomterias_cubos[1], this.material_cubosaa),
+            this.cube2 = new THREE.Mesh(geomterias_cubos[2], this.material_cubosb),
+            this.cube3 = new THREE.Mesh(geomterias_cubos[3], this.material_cubosaa),
             this.degraus = [],
             this.posicao_ini = new THREE.Vector3(-100, 2, 0),
             this.cubos = [],
@@ -173,24 +173,24 @@ class Area2 {
 
         // Dimensões dos blocos para a geometria:
         this.dimensoes = [
-            { w: 2.6, d: 1.6 + 2, h: 4.2 + 2 },  // bloco 0
-            { w: 2.2, d: 2.4 + 2, h: 4.0 + 2 },  // bloco 1
-            { w: 3.0, d: 1.2 + 2, h: 4.6 + 2 },  // bloco 2
-            { w: 3.4, d: 1.8 + 2, h: 3.4 + 2 },  // bloco 3
-            { w: 2.6, d: 2.0 + 2, h: 3.6 + 2 },  // bloco 4
-            { w: 3.0, d: 2.0 + 2, h: 5.0 + 2 },  // bloco 5
-            { w: 2.2, d: 1.6 + 2, h: 6.6 + 2 },  // bloco 6
-            { w: 2.6, d: 1.9 + 2, h: 5.4 + 2 },  // bloco 7
-            { w: 3.0, d: 1.8 + 2, h: 6.0 + 2 },  // bloco 8
-            { w: 2.8, d: 1.8 + 2, h: 6.2 + 2 },  // bloco 9
-            { w: 3.0, d: 2.0 + 2, h: 3.8 + 2 },   // bloco 10 (central, mais baixo)
-            { w: 2.6, d: 1.6 + 2, h: 4.2 + 2 },  // bloco 0
-            { w: 2.2, d: 2.4 + 2, h: 4.0 + 2 },  // bloco 1
-            { w: 3.0, d: 1.2 + 2, h: 5.6 + 2 },  // bloco 2
-            { w: 3.4, d: 1.8 + 2, h: 3.4 + 2 },  // bloco 3
-            { w: 3.6, d: 2.0 + 2, h: 5.6 + 2 },  // bloco 4
-            { w: 3.4, d: 1.8 + 2, h: 6.4 + 2 },  // bloco 3
-            { w: 2.6, d: 2.0 + 2, h: 7.6 + 2 },  // bloco 4
+            { w: 2.6, d: 1.6 + 2, h: 4.2 + 2 }, // bloco 0
+            { w: 2.2, d: 2.4 + 2, h: 4.0 + 2 }, // bloco 1
+            { w: 3.0, d: 1.2 + 2, h: 4.6 + 2 }, // bloco 2
+            { w: 3.4, d: 1.8 + 2, h: 3.4 + 2 }, // bloco 3
+            { w: 2.6, d: 2.0 + 2, h: 3.6 + 2 }, // bloco 4
+            { w: 3.0, d: 2.0 + 2, h: 5.0 + 2 }, // bloco 5
+            { w: 2.2, d: 1.6 + 2, h: 6.6 + 2 }, // bloco 6
+            { w: 2.6, d: 1.9 + 2, h: 5.4 + 2 }, // bloco 7
+            { w: 3.0, d: 1.8 + 2, h: 6.0 + 2 }, // bloco 8
+            { w: 2.8, d: 1.8 + 2, h: 6.2 + 2 }, // bloco 9
+            { w: 3.0, d: 2.0 + 2, h: 3.8 + 2 }, // bloco 10 (central, mais baixo)
+            { w: 2.6, d: 1.6 + 2, h: 4.2 + 2 }, // bloco 0
+            { w: 2.2, d: 2.4 + 2, h: 4.0 + 2 }, // bloco 1
+            { w: 3.0, d: 1.2 + 2, h: 5.6 + 2 }, // bloco 2
+            { w: 3.4, d: 1.8 + 2, h: 3.4 + 2 }, // bloco 3
+            { w: 3.6, d: 2.0 + 2, h: 5.6 + 2 }, // bloco 4
+            { w: 3.4, d: 1.8 + 2, h: 6.4 + 2 }, // bloco 3
+            { w: 2.6, d: 2.0 + 2, h: 7.6 + 2 }, // bloco 4
         ];
 
         // Criando e poscicionando blocos adequadamente:
@@ -250,7 +250,7 @@ class Area2 {
     estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)") {
         let material = new THREE.MeshBasicMaterial({ color: cor });
         material.map = this.loader.load(arquivo);
-     
+
         console.log("material");
         console.log(material.map);
         material.map.wrapS = THREE.RepeatWrapping;
@@ -324,7 +324,7 @@ class Area2 {
 
     // Função para lidar com a retirada da chave2
     tentar_retirar_chave2(personagem, scene) {
-        if ((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada) {  // Só faz sentido retirar a chave se o bloco estiver sendo elevado ou terminou de se elevar e a chave ainda não foi retirada
+        if ((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada) { // Só faz sentido retirar a chave se o bloco estiver sendo elevado ou terminou de se elevar e a chave ainda não foi retirada
             console.log(this.chave2Box);
             if (personagem.box.intersectsBox(this.chave2Box)) {
 
@@ -347,7 +347,7 @@ class Area2 {
         //console.log(plataforma.position.y);
         plataformaBox.setFromObject(plataforma);
         if (multiplicador * plataforma.position.y > multiplicador * limiteY) { // Se passou do limite
-            let dif = limiteY - plataforma.position.y + multiplicador * 0.02;  // Obtém a diferença anterior
+            let dif = limiteY - plataforma.position.y + multiplicador * 0.02; // Obtém a diferença anterior
             plataforma.position.y = limiteY; // Coloca plataforma no limite
 
             //console.log(plataforma.position.y);
@@ -398,7 +398,7 @@ class Area2 {
             //console.log(bloco_chave.position.y);
             //console.log(this.num_passos_exec);
         }
-        if (this.num_passos_exec >= this.num_passos_elevacao) {  // Se chegou ao limite
+        if (this.num_passos_exec >= this.num_passos_elevacao) { // Se chegou ao limite
             this.bloco_elevado = true;
             this.elevar_bloco = false;
         }

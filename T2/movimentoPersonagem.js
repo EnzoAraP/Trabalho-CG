@@ -31,6 +31,8 @@ class Personagem {
 
       this.chegada_area2 = false;
 
+      this.chegada_area3=true;
+
       this.camera = camera;
 
       this.box = boxPersonagem;
@@ -157,6 +159,17 @@ class Personagem {
 
                   this.area = -1;
                }
+            }
+            else if(this.grandeArea==3){
+               let xi = (areas[this.grandeArea - 1].posicao_ini).x;
+               let zi = (areas[this.grandeArea - 1].posicao_ini).z;
+               let ex = (areas[this.grandeArea - 1]).ex;
+               let ez = (areas[this.grandeArea - 1]).ez;
+
+               if( !(this.obj.position.x > (xi + ex + (this.larg) * 0.7) 
+                  || this.obj.position.x < (xi - ex - this.larg * 0.7) || this.obj.position.z > (zi + ez + this.larg * 0.7) 
+               || this.obj.position.z < (zi - ez - this.larg * 0.7)) )
+                     this.area=2;
             }
             let colisaoAreaAtual = false;
 
@@ -477,8 +490,9 @@ class Personagem {
 
       //}
      
-      areas[2].teste_abertura_porta(this.obj,this.possui_chave2);
-
+      let cheg3=areas[2].teste_abertura_porta(this.obj,this.possui_chave2);
+      if(!this.chegada_area3)
+         this.chegada_area3=cheg3;
       if (areas[1].porta.abrindo) {
          areas[1].abrir_porta(4, 1);
 

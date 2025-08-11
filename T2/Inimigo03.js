@@ -36,6 +36,7 @@ class Soldado {
         this.voo = true;
         this.obj = objeto;
 
+        this.tipo='soldado';
         this.camera = camera;
 
         this.tempoTiro=200;
@@ -55,13 +56,13 @@ class Soldado {
 
         this.perturbacao_tiro=0;
 
-        this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
+        this.grandeArea = 3; // Variável que armazena em qual das 6 grande as áreas o personagem está.
         /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
          Fronteira(0) : Região próxima às muralhas do mapa( tem formato de moldura quadrada)
          Grande Áreas de 1 a 4: Representam as áreas especiais do jogo(Plataformas em formato de paralelepípedo) e seus derredores( margem de 4 unidades de comprimento)
         
         */
-        this.area = -1; // Variável que indica em qual área em formato de paralelepípedo presente no jogo.
+        this.area = 2; // Variável que indica em qual área em formato de paralelepípedo presente no jogo.
 
         this.redondezasDaFechadura = false;
 
@@ -111,9 +112,9 @@ class Soldado {
 
         this.transparente = false;
 
-        this.dormindo = false;
+        this.dormindo = true;
 
-        this.vidaMax = 50;
+        this.vidaMax = 30;
         this.vida = this.vidaMax;
 
         this.levaDano = true;
@@ -164,12 +165,33 @@ class Soldado {
     }
 
     // Função para operar seu sumiço gradativo
-    sumir() {
+    sumir(areas,delta) {
+        console.log("AAAAAAAAA");
+         this.spriteMixer.update(delta);
+        if(this.sumiu)
+            return;
+        if(this.actions.Die.isInLoop){
+           
+            return;
+        }
+        else if(!this.barraFundo.visible){
+            //this.sumiu=true;
+            return;
+        }
+
+        console.log("BBBBBBBBBBB")
         this.obj = this.actionSprite;
         this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Barras continuam viradas ao usuário
-
+        this.resetIsInLoopFlags([false,false,false,false]);
+        this.actions.Die.playOnce(true);
+        this.barraFundo.visible=false;
+        areas[2].soldados_derrotados++;
+  
+        return;
         if (!this.sumiu) { // Se ele ainda não sumiu
             let taxa_desap = this.taxaDesap; // Estabelece desaparecimento
+
+            
             if (!this.transparente) {
                 this.transparente = true;
 
@@ -200,7 +222,7 @@ class Soldado {
 
     carregarSprites(scene) {
 
-
+        
         this.spriteMixer, this.actionSprite = null, this.running, this.lastRunning, this.shooting = false, this.shootingFlag = 0, this.actions = {};
         this.dead = false; // Flag to control the die action
         this.parallelMovement = true; // Variable to control parallel movement
@@ -247,6 +269,8 @@ class Soldado {
 
             this.actionSprite.scale.set(2, 2, 2);
             scene.add(this.actionSprite);
+            this.obj = this.actionSprite;
+            this.obj.visible=false;
         });
         texture.colorSpace = THREE.SRGBColorSpace; // Fix sprite color space 
 
@@ -320,6 +344,8 @@ class Soldado {
 
         this.quaternionInicial.copy(this.obj.quaternion); // Quartenion de origem
 
+        let anterior= [this.moveUp, this.moveDown, this.moveLeft, this.moveRight];
+
         this.moveUp = this.moveDown = this.moveRight = this.moveLeft = false;
         const giroYG = THREE.MathUtils.radToDeg(giroY);
         if (giroYG <= 67.5 && giroYG >= -67.5) {
@@ -338,13 +364,30 @@ class Soldado {
         }
 
 
+        
+
         const dummy = new THREE.Object3D();
         dummy.position.copy(this.obj.position);
         dummy.lookAt(alvoPos);  // Simula giro total do objeto
         this.quaternionFinal.copy(dummy.quaternion); // Obtém quartenion final
 
-
         console.log(`${giroYG},${this.moveDown},${this.moveLeft},${this.moveUp},${this.moveRight}`);
+
+            
+
+        let chaves=[false,false,false,false];
+        /*if (this.moveUp){  chaves[2]=true;}
+        if (this.moveDown){  chaves[0]=true;}
+        if (this.moveRight){ chaves[3]=true;}
+        if (this.moveLeft){ chaves[1]=true;}
+    */
+        
+         this.resetIsInLoopFlags(chaves); // Reset the isInLoop flags for all actions 
+        
+
+        this.animacao_sprite(null, null);
+
+       
 
     }
 
@@ -358,44 +401,47 @@ class Soldado {
     animacao_sprite(moveDir, delta) {
         // 1) mixer
         
-
+        console.log("chamou");
 
         if (this.moveLeft) {
             if (!this.moveUp && !this.moveDown) {
                 this.lastRunning = this.running = 'left';
-                if (!this.actions.runLeft.isInLoop) this.actions.runLeft.playLoop();
+                if (!this.actions.runLeft.isInLoop) {this.actions.runLeft.playLoop();console.log(this.running); }
             } else if (this.moveDown) {
                 this.lastRunning = this.running = 'ld';
-                if (!this.actions.runLD.isInLoop) this.actions.runLD.playLoop();
+                if (!this.actions.runLD.isInLoop) {this.actions.runLD.playLoop();console.log(this.running); }
             } else {
                 this.lastRunning = this.running = 'lu';
-                if (!this.actions.runLU.isInLoop) this.actions.runLU.playLoop();
+                if (!this.actions.runLU.isInLoop) {this.actions.runLU.playLoop();console.log(this.running); }
             }
         }
 
         else if (this.moveRight) {
             if (!this.moveUp && !this.moveDown) {
                 this.lastRunning = this.running = 'right';
-                if (!this.actions.runRight.isInLoop) this.actions.runRight.playLoop();
+                if (!this.actions.runRight.isInLoop) {this.actions.runRight.playLoop();console.log(this.running); }
             } else if (this.moveDown) {
                 this.lastRunning = this.running = 'rd';
-                if (!this.actions.runRD.isInLoop) this.actions.runRD.playLoop();
+                if (!this.actions.runRD.isInLoop) {this.actions.runRD.playLoop();console.log(this.running); }
 
             } else {
                 this.lastRunning = this.running = 'ru';
-                if (!this.actions.runRU.isInLoop) this.actions.runRU.playLoop();
+                if (!this.actions.runRU.isInLoop) {this.actions.runRU.playLoop();console.log(this.running); }
             }
         }
 
         else { // Finally, check if only UP or DOWN is pressed
             if (this.moveUp) { // Only left pressed
                 this.lastRunning = this.running = 'up'; // Set running direction to up
-                if (!this.actions.runUp.isInLoop) this.actions.runUp.playLoop();
+                if (!this.actions.runUp.isInLoop){ this.actions.runUp.playLoop(); console.log(this.running); }
             } else {
                 this.lastRunning = this.running = 'down'; // Set running direction to down
-                if (!this.actions.runDown.isInLoop) this.actions.runDown.playLoop();
+                if (!this.actions.runDown.isInLoop){ this.actions.runDown.playLoop();
+                console.log(this.running);}
             }
         }
+
+        
     }
 
     resetIsInLoopFlags(chaves) {
@@ -404,7 +450,7 @@ class Soldado {
         if (this.actions.runUp && !chaves[2]) this.actions.runUp.isInLoop = false;
         if (this.actions.runRight && !chaves[3]) this.actions.runRight.isInLoop = false;
 
-        if (this.actions.runLD && !(chaves[1] && chaves[0])) this.actions.runLD.isInLoop = false;
+        if (this.actions.runLD && !(chaves[1] && chaves[0])){ this.actions.runLD.isInLoop = false;}
         if (this.actions.runLU && !(chaves[1] && chaves[2])) this.actions.runLU.isInLoop = false;
         if (this.actions.runRD && !(chaves[3] && chaves[0])) this.actions.runRD.isInLoop = false;
         if (this.actions.runRU && !(chaves[3] && chaves[2])) this.actions.runRU.isInLoop = false;
@@ -437,11 +483,17 @@ class Soldado {
     }
 
     movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
-
-
+        console.log(this.vida);
+        if(this.vida<=0){
+                this.sumir(areas,delta);
+                return;
+            }
         if (this.dormindo) // Se estiver a dormir, não faz nada
             return;
 
+            
+
+            console.log("Azul");
         //console.log(this.personagem_rival.obj.position);
         this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Faz barras de vida olharem para o jogador
         if (this.contagemPreAtaque != 0) {// Giro para o ataque é mais rápido
@@ -493,7 +545,7 @@ class Soldado {
                 this.ataque_especial(scene); // Direcionar-se ao jogador
                 this.contagemEsperaAtaque = 0; // Zera espera
                 this.contagemPreAtaque = 1; // inicia pré-ataque
-                this.maxEsperaAtaque = 4 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
+                this.maxEsperaAtaque = 15 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
                 return;
             }
             else {
@@ -520,18 +572,14 @@ class Soldado {
     
 
 
-        let chaves=[false,false,false,false]
         let moveDir = new THREE.Vector3(); // Vetor para armazenar movimento
-        if (this.moveUp){ moveDir.sub(frontal); chaves[2]=true;}
-        if (this.moveDown){ moveDir.add(frontal); chaves[0]=true;}
-        if (this.moveRight){ moveDir.sub(direito); chaves[3]=true;}
-        if (this.moveLeft){ moveDir.add(direito);chaves[1]=true;}
-        
-        this.resetIsInLoopFlags(chaves); // Reset the isInLoop flags for all actions 
-
-    this.animacao_sprite(null, delta);
+        if (this.moveUp){ moveDir.sub(frontal); }
+        if (this.moveDown){ moveDir.add(frontal); }
+        if (this.moveRight){ moveDir.sub(direito); }
+        if (this.moveLeft){ moveDir.add(direito);}
     
-    this.spriteMixer.update(delta);
+    
+ this.spriteMixer.update(delta);
         
         
 
@@ -643,6 +691,27 @@ class Soldado {
 
 
             }
+            else if (this.grandeArea == 3) {
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta1.box, this.speed,delta);
+               this.speed = speedColisao[0];
+               console.log(speedColisao[1]);
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta2.box, this.speed,delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube4, this.speed,delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube5, this.speed,delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].assetManager.planeBox, this.speed,delta);
+               this.speed = speedColisao[0];
+
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].bounding_caixa_bloqueio, this.speed,delta);
+               this.speed = speedColisao[0];
+            }
             else {
                 let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.01; // Teste da rampa
 
@@ -715,18 +784,18 @@ class Soldado {
         this.raycaster.ray.origin.copy(this.obj.position);
         if (this.grandeArea >= 1) {
             if (this.area != -1) {
-                if (this.grandeArea != 2)
+                if (this.grandeArea != 2 && this.grandeArea != 3)
                     isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
-                else
+                else if(this.grandeArea == 2)
                     intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh);
                 isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.00001 || this.obj.position.y < 2;
             }
             else {
                 if (this.voo) {
                     ////console.log(areas[0].degraus[1].rampa)
-                    if (this.grandeArea != 2)
+                    if (this.grandeArea != 2 && this.grandeArea != 3)
                         isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.grandeArea - 1].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.00001;
-                    else
+                    else if(this.grandeArea == 2)
                         intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh);
                     isIntersectingGround = this.raycaster.intersectObjects([groundPlane, ...areas[this.grandeArea - 1].cubos]).length > 0.00001;
                 }

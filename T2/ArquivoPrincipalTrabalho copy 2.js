@@ -52,7 +52,6 @@ let camUp = new THREE.Vector3(0.0, 1.0, 0.0);
 let camLook = new THREE.Vector3(0, 1.8, -1);
 
 
-
 const voo = true; // Variável que indica se o voo está habilitado ou não.
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -101,9 +100,9 @@ scene.add(fillLight);
 
 
 const lerpConfig = {
-  destination: new THREE.Vector3(0,1,0),
-  alpha: 0.01,
-  move: true
+   destination: new THREE.Vector3(0, 1, 0),
+   alpha: 0.01,
+   move: true
 };
 
 
@@ -155,9 +154,9 @@ let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das
 
 let groundPlane = new THREE.Mesh(planegeometry, material);
 
-material.map= new THREE.TextureLoader().load('./texturas_geral/area2/seamless-metal-cargo-box-texture.jpg');
-material.map.repeat.x=20;
-material.map.repeat.y=20;
+material.map = new THREE.TextureLoader().load('./texturas_geral/area2/seamless-metal-cargo-box-texture.jpg');
+material.map.repeat.x = 20;
+material.map.repeat.y = 20;
 
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
@@ -301,17 +300,21 @@ function carregar_cac() {
       const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
       const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
       let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
-      barraVida.position.z = 0.01;
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
 
       let nome = 'cacodemon';
       var obj_cacodemon = assetManager[nome + (i + 1).toString()];
       obj_cacodemon.castShadow = true;
       obj_cacodemon.receiveShadow = true;
 
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
 
-      
-
-      
+      barraVida.position.z = 0.01;
 
       obj_cacodemon.position.set(i, 0.3, -i);
       let arma_cac = new LancaMisseis(obj_cacodemon, [personagem], false);
@@ -392,34 +395,9 @@ var boxPersonagem = new THREE.Box3(); // Bounding box do personagem
 
 var personagem = new Personagem(obj, camera, boxPersonagem, larg, speedPadrao, lancaMisseis, metralhadora);
 
-let soldado = new Soldado(null, camera, new THREE.Box3(), 0.6, 5,null, personagem,scene);
-
-const larguraBarra = 1.2;
-      const alturaBarra = 0.15;
-      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
-      const fundoMaterial = new THREE.MeshBasicMaterial({
-         color: "rgb(0, 0, 0)",
-         //opacity: 0.6,       // Meio transparente
-         transparent: true
-      });
-      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
 
 
-      // Frente (verde) - a parte que será "cortada"
-      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
-      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
-      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
-      barraVida.position.z = 0.01;
 
-const group = new THREE.Group();
-
-      group.add(barraFundo);
-      group.add(barraVida);
-      group.visible = false;
-      scene.add(group);
-      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
-
-soldado.grupoBarras=group;
 const textoEsq = document.getElementById('instructions');
 const blocker = document.getElementById('blocker');
 
@@ -532,7 +510,7 @@ function estabeleceBoundingBoxes() {
                   areas[i].boundingDegraus.push(new THREE.Box3().setFromObject(degraus[k]));
                   ////console.log(areas[i].boundingDegraus[k]);
                   const helper = new THREE.Box3Helper(areas[i].boundingDegraus[k], 0xffff00); // Amarelo
-                 // scene.add(helper);
+                  // scene.add(helper);
                }
             }
             areas[i].boundingRampa = new THREE.Box3().setFromObject(areas[i].degraus[1].rampa);
@@ -550,29 +528,33 @@ function estabeleceBoundingBoxes() {
       areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
    }
 
-   
+
    areas[2].porta1.box = new THREE.Box3().setFromObject(areas[2].porta1.mesh);
    areas[2].porta2.box = new THREE.Box3().setFromObject(areas[2].porta2.mesh);
    const helper22 = new THREE.Box3Helper(areas[2].porta1.box, 0xffff00); // Amarelo
    scene.add(helper22);
    areas[2].fachadaOvalbox1 = new THREE.Box3().setFromObject(areas[2].fachadaOval1);
-   const helper32 = new THREE.Box3Helper(areas[1].fechadura.box, 0xffff00); // Amarelo
+  
    areas[2].fachadaOvalbox2 = new THREE.Box3().setFromObject(areas[2].fachadaOval2);
    areas[2].tetoOvalBox = new THREE.Box3().setFromObject(areas[2].tetoOval);
-   const helper42 = new THREE.Box3Helper(areas[1].plataforma.box, 0xffff00); // Amarelo
+   
 
    areas[2].boundingCube4 = new THREE.Box3().setFromObject(areas[2].cube4);
    areas[2].boundingCube5 = new THREE.Box3().setFromObject(areas[2].cube5);
-   
+
+   areas[2].bounding_caixa_bloqueio = new THREE.Box3().setFromObject(areas[2].caixa_bloqueio);
+   const helper42 = new THREE.Box3Helper(areas[2].bounding_caixa_bloqueio, 0xffff00);
+   scene.add(helper42);
+
    areas[1].porta.box = new THREE.Box3().setFromObject(areas[1].porta.mesh);
    const helper2 = new THREE.Box3Helper(areas[1].porta.box, 0xffff00); // Amarelo
    areas[1].fechadura.box = new THREE.Box3().setFromObject(areas[1].fechadura.mesh);
    const helper3 = new THREE.Box3Helper(areas[1].fechadura.box, 0xffff00); // Amarelo
    areas[1].plataforma.box = new THREE.Box3().setFromObject(areas[1].plataforma.mesh);
    const helper4 = new THREE.Box3Helper(areas[1].plataforma.box, 0xffff00); // Amarelo
- //  scene.add(helper2);
-//   scene.add(helper3);
-  // scene.add(helper4);
+   //  scene.add(helper2);
+   //   scene.add(helper3);
+   // scene.add(helper4);
 
    for (let i = -33.6; i <= 33.6; i = i + 11.2)// parede direita
    {
@@ -624,7 +606,7 @@ function estabeleceBoundingBoxes() {
             areas[0].boundingBoxesPilares.push(box);
             console.log(areas[0].boundingBoxesPilares);
             const helper4 = new THREE.Box3Helper(areas[0].boundingBoxesPilares[i], 0xffff00); // Amarelo
-          //  scene.add(helper4);
+            //  scene.add(helper4);
 
          }
       }
@@ -635,9 +617,9 @@ function estabeleceBoundingBoxes() {
    boxPlat.translate(new THREE.Vector3(0, 3, 0)); // sobe +2 no Y
    areas[0].boundingBoxplat = boxPlat;
    let helper5 = new THREE.Box3Helper(areas[0].boundingBoxplat, 0xffff00); // Amarelo
-  // scene.add(helper5);
-   
-   
+   // scene.add(helper5);
+
+
 
 }
 
@@ -670,7 +652,7 @@ let entrou = false;
 
 var Lost_soul_morreram = false;
 
-var criou_elevar=false;
+var criou_elevar = false;
 
 let elevacaoBloco = null;
 
@@ -679,35 +661,80 @@ let elevacaoBloco = null;
 let loader = new THREE.TextureLoader();
 let geometry = new THREE.BoxGeometry(10, 5, 5);
 let cubeMaterials = [
-    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 2), //x+
-    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 1, 1, 'orange'), //x-   Texture + color
-    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //y+
-    new THREE.MeshBasicMaterial ({color:'rgb(0,200,100)'}), //y-  Just a color
-    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //z+
-    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1) //z-
+   setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 2), //x+
+   setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 1, 1, 'orange'), //x-   Texture + color
+   setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //y+
+   new THREE.MeshBasicMaterial({ color: 'rgb(0,200,100)' }), //y-  Just a color
+   setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //z+
+   setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1) //z-
 ];
 let cube = new THREE.Mesh(geometry, cubeMaterials);
 
-cube.scale.set(10,10,10);
+cube.scale.set(10, 10, 10);
 scene.add(cube);
 
-cube.position.set(100,100,100);
+cube.position.set(100, 100, 100);
 // To access textures individually, you should use their indexes
 console.log(cube.material[0].map)
 
-function setMaterial(file, repeatU = 1, repeatV = 1, color = 'rgb(255,255,255)'){
-   let mat = new THREE.MeshBasicMaterial({ map: loader.load(file), color:color});
-      mat.map.colorSpace = THREE.SRGBColorSpace;
+function setMaterial(file, repeatU = 1, repeatV = 1, color = 'rgb(255,255,255)') {
+   let mat = new THREE.MeshBasicMaterial({ map: loader.load(file), color: color });
+   mat.map.colorSpace = THREE.SRGBColorSpace;
    mat.map.wrapS = mat.map.wrapT = THREE.RepeatWrapping;
    mat.map.minFilter = mat.map.magFilter = THREE.LinearFilter;
-   mat.map.repeat.set(repeatU,repeatV); 
+   mat.map.repeat.set(repeatU, repeatV);
    return mat;
 }
+
+
+let soldados = [];
+let soldados_derrotados=[];
+for (let i = 0; i < 8; i++) {
+   let soldado = new Soldado(null, camera, new THREE.Box3(), 0.6, 2, null, personagem, scene);
+
+   const larguraBarra = 1.2;
+   const alturaBarra = 0.15;
+   const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+   const fundoMaterial = new THREE.MeshBasicMaterial({
+      color: "rgb(0, 0, 0)",
+      //opacity: 0.6,       // Meio transparente
+      transparent: true
+   });
+   let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+   // Frente (verde) - a parte que será "cortada"
+   const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+   const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+   let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+   barraVida.position.z = 0.05;
+
+   const group = new THREE.Group();
+
+   group.add(barraFundo);
+   group.add(barraVida);
+   group.visible = false;
+   scene.add(group);
+   group.position.add(new THREE.Vector3(0, 1.2, 0));
+
+   barraVida.position.z = 0.01;
+
+      soldado.barraFrente = barraVida;
+      soldado.barraFundo = barraFundo;
+      soldado.grupoBarras = group;
+      soldado.tamBarraVida = larguraBarra;
+
+   soldados.push(soldado);
+
+}
+
+let sold_acordados = false;
 
 render();
 
 
 function render() {
+   areas[2].troca_de_luz(dirLight,fillLight,personagem);
 
    if (mudancaLuz) {
       contadorMudancaLuz++;
@@ -737,7 +764,7 @@ function render() {
    // fps.update(0.016);
 
    if (controle.isLocked) {
-      
+      areas[2].posiciona_inimigos(soldados);
       if (mudar_arma)
          personagem.mudar_arma();
       if (tecla_arma1)
@@ -748,8 +775,10 @@ function render() {
 
       let delta = clock.getDelta();
       delta = Math.min(delta, 0.05);
-      soldado.movimento(areas,fronteira,groundPlane,delta,moveUp,reset,scene);
-      personagem.movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset,scene, moveDown);
+
+
+
+      personagem.movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset, scene, moveDown);
       let derrotados2 = null;
       if (personagem.num_arma_atual == 1)
          personagem.arma_atual.atirar(scene, camera, verdade);
@@ -758,11 +787,38 @@ function render() {
       stats.update();
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
 
+      if (personagem.chegada_area3) {
+         lancaMisseis.inimigos = soldados;
+               metralhadora.inimigos = soldados;
+         if (!sold_acordados) {
+            for (var i = 0; i < soldados.length; i++) {
+               soldados[i].acordar();
+            }
+            sold_acordados = true;
+         }
+         for (var i = 0; i < soldados.length; i++) {
+
+            soldados[i].movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene);
+         }
+          if (armasNovosDerrotados.length != 0)
+            soldados_derrotados = soldados_derrotados.concat(armasNovosDerrotados);
+         if (derrotados2 != null)
+            soldados_derrotados.push(derrotados2);
+          for (var i = 0; i < soldados_derrotados.length; i++) {
+            soldados_derrotados[i].sumir(areas,delta);
+            if (soldados_derrotados[i].sumiu) {
+               //console.log("AAA");
+               
+            }
+         }
+      }
+
       if (personagem.chegada_area2) {
          if (!cac_acordados) {
             for (var i = 0; i < cacodemons.length; i++) {
                cacodemons[i].acordar();
             }
+            cac_acordados = true;
          }
 
          if (armasNovosDerrotados.length != 0)
@@ -853,27 +909,27 @@ function render() {
       }
       if (pode) {
          personagem.pegou = true;
-         if(!criou_elevar){
-            criou_elevar=true;
+         if (!criou_elevar) {
+            criou_elevar = true;
             areas[0].plat;
             areas[0].boundingBoxplat.setFromObject(areas[0].plat);
-            elevacaoBloco = new ElevacaoBloco(areas[0].plat,areas[0].boundingBoxplat,-3.2,2.5,240);
-            
-            elevacaoBloco.elevar_bloco=true;
+            elevacaoBloco = new ElevacaoBloco(areas[0].plat, areas[0].boundingBoxplat, -3.2, 2.5, 240);
+
+            elevacaoBloco.elevar_bloco = true;
 
          }
-         if(elevacaoBloco.elevar_bloco==false && personagem.possui_chave1 && !areas[0].chaveRem){
+         if (elevacaoBloco.elevar_bloco == false && personagem.possui_chave1 && !areas[0].chaveRem) {
             areas[0].plat.remove(areas[0].chave);
-            areas[0].chave1=null;
-            areas[0].chaveRem=true;
+            areas[0].chave1 = null;
+            areas[0].chaveRem = true;
             console.log("aaa");
          }
-           
+
          elevacaoBloco.fazer_elevar_bloco();
 
-        
 
-         
+
+
 
       }
       if (areas[1].porta.abrindo && areas[1].chave1 == null) {
@@ -884,12 +940,12 @@ function render() {
    }
    ////console.log(verdade);
    ////console.log(groundPlane);
-   
+
    renderer.render(scene, camera) // Render scene
    requestAnimationFrame(render);
    if (!inicializadasBoxes) {
       estabeleceBoundingBoxes();
-      
+
       inicializadasBoxes = true;
    }
    areas[2].posicionar_aviao();

@@ -19,12 +19,19 @@ import { loadOBJFile } from './funcoesGeometriasExternas.js';
 
 class Area3 {
     constructor(geomterias_cubos, materiais_cubos) {
+        this.inimigos_posicionados = false;
         this.loader = new THREE.TextureLoader();
         // Geometria e materias da porta, do bloco fechadura e da porta: 
+        let texturaCubes = "./texturas_geral/area2/textura_hangar.jpg";
+        let texturaMap = null;
+
+        this.soldados_derrotados=0;
+
         this.altura_geral = 16;
         this.compPorta = 30;
+        let material_cubos_principais = this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap);
         this.geometria_porta = new BoxGeometry(0.2, this.altura_geral, this.compPorta);
-        this.material_porta = new THREE.MeshLambertMaterial({ color: "rgb(50,120,90)" });
+        this.material_porta = this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgb(168, 172, 166)", texturaMap);
         this.porta_area_3 = new THREE.Mesh(this.geometria_porta, this.material_porta);
 
         this.porta_area_3_2 = new THREE.Mesh(this.geometria_porta, this.material_porta);
@@ -37,7 +44,8 @@ class Area3 {
         this.suporte_fechadura = new THREE.Mesh(this.geometria_suporte_fechadura, this.material_suporte_fechadura);
 
 
-        let texturaPlatA2 = "./texturas_geral/area2/seamless-metal-strong-locked-box-texture.jpg";
+
+        let texturaPlatA2 = "./texturas_geral/area2/Arte_Conceitual.jpg";
 
         let planegeometry = new THREE.BoxGeometry(70, 0.1, 96); // Plano base 500x500
         let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
@@ -47,6 +55,8 @@ class Area3 {
 
         this.plano = new THREE.Mesh(planegeometry, materialP);
 
+
+        this.plano.receiveShadow = true;
         //this.material_plataforma_a2= new THREE.MeshBasicMaterial({color: "rgb(0,0,0)"})
 
 
@@ -64,30 +74,28 @@ class Area3 {
 
         // Criação dos cubos da área:
 
-        let texturaCubes = "./texturas_geral/area2/textura_hangar.jpg";
-        let texturaMap = null;
+
         /*
         let material_cubos_principais=this.material_cubosaa = [
-                    this.estabelecerMaterial( texturaCubes, 2, 8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
-                    this.estabelecerMaterial( texturaCubes, 2, 8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
-                    this.estabelecerMaterial( texturaCubes, 15, 10, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),// y+
-                    new THREE.MeshBasicMaterial(),
-                    this.estabelecerMaterial( texturaCubes, 8,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //z+
-                    this.estabelecerMaterial( texturaCubes, 8,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
+        this.estabelecerMaterial( texturaCubes, 2, 8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
+        this.estabelecerMaterial( texturaCubes, 2, 8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
+        this.estabelecerMaterial( texturaCubes, 15, 10, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),// y+
+        new THREE.MeshBasicMaterial(),
+        this.estabelecerMaterial( texturaCubes, 8,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //z+
+        this.estabelecerMaterial( texturaCubes, 8,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
         
-                ];
+        ];
         let material_cubos_principais2=this.material_cubosaa = [
-                    this.estabelecerMaterial( texturaCubes, 11,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
-                    this.estabelecerMaterial( texturaCubes, 11,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
-                     new THREE.MeshBasicMaterial(),// y+
-                    new THREE.MeshBasicMaterial(),
-                    this.estabelecerMaterial( texturaCubes, 1,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //z+
-                    this.estabelecerMaterial( texturaCubes, 1,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
+        this.estabelecerMaterial( texturaCubes, 11,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
+        this.estabelecerMaterial( texturaCubes, 11,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
+        new THREE.MeshBasicMaterial(),// y+
+        new THREE.MeshBasicMaterial(),
+        this.estabelecerMaterial( texturaCubes, 1,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //z+
+        this.estabelecerMaterial( texturaCubes, 1,8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
         
-                ];
-                */
+        ];
+        */
 
-        let material_cubos_principais = this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap);
         let material_cubos_principais2 = this.estabelecerMaterial(texturaCubes, 1, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap);
 
         this.cube0 = new THREE.Mesh(geomterias_cubos[0], materiais_cubos[0]),
@@ -178,6 +186,15 @@ class Area3 {
         this.comecou_a_abrir = false; // Controle para se a porta começou a abrir
 
 
+        let geometria_caixa_bloqueio = new THREE.BoxGeometry(2, 3, 80);
+        let material_inv = new THREE.MeshBasicMaterial({ visible: false });
+        this.caixa_bloqueio = new THREE.Mesh(geometria_caixa_bloqueio, material_inv);
+        this.cube0.add(this.caixa_bloqueio);
+        this.caixa_bloqueio.translateX(36);
+        this.caixa_bloqueio.translateY(-this.altura_geral / 2 + 1.5);
+        this.bounding_caixa_bloqueio = null;
+
+
 
         let material_cubos_principais3 = [
             this.estabelecerMaterial(texturaCubes, 5, 8, 0, 0, "rgba(21, 46, 0, 1)", texturaMap), //x+
@@ -208,19 +225,19 @@ class Area3 {
 
         const extrudeSettings = {
             depth: 1.8, bevelEnabled: true, curveSegments: 128, // Mais pontos no contorno da elipse
-            steps: 1           // Quantidade de divisões na profundidade
+            steps: 1 // Quantidade de divisões na profundidade
         };
 
         let texturaFachada = "./texturas_geral/area2/fachada_hangar.jpg";
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
         /*let material = [
-                    this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
-                    this.estabelecerMaterial(texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
-                    this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
+        this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
+        this.estabelecerMaterial(texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap),
+        this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap)
         
-                ];
-                */
-        let material = this.estabelecerMaterial(texturaFachada, 1 / 8, 1 / 8, 0, 0, "rgba(21, 46, 0, 1)");
+        ];
+        */
+        let material = this.estabelecerMaterial(texturaFachada, 1 / 8, 1 / 8, 0, 0, "rgb(22, 21, 21)");
         this.hangar = new THREE.Mesh(geometry, material);
         this.cube0.add(this.hangar);
         this.hangar.translateY(this.altura_geral / 2 + 0.2);
@@ -297,7 +314,7 @@ class Area3 {
         geometria.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
         // Material e Mesh
         //const material2 = new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-        const material2 = this.estabelecerMaterial(texturaCubes, 1, 25, 0, 0, "rgba(0, 102, 0, 1)");
+        const material2 = this.estabelecerMaterial(texturaCubes, 1, 25, 0, 0, "rgb(100, 110, 100)");
         material2.side = THREE.DoubleSide;
         const tetoOval = new THREE.Mesh(geometria, material2);
 
@@ -316,6 +333,81 @@ class Area3 {
 
 
         this.carregar_aviao();
+
+        this.luz_local_acesa = false;
+    }
+
+    criar_luz(scene) {
+        let luz_atual = 0;
+        const op_luz = [[THREE.PCFSoftShadowMap, 4096, -0.0002], [THREE.VSMShadowMap, 2048, -0.0005]];
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        //dirLight.position.set(50, 500, 420);
+        dirLight.castShadow = true;
+
+
+
+        dirLight.castShadow = true;
+        dirLight.intensity = 1;
+        // Shadow Parameters
+        dirLight.shadow.mapSize.width = op_luz[luz_atual][1];
+        dirLight.shadow.mapSize.height = op_luz[luz_atual][1];
+        dirLight.shadow.camera.near = 5;
+        dirLight.shadow.camera.far = 125;
+        dirLight.shadow.camera.left = -70;
+        dirLight.shadow.camera.right = 70;
+        dirLight.shadow.camera.bottom = -70;
+        dirLight.shadow.camera.top = 70;
+        dirLight.shadow.bias = op_luz[luz_atual][2];
+
+        // No effect on Basic and PCFSoft
+        dirLight.shadow.radius = 2.5;
+
+
+
+
+       scene.add(dirLight);
+       scene.add(dirLight.target);
+        dirLight.position.set(34.8, 16, 49.7);
+
+
+        this.luz_local=dirLight;
+        this.luz_local.position.add(this.posicao_ini);
+        this.luz_local.target.position.add(this.posicao_ini);
+        this.luz_local.target.position.add(new THREE.Vector3(0,-this.altura_geral/2,0));
+        // (opcional) Ajuda para visualizar o volume de sombra
+        const helper = new THREE.CameraHelper(dirLight.shadow.camera);
+        scene.add(helper);
+        //scene.add(helper);
+
+        dirLight.intensity = 0;
+
+    }
+
+    troca_de_luz(luz_principal,luz_sec, personagem) {
+        console.log(personagem.area);
+        if (personagem.area==2) {
+            if (this.luz_local.intensity<0.4) {
+                if (luz_principal.intensity > 0){
+                    luz_principal.intensity -= 0.025;
+                    luz_sec.intensity -= 0.015;
+                }    
+                this.luz_local.intensity += 0.01;
+            }
+            if (this.luz_local.intensity > 0.39)
+                this.luz_local_acesa = true;
+        }
+        else {
+            if (luz_principal.intensity<1) {
+             
+                    luz_principal.intensity += 0.025;
+                    luz_sec.intensity += 0.015;
+                 
+                this.luz_local.intensity -= 0.01;
+            }
+            if (this.luz_local.intensity < 0.007)
+                this.luz_local_acesa = false;
+        }
+
     }
 
     carregar_aviao() {
@@ -346,6 +438,23 @@ class Area3 {
 
 
     }
+    posiciona_inimigos(inimigos) {
+        if (this.inimigos_posicionados)
+            return;
+        if (inimigos.length == 0 || inimigos[inimigos.length - 1].obj == null)
+            return;
+        for (var i = 0; i < inimigos.length; i++) // Para todos eles
+        {
+            let posicaoInimigo = new THREE.Vector3(0, 0, 0);
+
+            posicaoInimigo.addVectors(this.cube0.position, new THREE.Vector3(-30 + 10 * (i / 2), -7, (-40) + (2 * (i % 2)) * 40)); // Coloca na posição do cubo0+ posição central do bloco extra
+
+
+            inimigos[i].obj.position.copy(posicaoInimigo); // Posiciona inimigo
+        }
+        this.inimigos_posicionados = true;
+    }
+
 
     posicionar_aviao() {
 
@@ -360,6 +469,7 @@ class Area3 {
 
         this.cube0.add(this.assetManager.plane);
         this.assetManager.plane.translateY(-8);
+        this.assetManager.plane.translateX(-12);
         this.assetManager.planeBox = new THREE.Box3().setFromObject(this.assetManager.plane);
         console.log(this.assetManager.plane);
         this.assetManager.in_position = true;
@@ -368,7 +478,7 @@ class Area3 {
 
     estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)", normalMap = null, doubleSide = false) {
 
-        let material = new THREE.MeshBasicMaterial({ color: cor, doubleSide: false });
+        let material = new THREE.MeshLambertMaterial({ color: cor });
         let textura_car = this.loader.load(arquivo);
         material.map = textura_car;
 
@@ -452,7 +562,7 @@ class Area3 {
 
     // Função para lidar com a retirada da chave2
     tentar_retirar_chave2(personagem, scene) {
-        if ((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada) {  // Só faz sentido retirar a chave se o bloco estiver sendo elevado ou terminou de se elevar e a chave ainda não foi retirada
+        if ((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada) { // Só faz sentido retirar a chave se o bloco estiver sendo elevado ou terminou de se elevar e a chave ainda não foi retirada
             console.log(this.chave2Box);
             if (personagem.box.intersectsBox(this.chave2Box)) {
                 this.cube0.remove(this.chave2);
@@ -497,7 +607,7 @@ class Area3 {
             //console.log(bloco_chave.position.y);
             //console.log(this.num_passos_exec);
         }
-        if (this.num_passos_exec >= this.num_passos_elevacao) {  // Se chegou ao limite
+        if (this.num_passos_exec >= this.num_passos_elevacao) { // Se chegou ao limite
             this.bloco_elevado = true;
             this.elevar_bloco = false;
         }
@@ -506,18 +616,6 @@ class Area3 {
     }
 
     // Posiciona cacodemons no mapa:
-    posiciona_inimigos(inimigos, indices = [1, 5, 12]) {
-        for (var i = 0; i < inimigos.length; i++) // Para todos eles
-        {
-            let posicaoInimigo = new THREE.Vector3(0, 0, 0);
-
-            posicaoInimigo.addVectors(this.cube0.position, this.blocosExtras[indices[i]].position); // Coloca na posição do cubo0+ posição central do bloco extra
-
-            posicaoInimigo.y += (this.dimensoes[indices[i]].h / 2) + 1.5; // Eleva metade do tamanho do bloco + 1.5 para que eles fiquem por cima destes
-
-            inimigos[i].obj.position.copy(posicaoInimigo); // Posiciona inimigo
-        }
-    }
 
 
     teste_abertura_porta(obj, possui_chave) {
@@ -533,6 +631,8 @@ class Area3 {
             this.porta1.abrindo = true;
             this.porta2.abrindo = true;
         }
+
+        return this.porta1.abrindo;
         // console.log(obj.position.z < pos_teste.z + qtdZ && obj.position.z > pos_teste.z - qtdZ);
     }
 }
