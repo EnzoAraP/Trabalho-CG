@@ -372,7 +372,8 @@ class Personagem {
                isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
             else if (this.grandeArea == 2)
                intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
-            isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
+            if(this.grandeArea!=3)
+               isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
          }
          else {
             if (this.voo) {

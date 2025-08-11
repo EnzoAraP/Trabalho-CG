@@ -115,9 +115,13 @@ for (var i = 0; i < 4; i++) { // Adiciona todos em seus devidos locais
 
    }
 
-   areas[2].criar_luz(scene);
-
+   
+   
+   //scene.remove(areas[2].cube0);
 }
+
+areas[2].criar_luz(scene);
+//areas[2].cubos=[];
 
 // Função que cria a escada ( Posição inicial da escada, em relação à base, altura total da escada, comprimento total, largua total, número de degraus, rotação em relação à cena( Graus),
 // material dos degraus)

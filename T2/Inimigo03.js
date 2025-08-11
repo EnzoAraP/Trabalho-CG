@@ -501,7 +501,7 @@ class Soldado {
             this.spriteMixer.update(delta)
             if (this.contagemPreAtaque == 20) {
                 this.numTiros=0;
-                this.numTirosMax=4;
+                this.numTirosMax=2;
                 this.numero_troca=1+Math.round(Math.random()*3);
                 console.log("Atacando");
                 this.personagem_rival.obj.getWorldPosition(this.posicao_anterior_inimigo);
@@ -545,7 +545,7 @@ class Soldado {
                 this.ataque_especial(scene); // Direcionar-se ao jogador
                 this.contagemEsperaAtaque = 0; // Zera espera
                 this.contagemPreAtaque = 1; // inicia pré-ataque
-                this.maxEsperaAtaque = 15 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
+                this.maxEsperaAtaque = 4 + Math.floor(Math.random() * 3); // Sorteia nova espera máxima, de 2 a 4.
                 return;
             }
             else {

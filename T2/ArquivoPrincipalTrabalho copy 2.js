@@ -25,6 +25,8 @@ import { Soldado } from './Inimigo03.js';
 
 let light, camera, keyboard, material;
 var stats = new Stats();
+stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom);
 let color = "rgb(0, 0, 0)", shadowMapType = THREE.PCFSoftShadowMap;
 var renderer = new THREE.WebGLRenderer();
 //renderer.useLegacyLights = true;
@@ -137,7 +139,7 @@ camera.up.copy(camUp);
 camera.lookAt(camLook);
 
 scene.add(camera);
-//console.log("AAAA");
+////console.log("AAAA");
 
 
 
@@ -252,7 +254,7 @@ let assetManagerLost = {
             somatorio++;
          }
 
-         console.log(somatorio);
+         //console.log(somatorio);
          this.allLoaded = (this.lost_Soul1 != null) && (this.lost_Soul2 != null) && (this.lost_Soul3 != null) && (this.lost_Soul4 != null) && (this.lost_Soul5 != null);
 
       }
@@ -360,7 +362,7 @@ function carregar_lost_Soul() {
       scene.add(group);
 
       let nome = 'lost_Soul';
-      console.log(nome + (i + 1).toString());
+      //console.log(nome + (i + 1).toString());
       var obj_lost_soul = assetManagerLost[nome + (i + 1).toString()];
       obj_lost_soul.castShadow = true;
       obj_lost_soul.receiveShadow = true;
@@ -489,8 +491,10 @@ function estabeleceBoundingBoxes() {
 
       for (var j = 0; j < 3; j++) {
 
-
-         areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos[j]));
+         if(i==2)
+            areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos2[j]));
+         else
+            areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos[j]));
          if (i != 1 && i != 2) {
             let degraus = areas[i].degraus[0].degraus;
 
@@ -508,7 +512,7 @@ function estabeleceBoundingBoxes() {
                }
                else {
                   areas[i].boundingDegraus.push(new THREE.Box3().setFromObject(degraus[k]));
-                  ////console.log(areas[i].boundingDegraus[k]);
+                  //////console.log(areas[i].boundingDegraus[k]);
                   const helper = new THREE.Box3Helper(areas[i].boundingDegraus[k], 0xffff00); // Amarelo
                   // scene.add(helper);
                }
@@ -602,9 +606,9 @@ function estabeleceBoundingBoxes() {
          // Verifique se o pilar e sua malha existem
          if (pilar) {
             const box = new THREE.Box3().setFromObject(pilar);
-            console.log(box);
+            //console.log(box);
             areas[0].boundingBoxesPilares.push(box);
-            console.log(areas[0].boundingBoxesPilares);
+            //console.log(areas[0].boundingBoxesPilares);
             const helper4 = new THREE.Box3Helper(areas[0].boundingBoxesPilares[i], 0xffff00); // Amarelo
             //  scene.add(helper4);
 
@@ -637,7 +641,7 @@ renderer.domElement.addEventListener("wheel", (event) => {
 window.addEventListener('mousedown', (event) => {
    if (event.button === 0 || event.button === 2)
       verdade = true;
-   ////console.log(controle.pointerSpeed);
+   //////console.log(controle.pointerSpeed);
 });
 window.addEventListener('mouseup', (event) => {
    verdade = false;
@@ -675,7 +679,7 @@ scene.add(cube);
 
 cube.position.set(100, 100, 100);
 // To access textures individually, you should use their indexes
-console.log(cube.material[0].map)
+//console.log(cube.material[0].map)
 
 function setMaterial(file, repeatU = 1, repeatV = 1, color = 'rgb(255,255,255)') {
    let mat = new THREE.MeshBasicMaterial({ map: loader.load(file), color: color });
@@ -740,7 +744,7 @@ function render() {
       contadorMudancaLuz++;
       if (contadorMudancaLuz == 2) {
          mudanca_luz();
-         //console.log("mudou");
+         ////console.log("mudou");
          contadorMudancaLuz = 0;
       }
    }
@@ -756,7 +760,7 @@ function render() {
 
    assetManagerLost.checkLoaded();
    if (!carregou_vetor_lost && assetManagerLost.allLoaded) {
-      console.log("CarregouLost");
+      //console.log("CarregouLost");
       carregar_lost_Soul();
       carregou_vetor_lost = true;
    }
@@ -807,7 +811,7 @@ function render() {
           for (var i = 0; i < soldados_derrotados.length; i++) {
             soldados_derrotados[i].sumir(areas,delta);
             if (soldados_derrotados[i].sumiu) {
-               //console.log("AAA");
+               ////console.log("AAA");
                
             }
          }
@@ -835,7 +839,7 @@ function render() {
             cacodemons_derrotados[i].arma.controle_projeteis(scene, areas, fronteira);
             cacodemons_derrotados[i].sumir();
             if (cacodemons_derrotados[i].sumiu) {
-               //console.log("AAA");
+               ////console.log("AAA");
                scene.remove(cacodemons_derrotados[i].obj);
                scene.remove(cacodemons_derrotados[i].grupoBarras);
             }
@@ -854,7 +858,7 @@ function render() {
             if (areas[1].elevar_bloco)
                areas[1].fazer_elevar_bloco();
             areas[1].tentar_retirar_chave2(personagem, scene);
-            // //console.log(this.obj.position.y);
+            // ////console.log(this.obj.position.y);
          }
       }
       if (personagem.chegada_area1) {
@@ -876,7 +880,7 @@ function render() {
 
             lost_soul_derrotados[i].sumir();
             if (lost_soul_derrotados[i].sumiu) {
-               console.log("AAA");
+               //console.log("AAA");
                scene.remove(lost_soul_derrotados[i].obj);
                scene.remove(lost_soul_derrotados[i].grupoBarras);
             }
@@ -903,7 +907,7 @@ function render() {
 
 
             }
-            // console.log(this.obj.position.y);
+            // //console.log(this.obj.position.y);
          }
 
       }
@@ -922,7 +926,7 @@ function render() {
             areas[0].plat.remove(areas[0].chave);
             areas[0].chave1 = null;
             areas[0].chaveRem = true;
-            console.log("aaa");
+            //console.log("aaa");
          }
 
          elevacaoBloco.fazer_elevar_bloco();
@@ -938,8 +942,8 @@ function render() {
       }
 
    }
-   ////console.log(verdade);
-   ////console.log(groundPlane);
+   //////console.log(verdade);
+   //////console.log(groundPlane);
 
    renderer.render(scene, camera) // Render scene
    requestAnimationFrame(render);
