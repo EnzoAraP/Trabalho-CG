@@ -224,7 +224,7 @@ class Area3 {
         shape.absellipse(0, 0, 49.9, 19.8, Math.PI, 0, true); // meia elipse
 
         const extrudeSettings = {
-            depth: 1.8, bevelEnabled: true, curveSegments: 128, // Mais pontos no contorno da elipse
+            depth: 1.8, bevelEnabled: true, curveSegments: 32, // Mais pontos no contorno da elipse
             steps: 1 // Quantidade de divisões na profundidade
         };
 
@@ -258,7 +258,7 @@ class Area3 {
         const pontosPerfil = [];
         const raioX = 50;
         const raioY = 20;
-        const segmentos = 128;
+        const segmentos = 32;
 
         for (let i = 0; i <= segmentos; i++) {
             const theta = Math.PI - (i / segmentos) * Math.PI; // de PI a 0
