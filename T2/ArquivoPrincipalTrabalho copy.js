@@ -523,6 +523,8 @@ function estabeleceBoundingBoxes() {
    }
 
 
+   
+
    areas[1].porta.box = new THREE.Box3().setFromObject(areas[1].porta.mesh);
    const helper2 = new THREE.Box3Helper(areas[1].porta.box, 0xffff00); // Amarelo
    areas[1].fechadura.box = new THREE.Box3().setFromObject(areas[1].fechadura.mesh);

@@ -120,8 +120,8 @@ class Area3 {
         this.cube0.add(this.porta_area_3_2);
         this.cube0.add(this.plano);
         this.plano.translateY(-this.altura_geral / 2 + 0.01);
-        console.log("AREA3");
-        console.log(this.cube0);
+        //console.log("AREA3");
+        //console.log(this.cube0);
 
         // Posicionamento do bloco fechadura, da porta e da plataforma:
         this.suporte_fechadura.translateX(40);
@@ -384,7 +384,7 @@ class Area3 {
     }
 
     troca_de_luz(luz_principal,luz_sec, personagem) {
-        console.log(personagem.area);
+        //console.log(personagem.area);
         if (personagem.area==2) {
             if (this.luz_local.intensity<0.4) {
                 if (luz_principal.intensity > 0){
@@ -463,7 +463,7 @@ class Area3 {
         if (this.assetManager.planeBox == null)
             this.assetManager.planeBox = new THREE.Box3();
         this.assetManager.checkLoaded();
-        console.log(this.assetManager.allLoaded);
+        //console.log(this.assetManager.allLoaded);
         if (!this.assetManager.allLoaded)
             return;
 
@@ -471,7 +471,7 @@ class Area3 {
         this.assetManager.plane.translateY(-8);
         this.assetManager.plane.translateX(-12);
         this.assetManager.planeBox = new THREE.Box3().setFromObject(this.assetManager.plane);
-        console.log(this.assetManager.plane);
+        //console.log(this.assetManager.plane);
         this.assetManager.in_position = true;
 
     }
@@ -496,7 +496,7 @@ class Area3 {
 
     // Função para abrir a porta inicial, passa-se o limite absouluto do movimento em Z e o multiplicador para verificar se será positivo ou negativo
     abrir_porta(limiteZ, multiplicador) {
-        console.log("catapimbas");
+        //console.log("catapimbas");
         if (!this.comecou_a_abrir) {
             // Fazer com que a porte adentre a área 2 e não fique para fora:
             this.porta1.mesh.translateY(-0.02);
@@ -563,7 +563,7 @@ class Area3 {
     // Função para lidar com a retirada da chave2
     tentar_retirar_chave2(personagem, scene) {
         if ((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada) { // Só faz sentido retirar a chave se o bloco estiver sendo elevado ou terminou de se elevar e a chave ainda não foi retirada
-            console.log(this.chave2Box);
+            //console.log(this.chave2Box);
             if (personagem.box.intersectsBox(this.chave2Box)) {
                 this.cube0.remove(this.chave2);
                 scene.remove(this.chave2);
@@ -581,9 +581,9 @@ class Area3 {
         if (this.elevar_bloco) // Se já esiver sendo elevado, não pode alterá-lo
             return;
 
-        //console.log(this.c);
+        ////console.log(this.c);
         this.limite_elevacao = limiteY + this.c; // Para limite ser medido pela posição da base do blobo
-        //console.log(this.limite_elevacao);
+        ////console.log(this.limite_elevacao);
         this.a = (-2 * this.limite_elevacao + 3 * this.c) / 2; // Coeficiente 'a' da função, que é uma parábola de concavidade virada para baixo( velocidade diminui gradativamente)
         this.b = this.limite_elevacao - this.a - this.c; // Coeficiente 'b' da mesma função
 
@@ -604,8 +604,8 @@ class Area3 {
             let bloco_chave_box = this.boundingBlocosExtras[this.indice_bloco_chave];
             bloco_chave.position.y = this.funcao_movimento_elevacao(this.num_passos_exec / this.num_passos_elevacao) + 2; // Calcula a posição atual( valor da função + altura do cubo central à base da plataforma)
             bloco_chave_box.setFromObject(bloco_chave);
-            //console.log(bloco_chave.position.y);
-            //console.log(this.num_passos_exec);
+            ////console.log(bloco_chave.position.y);
+            ////console.log(this.num_passos_exec);
         }
         if (this.num_passos_exec >= this.num_passos_elevacao) { // Se chegou ao limite
             this.bloco_elevado = true;
@@ -633,7 +633,7 @@ class Area3 {
         }
 
         return this.porta1.abrindo;
-        // console.log(obj.position.z < pos_teste.z + qtdZ && obj.position.z > pos_teste.z - qtdZ);
+        // //console.log(obj.position.z < pos_teste.z + qtdZ && obj.position.z > pos_teste.z - qtdZ);
     }
 }
 

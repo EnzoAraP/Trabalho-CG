@@ -528,10 +528,21 @@ function estabeleceBoundingBoxes() {
 
 
    }
-   for (var i = 0; i < areas[1].num_blocos_extras; i++) {
-      areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
-   }
+   
 
+   for(let i=0; i<areas[3].muralhas.length;i++){
+      areas[3].muralhas[i].box = new THREE.Box3().setFromObject(areas[3].muralhas[i].mesh);
+   }
+   for(let i=0; i<areas[3].pontes_box.length;i++){
+      areas[3].pontes_box[i] = new THREE.Box3().setFromObject(areas[3].pontes[i]);
+   }
+   areas[3].fechadura.box = new THREE.Box3().setFromObject(areas[3].fechadura.mesh);
+   areas[3].plataformas[0].box = new THREE.Box3().setFromObject(areas[3].plataformas[0].mesh);
+   areas[3].plataformas[1].box = new THREE.Box3().setFromObject(areas[3].plataformas[1].mesh);
+   const helper23 = new THREE.Box3Helper(areas[3].plataformas[0].box, 0xffff00); // Amarelo
+   scene.add(helper23);
+   const helper27 = new THREE.Box3Helper(areas[3].plataformas[1].box, 0xffff00); // Amarelo
+   scene.add(helper27);
 
    areas[2].porta1.box = new THREE.Box3().setFromObject(areas[2].porta1.mesh);
    areas[2].porta2.box = new THREE.Box3().setFromObject(areas[2].porta2.mesh);
@@ -550,6 +561,10 @@ function estabeleceBoundingBoxes() {
    const helper42 = new THREE.Box3Helper(areas[2].bounding_caixa_bloqueio, 0xffff00);
    scene.add(helper42);
 
+
+   for (var i = 0; i < areas[1].num_blocos_extras; i++) {
+      areas[1].boundingBlocosExtras.push(new THREE.Box3().setFromObject(areas[1].blocosExtras[i]));
+   }
    areas[1].porta.box = new THREE.Box3().setFromObject(areas[1].porta.mesh);
    const helper2 = new THREE.Box3Helper(areas[1].porta.box, 0xffff00); // Amarelo
    areas[1].fechadura.box = new THREE.Box3().setFromObject(areas[1].fechadura.mesh);
@@ -796,6 +811,8 @@ function render() {
                metralhadora.inimigos = soldados;
          if (!sold_acordados) {
             for (var i = 0; i < soldados.length; i++) {
+
+               console.log("acordou");
                soldados[i].acordar();
             }
             sold_acordados = true;
@@ -939,6 +956,11 @@ function render() {
       if (areas[1].porta.abrindo && areas[1].chave1 == null) {
          let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: "rgb(95,40,180)" }));
          areas[1].posicionar_chave1(chave);
+      }
+
+      if (areas[3].muralhas[0].abrindo && areas[3].chave3 == null) {
+         
+         areas[3].posicionar_chave3(null);
       }
 
    }

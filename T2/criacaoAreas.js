@@ -14,6 +14,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import {Area2} from './area2.js'
 import { Area1 } from './Area1.js';
 import { Area3 } from './area3.js';
+import { Area4 } from './Area4.js';
 
 let scene = new THREE.Scene(); // Create main scene
 
@@ -59,20 +60,11 @@ area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
 var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2_area2,cubeGeo3],[materialCubo1,materialCubo2]);
 var area3 = new Area3([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo3]);
 
-var area4 = {
-   cube0: new THREE.Mesh(cubeGeo0, materialCubo1),
-   cube1: new THREE.Mesh(cubeGeo4, materialCubo4),
-   cube2: new THREE.Mesh(cubeGeo5, materialCubo4),
-   cube3: new THREE.Mesh(cubeGeo6, materialCubo4),
-      degraus: criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, materialCubo1),
-   posicao_ini: new THREE.Vector3(150, 2, 0),
-   cubos: [],
-   boundingCubos: [],
-   boundingDegraus: [],
-   boundingRampa: null,
-   ex: 70,
-   ez: 101
-}
+
+      
+   
+var area4 = new Area4([cubeGeo0,cubeGeo4,cubeGeo5,cubeGeo6],[materialCubo1,materialCubo4]);
+area4.degraus = criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, materialCubo1);
 area4.cubos = [area4.cube1, area4.cube2, area4.cube3];
 
 //console.log(area1.cubos[1]);
@@ -129,15 +121,22 @@ areas[2].criar_luz(scene);
 
 function testeGrandesAreas(objeto, areaAnalisada) {
    let rednFech=false;
+   let rednFech2=false;
    if (areaAnalisada == -1) {
       if (Math.abs(objeto.position.x) >= 245 || Math.abs(objeto.position.z) >= 245)
          areaAnalisada = 0;
       else {
          let posicao_ini, ex, ez;
-         let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.mesh.position.x,areas[1].fechadura.mesh.position.y,areas[1].fechadura.mesh.position.z);
-         pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
-         rednFech = (objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3);
-         
+       
+            let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.mesh.position.x,areas[1].fechadura.mesh.position.y,areas[1].fechadura.mesh.position.z);
+            pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
+            rednFech = (objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3);
+            if(!rednFech){
+               pos_fechadura_a2=new THREE.Vector3(areas[3].fechadura.mesh.position.x,areas[1].fechadura.mesh.position.y,areas[3].fechadura.mesh.position.z);
+               pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[3].posicao_ini);
+               rednFech2 = (objeto.position.x <= pos_fechadura_a2.x+4 && objeto.position.x >= pos_fechadura_a2.x-4 && objeto.position.z <= pos_fechadura_a2.z+4 && objeto.position.z >= pos_fechadura_a2.z-4);
+            }  
+        
          for (var i = 0; i < 4; i++) {
             posicao_ini = areas[i].posicao_ini;
             ex = areas[i].ex;
@@ -160,6 +159,10 @@ function testeGrandesAreas(objeto, areaAnalisada) {
             let pos_fechadura_a2=new THREE.Vector3(areas[1].fechadura.mesh.position.x,areas[1].fechadura.mesh.position.y,areas[1].fechadura.mesh.position.z);
             pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[1].posicao_ini);
             rednFech = objeto.position.x <= pos_fechadura_a2.x+3 && objeto.position.x >= pos_fechadura_a2.x-3 && objeto.position.z <= pos_fechadura_a2.z+3 && objeto.position.z >= pos_fechadura_a2.z-3;
+         } else if(areaAnalisada==4){
+            let pos_fechadura_a2=new THREE.Vector3(areas[3].fechadura.mesh.position.x,areas[3].fechadura.mesh.position.y,areas[3].fechadura.mesh.position.z);
+            pos_fechadura_a2.addVectors(pos_fechadura_a2,areas[3].posicao_ini);
+            rednFech2 = objeto.position.x <= pos_fechadura_a2.x+4 && objeto.position.x >= pos_fechadura_a2.x-4 && objeto.position.z <= pos_fechadura_a2.z+4 && objeto.position.z >= pos_fechadura_a2.z-4;
          }
          let posicao_ini = areas[areaAnalisada - 1].posicao_ini, ex = areas[areaAnalisada - 1].ex, ez = areas[areaAnalisada - 1].ez;
          if (objeto.position.x < posicao_ini.x - ex - 4 || objeto.position.x > posicao_ini.x + ex + 4 || objeto.position.z < posicao_ini.z - ez - 4 || objeto.position.z > posicao_ini.z + ez + 4) {
@@ -169,7 +172,7 @@ function testeGrandesAreas(objeto, areaAnalisada) {
       }
 
    }
-   return [areaAnalisada,rednFech];
+   return [areaAnalisada,rednFech,rednFech2];
 }
 
 
