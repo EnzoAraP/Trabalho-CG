@@ -1,0 +1,804 @@
+import * as THREE from 'three';
+import KeyboardState from '../libs/util/KeyboardState.js'
+import { TeapotGeometry } from '../build/jsm/geometries/TeapotGeometry.js';
+import Stats from '../build/jsm/libs/stats.module.js';
+import {
+   initRenderer,
+   initDefaultSpotlight,
+   createGroundPlaneXZ,
+   SecondaryBox,
+   onWindowResize,
+   setDefaultMaterial
+} from "../libs/util/util.js";
+
+import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
+
+import { testeGrandesAreas } from './criacaoAreas.js';
+
+import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
+import { Area3 } from './area3.js';
+
+import {ativar_fim_da_luz_por_derrota} from './ArquivoPrincipalTrabalho copy 2.js';
+
+var eixo_x = new THREE.Vector3(1, 0, 0);
+var eixo_y = new THREE.Vector3(0, 1, 0);
+var eixo_z = new THREE.Vector3(0, 0, 1);
+class Personagem {
+
+   constructor(objeto, camera, boxPersonagem, larg, speedPadrao, lanca_misseis, metralhadora) {
+
+      this.vida=200;
+
+      this.levaDano=true;
+
+      this.vidaMax=200;
+      this.voo = false;
+      this.obj = objeto;
+
+      this.chegada_area1 = false;
+
+      this.chegada_area2 = false;
+
+      this.chegada_area3 = false;
+
+      this.camera = camera;
+
+      this.box = boxPersonagem;
+
+      this.larg = larg;
+
+      this.speedPadrao = speedPadrao;
+
+      this.speedBase=speedPadrao;
+
+      this.speed = speedPadrao;
+
+      this.naPlataforma = false;
+
+      this.naPlataforma_a4 = [false, false];
+
+      this.regiaoEscada = false;
+
+      this.saiu_plataforma = false;
+
+      this.saiu_plataforma_a4 = [false, false];
+
+      this.possui_chave1 = true;
+
+      this.possui_chave2 = true;
+
+      this.possui_chave3 = true;
+
+      this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
+      /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
+       Fronteira(0) : Região próxima às muralhas do mapa( tem formato de moldura quadrada)
+       Grande Áreas de 1 a 4: Representam as áreas especiais do jogo(Plataformas em formato de paralelepípedo) e seus derredores( margem de 4 unidades de comprimento)
+      
+      */
+      this.area = -1; // Variável que indica em qual área em formato de paralelepípedo presente no jogo.
+
+      this.redondezasDaFechadura = false;
+
+      this.redondezasDaFechadura2 = false;
+
+      this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
+
+
+      this.num_arma_atual = 2;
+
+      this.lanca_misseis = lanca_misseis;
+
+      this.metralhadora = metralhadora;
+
+      this.lanca_misseis.obj.visible = false;
+
+      this.metralhadora.setVisible(false);
+
+      this.arma_atual = this.metralhadora;
+
+
+      this.eixo_x = new THREE.Vector3(1, 0, 0);
+      this.eixo_y = new THREE.Vector3(0, 1, 0);
+      this.eixo_z = new THREE.Vector3(0, 0, 1);
+   }
+
+   mudar_arma(num_arma = 0) {
+      if (num_arma == 0) {
+         //console.log("ABC");
+         if (this.num_arma_atual == 1)
+            num_arma = 2;
+         else
+            num_arma = 1;
+      }
+      if (num_arma == 1) {
+         if (this.num_arma_atual != 1) {
+            this.lanca_misseis.obj.visible = true;
+            this.metralhadora.setVisible(false);
+            this.num_arma_atual = 1;
+            this.arma_atual = this.lanca_misseis;
+         }
+      }
+      else if (num_arma == 2) {
+         if (this.num_arma_atual != 2) {
+            this.lanca_misseis.obj.visible = false;
+            this.metralhadora.setVisible(true);
+            this.num_arma_atual = 2;
+            this.arma_atual = this.metralhadora;
+         }
+      }
+   }
+
+   movimento(areas, fronteira, groundPlane, delta, moveForward, moveBackward, moveRight, moveLeft, moveUp, reset, scene, moveDown = false) {
+
+      this.raycaster.ray.origin.copy(this.obj.position);
+
+
+
+      const frontal = new THREE.Vector3(); // Vetor direção da câmera
+      this.obj.getWorldDirection(frontal);
+
+      frontal.y = 0;// Tira parte em y para movimento x-z
+      frontal.normalize();
+
+      const direito = new THREE.Vector3(); // Vetor perpendicular à direita
+      direito.crossVectors(frontal, this.eixo_y).normalize();
+
+
+
+      const moveDir = new THREE.Vector3(); // Vetor para armazenar movimento
+      if (moveForward) moveDir.add(frontal);
+      if (moveBackward) moveDir.sub(frontal);
+      if (moveRight) moveDir.add(direito);
+      if (moveLeft) moveDir.sub(direito);
+      //if(moveDown) moveDir.y=-1;
+      //if(moveUp) moveDir.y=1;
+      this.box = new THREE.Box3().setFromCenterAndSize(
+         new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.0, this.obj.position.z),
+         new THREE.Vector3(this.larg, 2.0, this.larg) // largura, altura, profundidade desejadas
+      );
+
+
+      if (moveDir.lengthSq() !== 0) { // Se houver movimento
+
+         if (this.grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
+
+            moveDir.normalize().multiplyScalar(this.speed * delta); // Normaliza e multiplica pela velocidade, considerando o delta(Diferença entre quadros)
+
+            if (this.area != -1) { // Se estivermos sobre uma área de blocos
+
+               // Extensões das áreas definidas( Metade do lado em cada eixo)
+               let xi = (areas[this.area].posicao_ini).x;
+               let zi = (areas[this.area].posicao_ini).z;
+               let ex = (areas[this.area]).ex;
+               let ez = (areas[this.area]).ez;
+
+
+               // Verifica se saiu da área com blocos, indo para o plano base.
+               if (this.obj.position.x > (xi + ex + (this.larg) * 0.7) || this.obj.position.x < (xi - ex - this.larg * 0.7) || this.obj.position.z > (zi + ez + this.larg * 0.7) || this.obj.position.z < (zi - ez - this.larg * 0.7)) {
+
+                  this.area = -1;
+               }
+            }
+            else if (this.grandeArea == 3) {
+               let xi = (areas[this.grandeArea - 1].posicao_ini).x;
+               let zi = (areas[this.grandeArea - 1].posicao_ini).z;
+               let ex = (areas[this.grandeArea - 1]).ex;
+               let ez = (areas[this.grandeArea - 1]).ez;
+
+               if (!(this.obj.position.x > (xi + ex + (this.larg) * 0.7)
+                  || this.obj.position.x < (xi - ex - this.larg * 0.7) || this.obj.position.z > (zi + ez + this.larg * 0.7)
+                  || this.obj.position.z < (zi - ez - this.larg * 0.7)))
+                  this.area = 2;
+            }
+            let colisaoAreaAtual = false;
+
+            for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, delta);
+               this.speed = speedColisao[0];
+               if (!colisaoAreaAtual && speedColisao[1])
+                  colisaoAreaAtual = true;
+            }
+
+            if (this.grandeArea == 1) {
+               //  console.log(areas[0].boundingBoxesPilares);
+
+               for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
+
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+                  this.speed = speedColisao[0];
+                  if (speedColisao[1] == true) {
+                     console.log("bateu");
+                  }
+               }
+               if (this.pegou == true) {
+                  let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, false);
+                  this.speed = colisaoPlat[0];
+                  let pegouS = colisaoPlat[1];
+                  if (pegouS && !this.possui_chave1) {
+                     console.log("Pegou a chave!");
+                     this.possui_chave1 = true;
+
+                  }
+
+               }
+            }
+
+            if (this.grandeArea == 4) {
+               //  console.log(areas[0].boundingBoxesPilares);
+               let colisaoComAPlataforma = false;
+               for (var i = 0; i < areas[this.grandeArea - 1].muralhas.length; i++) {
+
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].muralhas[i].box, this.speed, true);
+                  this.speed = speedColisao[0];
+
+               }
+               if (this.area == 3) {
+                  for (let i = 0; i < areas[3].plataformas.length; i++) {
+                     if ((areas[3].plataformas[i].em_movimento || !areas[3].plataformas[i].subir) && !this.naPlataforma_a4[i]) {
+
+                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plataformas[i].box, this.speed, delta);
+                        this.speed = speedColisao[0];
+                        colisaoComAPlataforma = speedColisao[1];
+                        if (colisaoComAPlataforma) {
+                           console.log("colide");
+                        }
+                     }
+                  }
+                  for (let i = 0; i < areas[3].pontes_box.length; i++) {
+                     
+
+                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].pontes_box[i], this.speed, delta);
+                        this.speed = speedColisao[0];
+                        colisaoComAPlataforma = speedColisao[1];
+                        if (colisaoComAPlataforma) {
+                           console.log("colide");
+                        }
+                     
+                  }
+                  for (let i = 0; i < areas[3].paredes_janelas_box.length; i++) {
+                     
+
+                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].paredes_janelas_box[i], this.speed, delta);
+                        this.speed = speedColisao[0];
+                        colisaoComAPlataforma = speedColisao[1];
+                        if (colisaoComAPlataforma) {
+                           console.log("colide");
+                        }
+                     
+                  }
+                  for (let i = 0; i < areas[3].torres.length; i++) {
+                     
+
+                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].torres_box[i], this.speed, delta);
+                        this.speed = speedColisao[0];
+                        colisaoComAPlataforma = speedColisao[1];
+                        if (colisaoComAPlataforma) {
+                           console.log("colide");
+                        }
+                     
+                  }
+                 let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].assetManager.BigBenBox, this.speed, delta);
+                  this.speed = speedColisao[0];
+               }
+            }
+
+            if (this.grandeArea == 2) {
+
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, delta);
+               this.speed = speedColisao[0];
+               let colisaoComAPorta = speedColisao[1];
+               let colisaoComAPlataforma = false;
+               if (this.redondezasDaFechadura) {
+                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, delta);
+                  this.speed = speedColisao[0];
+                  let colisaoComFechadura = speedColisao[1];
+                  if (colisaoComFechadura && !areas[1].porta.aberta && !areas[1].porta.abrindo && this.possui_chave1) {
+                     areas[1].porta.abrindo = true;
+
+                  }
+               }
+               else {
+                  if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
+
+                     let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, delta);
+                     this.speed = speedColisao[0];
+                     colisaoComAPlataforma = speedColisao[1];
+                     if (colisaoComAPlataforma) {
+                        ////console.log("Plat");
+                     }
+                  }
+                  else {
+                     ////console.log("Porta");
+                     ////console.log(colisaoAreaAtual);
+                     ////console.log(speedColisao[1]);
+                  }
+
+
+               }
+
+               if (this.area == 1 && !this.naPlataforma && !colisaoComAPorta) {
+                  let colisaoExtras = false;
+                  for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
+                     let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, delta);
+                     this.speed = speedColisao[0];
+                     colisaoExtras = speedColisao[1];
+
+                  }
+                  if (areas[1].num_passos_exec == 0) {
+                     areas[1].mudar_limite_elevacao(3);
+                  }
+               }
+
+
+            }
+            else if (this.grandeArea == 3) {
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta1.box, this.speed, delta);
+               this.speed = speedColisao[0];
+               console.log(speedColisao[1]);
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta2.box, this.speed, delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube4, this.speed, delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube5, this.speed, delta);
+               this.speed = speedColisao[0];
+
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].assetManager.planeBox, this.speed, delta);
+               this.speed = speedColisao[0];
+
+            }
+            else {
+               let pos_escada = new THREE.Vector3(0, 0, 0);
+               pos_escada.copy(areas[this.grandeArea - 1].degraus[0].degraus[0].position);
+               let aumento_nec_para_centralizar = (areas[this.grandeArea - 1].degraus[0].comprimento_degrau - areas[this.grandeArea - 1].degraus[1].comprimento / 2);
+               if (this.grandeArea == 1 || this.grandeArea == 3)
+                  aumento_nec_para_centralizar = -aumento_nec_para_centralizar;
+
+               pos_escada.x -= aumento_nec_para_centralizar;
+               let largura_esc = areas[this.grandeArea - 1].degraus[1].largura / 2;
+
+               let comp_esc = areas[this.grandeArea - 1].degraus[1].comprimento / 2;
+               let objeto = this.obj;
+               this.regiaoEscada = (objeto.position.x <= pos_escada.x + comp_esc && objeto.position.x >= pos_escada.x - (comp_esc)
+                  && objeto.position.z <= pos_escada.z + (largura_esc - this.larg / 2) && objeto.position.z >= pos_escada.z - (largura_esc - this.larg / 2)
+                  //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+               );
+               //console.log(objeto.position);
+               //console.log(this.regiaoEscada);
+
+               //console.log(pos_escada);
+               let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.0001; // Teste da rampa
+
+
+               if (isIntersectingStaircase) {
+
+                  // Está colidindo com a rampa
+
+                  let comp_total = areas[this.grandeArea - 1].degraus[1].comprimento;
+                  let altura_total = areas[this.grandeArea - 1].degraus[1].altura;
+
+
+
+                  let dir_rampa = new THREE.Vector3(0, altura_total, -comp_total).normalize(); // Vetor diração da rampa
+                  let rotMatrix = new THREE.Matrix4().makeRotationY(areas[this.grandeArea - 1].degraus[1].angulo_rotacao);
+                  dir_rampa.applyMatrix4(rotMatrix);
+
+                  // Está na rampa
+                  moveDir.normalize();
+                  moveDir.y += (altura_total / comp_total);
+                  let vetorProj = new THREE.Vector3();
+                  vetorProj.copy(moveDir);
+                  ////console.log(vetorProj);
+                  vetorProj.projectOnVector(dir_rampa);
+                  let moveProjecao = vetorProj.length();
+                  ////console.log(moveProjecao);
+                  if (Math.abs(moveProjecao) > 0.0001) {
+                     // Move na direção da rampa : incluir subida/descida
+                     moveDir.y = vetorProj.y;
+                  }
+                  if (this.area == -1) {
+                     this.area = this.grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
+                  }
+                  ////console.log(moveDir.y);
+               }
+            }
+
+         }
+         else if (this.grandeArea == 0) {
+            for (var j = 0; j < 4; j++) {
+
+               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, fronteira[j + 4], this.speed, delta);
+               this.speed = colisaoSpeed[0];
+            }
+         }
+         else {
+            if (this.redondezasDaFechadura) {
+               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[1].fechadura.box, this.speed, delta);
+               this.speed = colisaoSpeed[0];
+               let colisaoComFechadura = colisaoSpeed[1];
+               if (colisaoComFechadura && !areas[1].porta.aberta && !areas[1].porta.abrindo && this.possui_chave1) {
+                  areas[1].porta.abrindo = true;
+               }
+            }
+
+            if (this.redondezasDaFechadura2) {
+               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].fechadura.box, this.speed, delta);
+               this.speed = colisaoSpeed[0];
+               let colisaoComFechadura = colisaoSpeed[1];
+               if (colisaoComFechadura && !areas[3].muralhas[0].aberta && !areas[3].muralhas[0].aberta && this.possui_chave3) {
+                  areas[3].muralhas[0].abrindo = true;
+               }
+            }
+         }
+
+         moveDir.normalize().multiplyScalar(this.speed * delta); // Faz ter a norma da velocidade atual
+
+
+         
+         this.obj.position.add(moveDir); //Movimenta objeto da câmera
+
+
+         // Verifica saída e entrada de grandes áreas
+         let grandeArea_e_fechadura = testeGrandesAreas(this.obj, this.grandeArea);
+         this.grandeArea = grandeArea_e_fechadura[0];
+         this.redondezasDaFechadura = grandeArea_e_fechadura[1];
+         this.redondezasDaFechadura2 = grandeArea_e_fechadura[2];
+
+         // console.log(moveDir);
+      }
+
+      this.speed = this.speedPadrao;
+
+
+      let isIntersectingGround = false;
+      let isIntersectingStaircase = false;
+      let intersectaPlataforma = false;
+      this.raycaster.ray.origin.copy(this.obj.position);
+      if (this.grandeArea >= 1) {
+         if (this.area != -1) {
+            if (this.grandeArea != 2 && this.grandeArea != 3)
+               isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
+            else if (this.grandeArea == 2)
+               intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
+            if (this.grandeArea != 3)
+               isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
+            if (this.area == 3) {
+               intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.0001;
+               if (!isIntersectingGround && !intersectaPlataforma) {
+                  isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes]).length > 0.0001;
+               }
+               if (!isIntersectingGround && !intersectaPlataforma) {
+                  isIntersectingGround = this.raycaster.intersectObject(areas[this.grandeArea - 1].paredes_janelas[0]).length > 0.0001;
+               }
+            }
+         }
+         else {
+            if (this.voo) {
+               ////console.log(areas[0].degraus[1].rampa)
+               if (this.grandeArea != 2 && this.grandeArea != 3)
+                  isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.grandeArea - 1].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
+               else if (this.grandeArea == 2)
+                  intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
+               isIntersectingGround = this.raycaster.intersectObjects([groundPlane, ...areas[this.grandeArea - 1].cubos]).length > 0.00001;
+            }
+            else {
+               isIntersectingGround = this.raycaster.intersectObject(groundPlane).length > 0.0001;
+            }
+         }
+
+
+      }
+      else {
+         isIntersectingGround = this.raycaster.intersectObject(groundPlane).length > 0.0001;
+
+      }
+      let condicaoEspecialBordas = (this.area == -1 || this.area == 3 || this.naPlataforma || this.regiaoEscada);
+
+
+      ////console.log(intersectaPlataforma);
+      if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma && condicaoEspecialBordas) {
+         //console.log("queda");
+
+         this.obj.position.y -= 7 * delta;
+         this.raycaster.ray.origin.copy(this.obj.position);
+         if (this.grandeArea >= 1) {
+            ////console.log(area);
+            if (this.area != -1) {
+               this.box = new THREE.Box3().setFromCenterAndSize(
+                  new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.05, this.obj.position.z),
+                  new THREE.Vector3(this.larg, 2.1, this.larg) // largura, altura, profundidade desejadas
+               );
+               if (this.grandeArea != 2 && this.grandeArea != 3)
+                  isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.area].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
+               else if (this.grandeArea == 2)
+                  intersectaPlataforma = this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.0001;
+               isIntersectingGround = false;
+               isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
+
+               if (this.area == 3) {
+                  intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.1;
+                  if (!isIntersectingGround && !intersectaPlataforma) {
+                     isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes]).length > 0.0001;
+                  }
+                  if (!isIntersectingGround && !intersectaPlataforma) {
+                  isIntersectingGround = this.raycaster.intersectObject(areas[this.grandeArea - 1].paredes_janelas[0]).length > 0.0001;
+               }
+               }
+
+               if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma) {
+                  this.obj.position.y += 7 * delta;
+                  //console.log("volta");
+               }
+            }
+
+
+
+         }
+      }
+      if (this.grandeArea == 2 && areas[1].porta.aberta) {
+
+         let objeto = this.obj;
+         let pos_plataforma_a2 = new THREE.Vector3(areas[1].plataforma.mesh.position.x, areas[1].plataforma.mesh.position.y, areas[1].plataforma.mesh.position.z);
+         pos_plataforma_a2.addVectors(pos_plataforma_a2, areas[1].posicao_ini);
+         this.naPlataforma = (objeto.position.x <= pos_plataforma_a2.x + (2) && objeto.position.x >= pos_plataforma_a2.x - (2 - this.larg / 2)
+            && objeto.position.z <= pos_plataforma_a2.z + (2 - this.larg / 2) && objeto.position.z >= pos_plataforma_a2.z - (2 - this.larg / 2)
+            //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+         );
+         if (!this.saiu_plataforma && !this.naPlataforma)
+            this.saiu_plataforma = objeto.position.x > (pos_plataforma_a2.x + 1) || objeto.position.x < (pos_plataforma_a2.x - 1)
+               || objeto.position.z > (pos_plataforma_a2.z + 1) || objeto.position.z < (pos_plataforma_a2.z - 1);
+
+
+
+         if (this.naPlataforma && this.area == -1)
+            this.area = 1;
+         if (!areas[1].plataforma.em_movimento && !areas[1].plataforma.subir && objeto.position.y <= 2.2) {
+            ////console.log("Desce");
+            areas[1].plataforma.em_movimento = (objeto.position.x <= pos_plataforma_a2.x + (3 + this.larg) && objeto.position.x >= pos_plataforma_a2.x - (3 + this.larg)
+               && objeto.position.z <= pos_plataforma_a2.z + (3 + this.larg) && objeto.position.z >= pos_plataforma_a2.z - (3 + this.larg));
+            // //console.log(areas[1].plataforma.em_movimento);
+         }
+         else if (!areas[1].plataforma.em_movimento && !areas[1].plataforma.emEspera && this.naPlataforma && (areas[1].plataforma.subir || this.saiu_plataforma)) {
+            areas[1].plataforma.emEspera = true;
+         }
+
+         if (areas[1].plataforma.emEspera) {
+            if (!this.naPlataforma) {
+               areas[1].plataforma.tempo_espera = 0;
+               areas[1].plataforma.emEspera = false;
+            }
+            else {
+               areas[1].plataforma.tempo_espera++;
+               if (areas[1].plataforma.tempo_espera >= 120) {
+                  areas[1].plataforma.em_movimento = true;
+                  areas[1].plataforma.tempo_espera = 0;
+                  areas[1].plataforma.emEspera = false;
+                  this.saiu_plataforma = false;
+               }
+            }
+
+         }
+
+         if (!this.chegada_area2 && this.area == 1 && this.saiu_plataforma && this.obj.position.y >= 5.99)
+            this.chegada_area2 = true;
+
+
+
+      }
+
+      if (this.grandeArea == 4 && areas[3].muralhas[0].aberta) {
+         let colisaoComAPlataforma = false;
+         for (let i = 0; i < areas[3].plataformas.length; i++) {
+
+
+            let objeto = this.obj;
+            let pos_plataforma_a2 = new THREE.Vector3(areas[3].plataformas[i].mesh.position.x, areas[3].plataformas[i].mesh.position.y, areas[3].plataformas[i].mesh.position.z);
+            pos_plataforma_a2.addVectors(pos_plataforma_a2, areas[3].posicao_ini);
+            this.naPlataforma_a4[i] = (objeto.position.x <= pos_plataforma_a2.x + (2) && objeto.position.x >= pos_plataforma_a2.x - (2 - this.larg / 2)
+               && objeto.position.z <= pos_plataforma_a2.z + (2 - this.larg / 2) && objeto.position.z >= pos_plataforma_a2.z - (2 - this.larg / 2)
+               //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+            );
+            console.log(this.naPlataforma_a4[i]);
+            if (!this.saiu_plataforma_a4[i] && !this.naPlataforma_a4[i])
+               this.saiu_plataforma_a4[i] = objeto.position.x > (pos_plataforma_a2.x + 1) || objeto.position.x < (pos_plataforma_a2.x - 1)
+                  || objeto.position.z > (pos_plataforma_a2.z + 1) || objeto.position.z < (pos_plataforma_a2.z - 1);
+
+
+
+            if (!areas[3].plataformas[i].em_movimento && !areas[3].plataformas[i].subir && objeto.position.y <= 6.4) {
+               ////console.log("Desce");
+               areas[3].plataformas[i].em_movimento = (objeto.position.x <= pos_plataforma_a2.x + (3 + this.larg) && objeto.position.x >= pos_plataforma_a2.x - (3 + this.larg)
+                  && objeto.position.z <= pos_plataforma_a2.z + (3 + this.larg) && objeto.position.z >= pos_plataforma_a2.z - (3 + this.larg));
+               // //console.log(areas[1].plataforma.em_movimento);
+            }
+            else if (!areas[3].plataformas[i].em_movimento && !areas[3].plataformas[i].emEspera && this.naPlataforma_a4[i] && (areas[3].plataformas[i].subir || this.saiu_plataforma_a4[i])) {
+               areas[3].plataformas[i].emEspera = true;
+            }
+
+            if (areas[3].plataformas[i].emEspera) {
+               console.log("Espera");
+               if (!this.naPlataforma_a4[i]) {
+                  areas[3].plataformas[i].tempo_espera = 0;
+                  areas[3].plataformas[i].emEspera = false;
+               }
+               else {
+                  areas[3].plataformas[i].tempo_espera++;
+                  if (areas[3].plataformas[i].tempo_espera >= 120) {
+                     areas[3].plataformas[i].em_movimento = true;
+                     areas[3].plataformas[i].tempo_espera = 0;
+                     areas[3].plataformas[i].emEspera = false;
+                     this.saiu_plataforma_a4[i] = false;
+                  }
+               }
+
+            }
+
+
+
+         }
+      }
+
+      if (!this.chegada_area1 && this.area == 0)
+         this.chegada_area1 = true;
+      ////console.log(moveDir.y);
+
+      if (reset == true) {
+         this.obj.position.set(3, 4, 8);
+         this.obj.rotation.set(0, 0, 0);
+      }
+      if (this.voo && moveUp == true) {
+         this.obj.position.y += 20 * delta; // Se voo estiver ativado
+      }
+
+
+      //}
+
+      let cheg3 = areas[2].teste_abertura_porta(this.obj, this.possui_chave2);
+      if (!this.chegada_area3)
+         this.chegada_area3 = cheg3;
+      if (areas[1].porta.abrindo) {
+         areas[1].abrir_porta(4, 1);
+
+      }
+      else if (areas[1].porta.aberta && areas[1].plataforma.em_movimento) {
+         let mult = 1;
+         let limite = 0;
+         if (!areas[1].plataforma.subir) {
+            mult = -1;
+            limite = -3.949;
+         }
+         let qtd_mov = areas[1].mover_plataforma(limite, mult);
+         if (this.naPlataforma && this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.01) {
+            this.obj.position.y += qtd_mov;
+            //console.log(this.obj.position.y);
+         }
+         ////console.log("Plat");
+      }
+      if (areas[2].porta1.abrindo) {
+         areas[2].abrir_porta(35, 1);
+         console.log("catapimbas");
+
+      }
+      if (areas[3].muralhas[0].abrindo) {
+         areas[3].abrir_muralha(-areas[3].altura_muralha / 2 - 2.5, -1);
+         console.log("catatal");
+
+      }
+      else if (areas[3].muralhas[0].aberta) {
+         //console.log("aa");
+         for (let i = 0; i < areas[3].plataformas.length; i++) {
+            //console.log("aa");
+            if (areas[3].plataformas[i].em_movimento) {
+               // console.log("move");
+               let mult = 1;
+               let limite = areas[3].altura_plataformas / 2 + 2;
+               if (!areas[3].plataformas[i].subir) {
+                  mult = -1;
+                  limite = -areas[3].altura_plataformas / 2 + 0.051 + 2;
+               }
+               let qtd_mov = areas[3].mover_plataforma(limite, mult, i);
+               if (this.naPlataforma_a4[i] && this.raycaster.intersectObject(areas[3].plataformas[i].mesh).length > 0.01) {
+                  this.obj.position.y += qtd_mov;
+                  //console.log(this.obj.position.y);
+               }
+            }
+         }
+         ////console.log("Plat");
+      }
+
+
+
+
+   }
+
+   gerarBarraDeVida(){
+      this.larguraBarra = 0.5;
+      this.alturaBarra = 0.05;
+      const fundoGeometry = new THREE.PlaneGeometry(this.larguraBarra, this.alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      this.barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(this.larguraBarra, this.alturaBarra );
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgba(74, 194, 19, 1)" });
+      this.barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      this.grupoBarras = new THREE.Group();
+
+      this.grupoBarras.add(this.barraFundo);
+      this.grupoBarras.add(this.barraVida);
+      this.barraFrente=this.barraVida;
+      this.grupoBarras.visible = true;
+   
+
+
+      this.obj.add(this.grupoBarras);
+
+      
+      this.grupoBarras.translateZ(-1);
+      this.grupoBarras.translateY(-0.38);
+      this.grupoBarras.translateX(-0.53);
+      
+
+
+      this.barraVida.position.z = 0.000001;
+      this.tamBarraVida=this.larguraBarra;
+
+      this.cor_barra=0;
+    
+ 
+   }
+
+   sofrerAtaque(danoInfligido, scene) {
+      console.log("Atacado fui, non!");
+      if(!this.levaDano)
+         return;
+      this.vida -= danoInfligido;// Decrementa vida em caso de ataque
+
+      
+      console.log("Vida:");
+      console.log(this.vida);
+      if (!this.padeceu && this.vida <= 0) { // Se ainda não padeceu e a vida chegou a 0 ou algo menor que isso, coloca 0 na vida e acusa fim do inimigo
+         this.vida = 0;
+         this.padeceu = true;
+         this.reiniciar_por_derrota();
+      }
+      // Para adequar a barra;
+      const escala = this.vida / this.vidaMax; // Proporção de vida atual 
+
+      if(escala<0.45 && this.cor_barra==0){
+         this.cor_barra=1;
+         this.barraFrente.material.color=new THREE.Color(240/255,200/255,2/255);
+      }
+      else if(escala<0.15 && this.cor_barra==1){
+         this.cor_barra=2;
+        this.barraFrente.material.color=new THREE.Color(200/255, 0/255, 0/255);
+      }
+
+      this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
+
+      const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2; // Descola para continuar onde estava, à esquerda, na visão do jogador
+      this.barraFrente.position.x = deslocamentoX; // desloca
+
+   }
+   reiniciar_por_derrota() {
+    // Exibe mensagem
+    ativar_fim_da_luz_por_derrota();
+    const msg = document.getElementById('mensagemDerrota');
+    msg.style.display = 'block';
+
+    // Após 3 segundos, recarrega
+    setTimeout(() => {
+        location.reload();
+    }, 3000);
+}
+
+}
+
+export { Personagem };
