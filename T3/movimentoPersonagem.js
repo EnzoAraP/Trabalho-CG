@@ -486,7 +486,7 @@ class Personagem {
             if (this.grandeArea != 3)
                isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
             if (this.area == 3) {
-                  intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.1;
+                  intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.0001;
                   if (!isIntersectingGround && !intersectaPlataforma) {
                      isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes,
                         areas[this.grandeArea - 1].paredes_janelas[0],areas[this.grandeArea - 1].paredes_janelas[2],

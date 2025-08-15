@@ -163,7 +163,7 @@ class Area4 {
         this.material_plataforma_a2 = [
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas/4, 0, 0),
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas/4, 0, 0),
-            this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(texturaPlatA2), 1, 1, 0, 0,"rgb(1, 1, 29)"),
             new THREE.MeshBasicMaterial(),
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas/4, 0, 0),
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas/4, 0, 0),
@@ -317,7 +317,7 @@ class Area4 {
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
 
-       const material_blocos = this.estabelecerMaterial("./texturas_geral/area2/gold_texture5.jpg",1,1,0,0,"rgb(255,255,255)");
+       const material_blocos = this.estabelecerMaterial("./texturas_geral/area2/caixa_madeira.jpg",3,3,0,0,"rgb(207, 122, 82)");
       this.blocosExtras = []; // Vetor dos blocos
         this.boundingBlocosExtras = []; // Vetor das bounding boxes
 

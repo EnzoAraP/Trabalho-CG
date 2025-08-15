@@ -81,11 +81,11 @@ class Area2 {
         let texturaCubesB = new THREE.Texture().copy(texturaCubes);
         let texturaCubesC = new THREE.Texture().copy(texturaCubes);
         //let texturaChao = this.loader.load("./texturas_geral/area2/metal_floor.jpg");
-        let texturaChao = this.loader.load("./texturas_geral/area2/metal_chao_seamless.jpg");
+        let texturaChao = this.loader.load("./texturas_geral/area2/chao3_area2.jpg");
         this.material_cubosaa = [
             this.estabelecerMaterialJaCarregado(texturaCubes, 12, 1, 0, 0), //x+
             this.estabelecerMaterialJaCarregado(texturaCubes, 12, 1, 0, 0),
-            this.estabelecerMaterialJaCarregado(texturaChao, 12, 10, 0, 0,"rgba(73, 55, 55, 1)"),// y+
+            this.estabelecerMaterialJaCarregado(texturaChao, 12, 10, 0, 0,"rgb(196, 162, 162)"),// y+
             new THREE.MeshBasicMaterial(),
             this.estabelecerMaterialJaCarregado(texturaCubesB, 18, 1, 0, 0, "rgba(238, 194, 122, 1)"), //z+
             this.estabelecerMaterialJaCarregado(texturaCubesB, 18, 1, 0, 0, "rgba(235, 199, 127, 1)")
@@ -95,7 +95,7 @@ class Area2 {
         this.material_cubosb = [
             this.estabelecerMaterialJaCarregado(texturaCubesC, 1, 1, 0, 0, "rgba(255, 0, 0, 1)"),
             this.estabelecerMaterialJaCarregado(texturaCubesC, 1, 1, 0, 0),
-            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(texturaChao), 12, 1, 0, 0,"rgba(73, 55, 55, 1)"),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(texturaChao), 12, 1, 0, 0,"rgb(196, 162, 162)"),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial()
@@ -290,7 +290,7 @@ class Area2 {
     }
 
     estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)") {
-        let material = new THREE.MeshBasicMaterial({ color: cor });
+        let material = new THREE.MeshLambertMaterial({ color: cor });
         material.map = this.loader.load(arquivo);
 
         console.log("material");
