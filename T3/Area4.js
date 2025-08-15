@@ -112,14 +112,16 @@ class Area4 {
 
        this.geometria_torre= new THREE.BoxGeometry(14,this.altura_plataformas,16);
 
-       let normal_scale_torres=[1,3];
+       let normal_scale_torres=[2,4];
+       let material_torres_padrao=this.estabelecerMaterialJaCarregado(textura_torres, 1, 3, 0, 0,"rgb(255,255,255)",textura_torres_normal,normal_scale_torres);
+       
        this.material_torre=[
-            this.estabelecerMaterialJaCarregado(textura_torres, 1, 3, 0, 0,"rgb(255,255,255)",textura_torres_normal,normal_scale_torres),
-            this.estabelecerMaterialJaCarregado(textura_torres, 1, 3, 0, 0,"rgb(255,255,255)",textura_torres_normal,normal_scale_torres),
-            this.estabelecerMaterialJaCarregado(textura_torres, 1, 3, 0, 0,"rgb(255,255,255)",textura_torres_normal,normal_scale_torres),
+            material_torres_padrao,
+            material_torres_padrao,
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_torres), 1, 1.5, 0, 0,"rgb(255,255,255)",new THREE.Texture().textura_torres_normal,[2,2]),
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterialJaCarregado(textura_torres, 1, 3, 0, 0,"rgb(255,255,255)",textura_torres_normal,normal_scale_torres),
-           this.estabelecerMaterialJaCarregado(textura_torres, 1, 3, 0, 0,"rgb(255,255,255)",textura_torres_normal,normal_scale_torres),
+            material_torres_padrao,
+           material_torres_padrao,
 
         ];
 
@@ -315,74 +317,93 @@ class Area4 {
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
 
-        const material_blocos = new THREE.MeshLambertMaterial({ color: "rgb(255, 215, 0)" });
-
-        // Posições dos blocos que ficam em cima da área 2:
-        this.posicoes = [
-
-            { x: 0.1 * this.ex, y: 2, z: 0.5 * this.ez },
-            { x: 0.2 * this.ex, y: 2.7, z: 0.3 * this.ez },
-            { x: 0.4 * this.ex, y: 2, z: 0.7 * this.ez },
-            { x: 0.83 * this.ex, y: 2, z: 0.12 * this.ez },
-            { x: -0.3 * this.ex, y: 4.9, z: 0.6 * this.ez },
-            { x: -0.52 * this.ex, y: 3.2, z: 0.85 * this.ez },
-            { x: -0.85 * this.ex, y: 2, z: 0.21 * this.ez },
-            { x: -0.11 * this.ex, y: 2, z: 0.48 * this.ez },
-            { x: -0.75 * this.ex, y: 4, z: -0.09 * this.ez },
-            { x: -0.39 * this.ex, y: 2, z: -0.19 * this.ez },
-            // bloco central (revelador), será o índice 10
-            { x: 0, y: 2, z: 0 },
-            { x: -0.92 * this.ex, y: 2, z: -0.22 * this.ez },
-            { x: -0.17 * this.ex, y: 2, z: -0.78 * this.ez },
-            { x: 0.29 * this.ex, y: 2, z: -0.84 * this.ez },
-            { x: 0.03 * this.ex, y: 2.9, z: -0.38 * this.ez },
-            { x: 0.47 * this.ex, y: 3.2, z: -0.88 * this.ez },
-            { x: 0.9 * this.ex, y: 4.9, z: -0.48 * this.ez },
-        ];
-
-        this.blocosExtras = []; // Vetor dos blocos
+       const material_blocos = this.estabelecerMaterial("./texturas_geral/area2/gold_texture5.jpg",1,1,0,0,"rgb(255,255,255)");
+      this.blocosExtras = []; // Vetor dos blocos
         this.boundingBlocosExtras = []; // Vetor das bounding boxes
 
-        // Dimensões dos blocos para a geometria:
-        this.dimensoes = [
-            { w: 2.6, d: 1.6 + 2, h: 4.2 + 2 }, // bloco 0
-            { w: 2.2, d: 2.4 + 2, h: 4.0 + 2 }, // bloco 1
-            { w: 3.0, d: 1.2 + 2, h: 4.6 + 2 }, // bloco 2
-            { w: 3.4, d: 1.8 + 2, h: 3.4 + 2 }, // bloco 3
-            { w: 2.6, d: 2.0 + 2, h: 3.6 + 2 }, // bloco 4
-            { w: 3.0, d: 2.0 + 2, h: 5.0 + 2 }, // bloco 5
-            { w: 2.2, d: 1.6 + 2, h: 6.6 + 2 }, // bloco 6
-            { w: 2.6, d: 1.9 + 2, h: 5.4 + 2 }, // bloco 7
-            { w: 3.0, d: 1.8 + 2, h: 6.0 + 2 }, // bloco 8
-            { w: 2.8, d: 1.8 + 2, h: 6.2 + 2 }, // bloco 9
-            { w: 3.0, d: 2.0 + 2, h: 3.8 + 2 }, // bloco 10 (central, mais baixo)
-            { w: 2.6, d: 1.6 + 2, h: 4.2 + 2 }, // bloco 0
-            { w: 2.2, d: 2.4 + 2, h: 4.0 + 2 }, // bloco 1
-            { w: 3.0, d: 1.2 + 2, h: 5.6 + 2 }, // bloco 2
-            { w: 3.4, d: 1.8 + 2, h: 3.4 + 2 }, // bloco 3
-            { w: 3.6, d: 2.0 + 2, h: 5.6 + 2 }, // bloco 4
-            { w: 3.4, d: 1.8 + 2, h: 6.4 + 2 }, // bloco 3
-            { w: 2.6, d: 2.0 + 2, h: 7.6 + 2 }, // bloco 4
-        ];
+// Posições dos blocos com grupos próximos
+this.posicoes = [
+    // Grupo 1 (3 blocos lado a lado) - esquerda/frente
+    { x: -0.85 * this.ex, y: 2,   z:  -0.55 * this.ez },
+    { x: -0.85 * this.ex, y: 2,   z:  -0.55 * this.ez + 10 },
+    { x: -0.85 * this.ex, y: 2,   z:  -0.55 * this.ez - 10 },
 
-        // Criando e poscicionando blocos adequadamente:
-        this.posicoes.forEach((pos, i) => {
-            // defina tamanhos variados:
-            const dim = this.dimensoes[i];
+    // Grupo 2 (2 blocos empilhados) - direita/frente
+    { x:  0.85 * this.ex, y: 2,   z:  -0.30 * this.ez },
+    // pos.y do bloco de cima ajustada para ficar sobre o bloco abaixo (2 + altura do bloco abaixo)
+    { x:  0.85 * this.ex, y: 6.5, z:  -0.30 * this.ez },
 
-            const geo = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
-            const mesh = new THREE.Mesh(geo, material_blocos);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            // posição XZ
-            this.cube0.add(mesh);
-            mesh.position.set(pos.x, pos.y + dim.h / 2, pos.z);
+    // Grupo 3 (4 blocos em “L”) - centro/trás
+    { x:  0.00 * this.ex, y: 2,   z: -0.60 * this.ez },
+    { x:  0.00 * this.ex, y: 2,   z: -0.60 * this.ez + 10 },
+    { x:  0.50 * this.ex, y: 2,   z: -0.60 * this.ez },
+    // bloco empilhado sobre o anterior (pos.y = 2 + altura do bloco em x=0.50*this.ex)
+    { x:  0.50 * this.ex, y: 6.5, z: -0.60 * this.ez },
 
-            this.blocosExtras.push(mesh);
+    // Bloco central (no meio do mapa)
+    { x:  0.30 * this.ex, y: 2,   z:  -0.2 * this.ez },
 
-            // marque o bloco central para subir depois
+    // Grupo 4 (2 blocos lado a lado) - direita/trás
+    { x:  0.65 * this.ex, y: 2,   z: 0.35 * this.ez },
+    { x:  0.65 * this.ex, y: 2,   z: 0.35 * this.ez - 10 },
 
-        });
+    // Grupo 5 (3 blocos juntos) - esquerda/trás (aglomerado)
+    { x: -0.40 * this.ex, y: 2,   z: 0.80 * this.ez },
+    { x: -0.40 * this.ex, y: 2,   z: 0.80 * this.ez + 10 },
+    // terceiro empilhado sobre o primeiro (pos.y = 2 + altura do bloco 12)
+    { x: -0.40 * this.ex, y: 6.2, z: 0.80 * this.ez },
+
+    // Grupo 6 (novo) - farol esquerda/frente (3 blocos)
+    { x: -0.45 * this.ex, y: 2,   z:  -0.45 * this.ez },
+    { x: -0.45 * this.ex, y: 2,   z: - 0.45 * this.ez + 10 },
+    // empilhado sobre o primeiro do grupo (pos.y = 2 + altura do bloco 15)
+    { x: -0.45 * this.ex, y: 6.8, z:  -0.45 * this.ez },
+
+    // Grupo 7 (novo) - canto direito/trás (3 blocos)
+    { x:  0.95 * this.ex, y: 2,   z: 0.85 * this.ez },
+    { x:  0.95 * this.ex, y: 2,   z: 0.85 * this.ez + 10 },
+    // empilhado sobre o primeiro do grupo (pos.y = 2 + altura do bloco 18)
+    { x:  0.95 * this.ex, y: 7.1, z: 0.85 * this.ez }
+];
+
+// Dimensões fixas, horizontais (TODAS 50% maiores que antes)
+this.dimensoes = [
+    { w: 13.5,  d: 9.3,  h: 4.8  }, // 0
+    { w: 12.9,  d: 8.7,  h: 4.5  }, // 1
+    { w: 14.25, d: 9.6,  h: 5.1  }, // 2
+    { w: 13.2,  d: 8.4,  h: 4.5  }, // 3
+    { w: 12.3,  d: 8.4,  h: 4.5  }, // 4
+    { w: 13.8,  d: 9.9,  h: 5.4  }, // 5
+    { w: 10.5,  d: 7.5,  h: 3.9  }, // 6
+    { w: 12.0,  d: 8.7,  h: 4.5  }, // 7
+    { w: 12.6,  d: 9.0,  h: 4.5  }, // 8
+    { w: 11.7,  d: 8.4,  h: 4.5  }, // 9
+    { w: 11.4,  d: 8.7,  h: 4.5  }, //10
+    { w: 10.8,  d: 8.4,  h: 4.2  }, //11
+    { w: 10.2,  d: 7.8,  h: 4.2  }, //12
+    { w: 12.0,  d: 8.4,  h: 4.5  }, //13
+    { w: 12.6,  d: 8.4,  h: 4.5  }, //14
+    { w: 11.7,  d: 8.4,  h: 4.8  }, //15
+    { w: 11.4,  d: 8.1,  h: 4.5  }, //16
+    { w: 13.8,  d: 9.0,  h: 5.1  }, //17
+    { w: 13.8,  d: 9.0,  h: 5.1  }, //18
+    { w: 13.8,  d: 9.0,  h: 5.1  }, //19
+    { w: 13.8,  d: 9.0,  h: 5.1  }  //20
+];
+// Criando e posicionando os blocos
+this.posicoes.forEach((pos, i) => {
+    const dim = this.dimensoes[i];
+
+    const geo = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
+    const mesh = new THREE.Mesh(geo, material_blocos);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    this.cube0.add(mesh);
+    mesh.position.set(pos.x, pos.y + dim.h / 2, pos.z);
+
+    this.blocosExtras.push(mesh);
+});
 
         // Variáveis de controle da elevação do bloco central ao se derrotar todos os inimgos: 
         this.num_passos_elevacao = 240;
@@ -422,6 +443,53 @@ class Area4 {
 
         this.comecou_a_abrir = false; // Controle para se a muralha começou a abrir
 
+        this.esferas=[];
+        this.esferaras_box=[];
+
+        let material_esfera = this.estabelecerMaterial("./texturas_geral/area2/esfera_rocha.jpg",5,5,0,0);
+        let geometria_esfera= new THREE.SphereGeometry(4,32,32);
+
+// ESFERAS: 6 ao todo (2 canto direito, 2 canto esquerdo, 2 atrás)
+this.esferas = [];
+
+// material (mantive sua função de material)
+
+
+// helper para criar/escalar/adicionar esfera
+function criarEsfera(radius, px, py, pz, name = null) {
+    const geom = new THREE.SphereGeometry(radius, 32, 32);
+    const mesh = new THREE.Mesh(geom, material_esfera);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    if (name) mesh.name = name;
+    mesh.position.set(px, py, pz);
+    this.cube0.add(mesh);
+    this.esferas.push(mesh);
+    return mesh;
+}
+
+// parâmetros ajustados para não penetrar o chão (y aumentado)
+const rSmall = 3.0;                // raio das esferas
+const yMargin = 1.5;               // margem extra acima do raio
+const ySmall = rSmall + yMargin+0.5;   // centro Y para garantir que não entrem no chão
+
+// posições: cantos direito/esquerdo próximos à periferia em z+ ; par atrás em z-
+const zPerifPos = 0.75 * this.ez;   // perímetro z positivo (frente)
+const zPerifNeg = -0.75 * this.ez;  // perímetro z negativo (trás)
+
+// --- CANTO DIREITO (2 esferas) ---
+criarEsfera.call(this, rSmall,  0.90 * this.ex, ySmall+21,  zPerifNeg - 4.7,          "esfera_dir_a");
+criarEsfera.call(this, rSmall,  0.90 * this.ex, ySmall+21,  zPerifPos + 4.7,    "esfera_dir_b");
+
+// --- CANTO ESQUERDO (2 esferas) ---
+criarEsfera.call(this, rSmall, -0.92 * this.ex, ySmall,  zPerifPos,         "esfera_esq_a");
+criarEsfera.call(this, rSmall, -0.85 * this.ex, ySmall+5.1,  zPerifNeg + 8.0,   "esfera_esq_b");
+
+// --- ATRÁS (2 esferas centrais atrás) ---
+criarEsfera.call(this, rSmall, -0.25 * this.ex, ySmall,  zPerifNeg,         "esfera_tras_a");
+criarEsfera.call(this, rSmall,  0.25 * this.ex, ySmall,  zPerifNeg,         "esfera_tras_b");
+
+// Resultado: this.esferas.length === 6
         
 
         this.carregar_objetos();
@@ -454,7 +522,7 @@ class Area4 {
             }
         }
         carregarArquivoGLB(this.assetManager, './assets_local/', 'BigBen',true,-1,this.cube0,40);
-         //loadOBJFile(this.assetManager, './assets_local/Spanish_tower/obj/', 'objTower', 20, 0, true);
+        
 
     }
 
@@ -481,15 +549,19 @@ class Area4 {
             console.log("pos_obj");
     
         }
-    estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)",normal_map=null) {
+    estabelecerMaterial(arquivo, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)",normal_map=null,phong=false) {
         let material = null;
-        if(normal_map==null){
+        if(normal_map==null && !phong){
             material= new THREE.MeshLambertMaterial({ color: cor });
             material.map = this.loader.load(arquivo);
         }    
-        else{
+        else if(normal_map!=null){
             material=new THREE.MeshPhongMaterial({ color: cor , map:this.loader.load(arquivo) ,normalMap: this.loader.load(normal_map)});
 
+        }
+        else{
+            material=new THREE.MeshPhongMaterial({ color: cor , map:this.loader.load(arquivo) });
+            console.log("phong")
         }
            
        

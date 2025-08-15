@@ -29,16 +29,16 @@ class Area2 {
         this.material_porta = new THREE.MeshLambertMaterial({ color: "rgb(50,120,90)" });
 
 
-        let textura_porta = './texturas_geral/area2/metal-door-texture-compressed.jpg';
+        let textura_porta = this.loader.load('./texturas_geral/area2/metal-door-texture-compressed.jpg');
 
         let rep_porta = 1 / 2;
         this.material_porta = [
-            this.estabelecerMaterial(textura_porta, 1 / 2, 1, 0, 0),
-            this.estabelecerMaterial(textura_porta, 1 / 2, 1, 0, 0),
-            this.estabelecerMaterial(textura_porta, 1 / 2, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(textura_porta, 1 / 2, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(textura_porta, 1 / 2, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(textura_porta, 1 / 2, 1, 0, 0),
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterial(textura_porta, 1 / 8, 1, 0, 0),
-            new THREE.MeshBasicMaterial()
+            new THREE.MeshBasicMaterial(),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_porta), 1 / 8, 1, 0, 0)
 
         ];
 
@@ -47,17 +47,17 @@ class Area2 {
         this.porta_2_abrindo = false;
 
         this.geometria_suporte_fechadura = new THREE.BoxGeometry(1.5, 1, 1.5);
-        this.material_suporte_fechadura = new THREE.MeshLambertMaterial({ color: "rgb(100,100,100)" });
+        this.material_suporte_fechadura = this.estabelecerMaterial("./texturas_geral/area2/Arte_Conceitual.jpg",2,1,0,0,"rgba(41, 48, 94, 1)");
         this.suporte_fechadura = new THREE.Mesh(this.geometria_suporte_fechadura, this.material_suporte_fechadura);
         this.geometria_plataforma_a2 = new BoxGeometry(4, 4, 4);
 
-        let texturaPlatA2 = "./texturas_geral/area2/5231.jpg";
+        let texturaPlatA2 = this.loader.load("./texturas_geral/area2/5231.jpg");
 
 
         this.material_plataforma_a2 = [
-            this.estabelecerMaterial(texturaPlatA2, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, 1, 0, 0),
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterial(texturaPlatA2, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, 1, 0, 0),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial()
@@ -77,22 +77,25 @@ class Area2 {
         geomterias_cubos[2] = cubeGeo2;
         geomterias_cubos[3] = cubeGeo3;
 
-        let texturaCubes = "./texturas_geral/area2/Arte_Conceitual.jpg";
-        let texturaChao = "./texturas_geral/area2/mad_metal_reduzido.webp"
+        let texturaCubes = this.loader.load("./texturas_geral/area2/mad_metal_reduzido.webp");
+        let texturaCubesB = new THREE.Texture().copy(texturaCubes);
+        let texturaCubesC = new THREE.Texture().copy(texturaCubes);
+        //let texturaChao = this.loader.load("./texturas_geral/area2/metal_floor.jpg");
+        let texturaChao = this.loader.load("./texturas_geral/area2/metal_chao_seamless.jpg");
         this.material_cubosaa = [
-            this.estabelecerMaterial(texturaCubes, 12, 2, 0, 0), //x+
-            this.estabelecerMaterial(texturaCubes, 12, 2, 0, 0),
-            this.estabelecerMaterial(texturaChao, 15, 10, 0, 0),// y+
+            this.estabelecerMaterialJaCarregado(texturaCubes, 12, 1, 0, 0), //x+
+            this.estabelecerMaterialJaCarregado(texturaCubes, 12, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(texturaChao, 12, 10, 0, 0,"rgba(73, 55, 55, 1)"),// y+
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterial(texturaCubes, 16, 2, 0, 0, "rgba(240, 146, 5, 1)"), //z+
-            this.estabelecerMaterial(texturaCubes, 16, 2, 0, 0, "rgba(240, 146, 5, 1)")
+            this.estabelecerMaterialJaCarregado(texturaCubesB, 18, 1, 0, 0, "rgba(238, 194, 122, 1)"), //z+
+            this.estabelecerMaterialJaCarregado(texturaCubesB, 18, 1, 0, 0, "rgba(235, 199, 127, 1)")
 
         ];
 
         this.material_cubosb = [
-            this.estabelecerMaterial(texturaCubes, 1, 1, 0, 0, "rgb(5, 232, 240)"),
-            this.estabelecerMaterial(texturaCubes, 1, 1, 0, 0),
-            this.estabelecerMaterial(texturaChao, 15, 1 / 2, 0, 0),
+            this.estabelecerMaterialJaCarregado(texturaCubesC, 1, 1, 0, 0, "rgba(255, 0, 0, 1)"),
+            this.estabelecerMaterialJaCarregado(texturaCubesC, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(texturaChao), 12, 1, 0, 0,"rgba(73, 55, 55, 1)"),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial()
@@ -143,7 +146,9 @@ class Area2 {
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
 
-        const material_blocos = new THREE.MeshLambertMaterial({ color: "rgb(255, 215, 0)" });
+        let texturaBlocosExtras = this.loader.load("./texturas_geral/area2/metal_texture.webp");
+
+        const material_blocos = this.estabelecerMaterialJaCarregado(texturaBlocosExtras,1,2,0,0);
 
         // Posições dos blocos que ficam em cima da área 2:
         this.posicoes = [
@@ -194,23 +199,37 @@ class Area2 {
         ];
 
         // Criando e poscicionando blocos adequadamente:
-        this.posicoes.forEach((pos, i) => {
-            // defina tamanhos variados:
-            const dim = this.dimensoes[i];
+      this.posicoes.forEach((pos, i) => {
+    const dim = this.dimensoes[i];
 
-            const geo = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
-            const mesh = new THREE.Mesh(geo, material_blocos);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            // posição XZ
-            this.cube0.add(mesh);
-            mesh.position.set(pos.x, pos.y + dim.h / 2, pos.z);
+    // Cria texturas com repeats inteiros para cada eixo
+    const texX = texturaBlocosExtras.clone();
 
-            this.blocosExtras.push(mesh);
 
-            // marque o bloco central para subir depois
+    const texY = texturaBlocosExtras.clone();
+;
 
-        });
+    const texZ = texturaBlocosExtras.clone();
+    texZ.needsUpdate = true;
+
+    // Usa a sua função para criar os materiais
+    const matX = this.estabelecerMaterialJaCarregado(texX, Math.max(1/2, Math.round(dim.d/2)), Math.max(1/2, Math.round(dim.h/2)), 0, 0);
+    const matY = this.estabelecerMaterialJaCarregado(texY, Math.max(1/2, Math.round(dim.w/2)), Math.max(1/2, Math.round(dim.d/2)), 0, 0);
+    const matZ = this.estabelecerMaterialJaCarregado(texZ, Math.max(1/2, Math.round(dim.w/2)), Math.max(1/2, Math.round(dim.h/2)), 0, 0);
+
+    // Ordem das faces no BoxGeometry: [px, nx, py, ny, pz, nz]
+    const materiais = [matX, matX, matY, matY, matZ, matZ];
+
+    const geo = new THREE.BoxGeometry(dim.w, dim.h, dim.d);
+    const mesh = new THREE.Mesh(geo, materiais);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    this.cube0.add(mesh);
+    mesh.position.set(pos.x, pos.y + dim.h / 2, pos.z);
+
+    this.blocosExtras.push(mesh);
+});
 
         // Variáveis de controle da elevação do bloco central ao se derrotar todos os inimgos: 
         this.num_passos_elevacao = 240;
@@ -244,6 +263,29 @@ class Area2 {
 
 
         this.comecou_a_abrir = false; // Controle para se a porta começou a abrir
+
+    }
+
+    estabelecerMaterialJaCarregado(arquivoCarregado, repeticoesU, repeticoesV, offsetX = 0, offsetY = 0, cor = "rgb(255, 255, 255)",normal_map_car=null,normal_scale=[1,1]) {
+       let material = null;
+        if(normal_map_car==null){
+            material= new THREE.MeshLambertMaterial({ color: cor });
+            material.map = arquivoCarregado;
+        }    
+        else{
+            material=new THREE.MeshPhongMaterial({ color: cor ,map: arquivoCarregado ,normalMap: normal_map_car});
+            material.normalScale.set(normal_scale[0], normal_scale[1]);
+            console.log("AAAAFAS");
+        }
+        console.log("material");
+        console.log(material.map);
+        material.map.wrapS = THREE.RepeatWrapping;
+        material.map.wrapT = THREE.RepeatWrapping;
+        material.map.minFilter = material.map.magFilter = THREE.LinearFilter;
+        material.map.repeat.set(repeticoesU, repeticoesV);
+        material.map.offset.x = offsetX;
+        material.map.offset.y = offsetY;
+        return material;
 
     }
 

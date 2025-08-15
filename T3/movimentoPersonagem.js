@@ -41,6 +41,10 @@ class Personagem {
 
       this.chegada_area3 = false;
 
+      this.chegada_area4 = false;
+
+      
+
       this.camera = camera;
 
       this.box = boxPersonagem;
@@ -68,6 +72,12 @@ class Personagem {
       this.possui_chave2 = true;
 
       this.possui_chave3 = true;
+
+      this.pegou_chave1 = false;
+
+      this.pegou_chave2 = false;
+
+      this.pegou_chave3 = false;
 
       this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
       /* As grandes áreas são: Transição(-1): Área base onde há apenas colisão com o chão para se testar. Todo lugar onde não há objetos por perto.
@@ -217,6 +227,7 @@ class Personagem {
                   if (pegouS && !this.possui_chave1) {
                      console.log("Pegou a chave!");
                      this.possui_chave1 = true;
+                     this.pegou_chave1=true;
 
                   }
 
@@ -348,6 +359,16 @@ class Personagem {
                speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].assetManager.planeBox, this.speed, delta);
                this.speed = speedColisao[0];
 
+               if(areas[this.grandeArea-1].soldados_derrotados==8){
+                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, delta);
+                  this.speed = speedColisao[0];
+                  if(speedColisao[1] && !this.pegou_chave3){
+                     console.log("cheave3");
+                     areas[2].plat_chave.remove(areas[2].chave3);
+                     this.pegou_chave3=true;
+                  }
+               }
+
             }
             else {
                let pos_escada = new THREE.Vector3(0, 0, 0);
@@ -465,13 +486,12 @@ class Personagem {
             if (this.grandeArea != 3)
                isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].cubos]).length > 0.0001 || this.obj.position.y <= 2;
             if (this.area == 3) {
-               intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.0001;
-               if (!isIntersectingGround && !intersectaPlataforma) {
-                  isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes]).length > 0.0001;
-               }
-               if (!isIntersectingGround && !intersectaPlataforma) {
-                  isIntersectingGround = this.raycaster.intersectObject(areas[this.grandeArea - 1].paredes_janelas[0]).length > 0.0001;
-               }
+                  intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.1;
+                  if (!isIntersectingGround && !intersectaPlataforma) {
+                     isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes,
+                        areas[this.grandeArea - 1].paredes_janelas[0],areas[this.grandeArea - 1].paredes_janelas[2],
+                        ...areas[this.grandeArea - 1].torres]).length > 0.0001;
+                  }
             }
          }
          else {
@@ -520,11 +540,10 @@ class Personagem {
                if (this.area == 3) {
                   intersectaPlataforma = this.raycaster.intersectObjects([areas[3].plataformas[0].mesh, areas[3].plataformas[1].mesh]).length > 0.1;
                   if (!isIntersectingGround && !intersectaPlataforma) {
-                     isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes]).length > 0.0001;
+                     isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes,
+                        areas[this.grandeArea - 1].paredes_janelas[0],areas[this.grandeArea - 1].paredes_janelas[2],
+                        ...areas[this.grandeArea - 1].torres]).length > 0.0001;
                   }
-                  if (!isIntersectingGround && !intersectaPlataforma) {
-                  isIntersectingGround = this.raycaster.intersectObject(areas[this.grandeArea - 1].paredes_janelas[0]).length > 0.0001;
-               }
                }
 
                if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma) {
@@ -714,8 +733,8 @@ class Personagem {
    }
 
    gerarBarraDeVida(){
-      this.larguraBarra = 0.5;
-      this.alturaBarra = 0.05;
+      this.larguraBarra = 0.1;
+      this.alturaBarra = 0.01;
       const fundoGeometry = new THREE.PlaneGeometry(this.larguraBarra, this.alturaBarra);
       const fundoMaterial = new THREE.MeshBasicMaterial({
          color: "rgb(0, 0, 0)",
@@ -741,13 +760,13 @@ class Personagem {
       this.obj.add(this.grupoBarras);
 
       
-      this.grupoBarras.translateZ(-1);
-      this.grupoBarras.translateY(-0.38);
-      this.grupoBarras.translateX(-0.53);
+      this.grupoBarras.translateZ(-0.2);
+      this.grupoBarras.translateY(-0.38/5);
+      this.grupoBarras.translateX(-0.53/5);
       
 
 
-      this.barraVida.position.z = 0.000001;
+      this.barraVida.position.z = 0.0000002;
       this.tamBarraVida=this.larguraBarra;
 
       this.cor_barra=0;

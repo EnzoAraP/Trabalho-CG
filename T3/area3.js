@@ -26,7 +26,7 @@ class Area3 {
         let texturaCubes = "./texturas_geral/area2/textura_hangar.jpg";
         let texturaMap = null;
 
-        this.soldados_derrotados=7;
+        this.soldados_derrotados=0;
 
         this.altura_geral = 16;
         this.compPorta = 30;
