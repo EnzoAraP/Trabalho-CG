@@ -792,12 +792,12 @@ for (let i = 0; i < 8; i++) {
 }
 
 let sold_acordados = false;
-
+/*
 personagem.obj.position.set(areas[3].cube0.position.x+5,areas[3].cube0.position.y+4.2,areas[3].cube0.position.z);
 personagem.area=3;
 personagem.grandeArea=4;
 areas[3].muralhas[0].abrindo=true;
-
+*/
 
 personagem.gerarBarraDeVida();
 render();
