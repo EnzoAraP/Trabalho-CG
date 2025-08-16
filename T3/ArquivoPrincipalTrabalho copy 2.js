@@ -161,7 +161,7 @@ scene.add(camera);
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
-material = areas[3].estabelecerMaterial("../assets/intertavado.jpg",25,25,0,0);
+material;
 let material2 = new THREE.MeshLambertMaterial({ color: "rgb(39, 164, 168)" });
 const controle = new PointerLockControls(camera, renderer.domElement);
 controle.pointerSpeed = 0.6;
@@ -170,7 +170,7 @@ let planegeometry = new THREE.BoxGeometry(500, 0.1, 500); // Plano base 500x500
 let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
 let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das muralhas em x
 
-let groundPlane = new THREE.Mesh(planegeometry, material);
+let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("../assets/textures/intertravado.jpg",125,125,0,0));
 
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
