@@ -472,7 +472,6 @@ class Personagem {
             }
          }
 
-
       }
       else {
          isIntersectingGround = this.raycaster.intersectObject(groundPlane).length > 0.0001;

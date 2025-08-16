@@ -11,7 +11,7 @@ import {
     setDefaultMaterial
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
-import { BoxGeometry } from '../build/three.module.js';
+import { BoxGeometry, TextureLoader } from '../build/three.module.js';
 import { CSG } from '../libs/other/CSGMesh.js'  
 class Area1{
   constructor(geomterias_cubos,materiais_cubos){
@@ -33,7 +33,7 @@ class Area1{
        this.ez= 51 // Extensão da área em relação a seu centro no eixo z( Metade do comprimento do lado em z do paralelepípedo)
        this.cubos = [this.cube1, this.cube2, this.cube3];
        this.pegavel=false;
-       this.materialPlat = new THREE.MeshLambertMaterial({ color: "rgb(185, 51, 27)"}); // cria o material da plataforma
+       this.materialPlat = new THREE.MeshLambertMaterial({ color: "rgb(245, 245, 220)",map:this.chao}); // cria o material da plataforma
        this.geometriaPlat = new THREE.BoxGeometry(2,5,2);
        this.plat = new THREE.Mesh(this.geometriaPlat,this.materialPlat);
        this.plat.visible =false;
@@ -44,11 +44,72 @@ class Area1{
        this.boundingBoxplat=null;
        this.pilares = [];
        this.chave = null;
+       this.pedras = [];
+       this.BoundingBoxpedras = [];
 
        this.chaveRem=false;
+       this.carregarTexturaPilar()
+       this.Cubos_Loader()
+       this.Por_Textura_Cubo()
     }
     
+Cubos_Loader(){ // carrega texturas antes para não lagar
+  var textureLoader = new THREE.TextureLoader();
+ this.chao = textureLoader.load('../T3/AssetsT3/GroundColor.jpg');//carrega textura do chao
+ this.chaonormal = textureLoader.load('../T3/AssetsT3/GroundNormalGL.jpg');//carrega normal do chao
+}
+Por_Textura_Cubo(){// poe texturas nos cubos
+  
+  // cube1: 70x4x50 
+  const cube1Materials = [
+    this.changeMatCubo(0.0, 0.0, 10, 2),     // Right (+X) 
+    this.changeMatCubo(0.0, 0.0, 10, 2),     // Left (-X) 
+    this.changeMatCubo(0.0, 0.0, 10, 7),    // Top (+Y) 
+    this.changeMatCubo(0.0, 0.0, 10, 7),    // Bottom (-Y)
+    this.changeMatCubo(0.0, 0.0, 10, 1),    // Front (+Z) 
+    this.changeMatCubo(0.0, 0.0, 10, 1)     // Back (-Z)
+  ];
+  
+  // cube2: 64.5x4x2 
+  const cube2Materials = [
+    this.changeMatCubo(0.0, 0.0, 10, 1),    // Right (+X) 
+    this.changeMatCubo(0.0, 0.0, 10, 1),    // Left (-X)
+    this.changeMatCubo(0.0, 0.0, 10, 0.5),  // Top (+Y) 
+    this.changeMatCubo(0.0, 0.0, 10, 0.5),  // Bottom (-Y)
+    this.changeMatCubo(0.0, 0.0, 1, 1),     // Front (+Z) 
+    this.changeMatCubo(0.0, 0.0, 1, 1)      // Back (-Z) 
+  ];
+  
+  // cube3: 70x4x50 
+  const cube3Materials = [
+    this.changeMatCubo(0.0, 0.0, 10, 2),     // Right (+X) 
+    this.changeMatCubo(0.0, 0.0, 10, 2),     // Left (-X) 
+    this.changeMatCubo(0.0, 0.0, 10, 7),    // Top (+Y) 
+    this.changeMatCubo(0.0, 0.0, 10, 7),    // Bottom (-Y) 
+    this.changeMatCubo(0.0, 0.0, 10, 1),    // Front (+Z) 
+    this.changeMatCubo(0.0, 0.0, 10, 1)     // Back (-Z) 
+  ];
+  
+  // Apply materials to cubes
+  this.cube1.material = cube1Materials;
+  this.cube2.material = cube2Materials;
+  this.cube3.material = cube3Materials;
+
+}
+ changeMatCubo(offsetX, offsetY, repeatX,repeatY) { // função para montar textura Pedra
+  const tex =this.chao.clone(); //clona textura pra n ferrar ela
+  const normal =this.chaonormal.clone(); // clona normal pra  ferrar
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;// wrap no repeat pra se der bosta
+  tex.offset.set(offsetX, offsetY); // offset de antes(nem usa)
+  tex.repeat.set(repeatX, repeatY); // repeat pra cada lado
+  normal.wrapS = normal.wrapT = THREE.RepeatWrapping; // mesma coisa pra normal pq se n fica estranho
+ normal.offset.set(offsetX, offsetY);
+  normal.repeat.set(repeatX, repeatY);
+
+  return new THREE.MeshLambertMaterial({ map:tex, normalMap:normal}); // cria de vez
+}
 subir_Plataforma(){
+  
   let localPlat = new THREE.Vector3(0,-2,0);
   let localchave = new THREE.Vector3(0,2.75,0);
   this.plat.position.copy(localPlat);
@@ -57,45 +118,113 @@ subir_Plataforma(){
   this.plat.visible=true;
 
 }
+carregarTexturaPilar(){ // funçaao para carregar a textura dos pilares a parte, fazendo assim que não pese ao olhar pra eles.
+  var textureLoader = new THREE.TextureLoader();
+ this.pedra = textureLoader.load('../T3/AssetsT3/BricksColor.jpg');//carrega textura do pilar
+this.dismappedra = textureLoader.load('../T3/AssetsT3/BricksDisplacement.jpg'); // carrega displacment map feito
+this.normalmappedra= textureLoader.load('../T3/AssetsT3/BricksNormalGL.jpg');
+this.stone = textureLoader.load('../T3/AssetsT3/Stone_Columnbasecolor.jpg');//carrega textura do pilar
+this.dismap = textureLoader.load('../T3/AssetsT3/Stone_Columnheight.png'); // carrega displacment map feito
+this.normalmap = textureLoader.load('../T3/AssetsT3/Stone_Columnnormal.jpg');
+  this.dismap.wrapS = THREE.RepeatWrapping;
+    this.dismap.wrapT = THREE.RepeatWrapping; // ← IMPORTANTE para bordas
+    
+    this.stone.wrapS = THREE.RepeatWrapping;
+    this.stone.wrapT = THREE.ClampToEdgeWrapping;
+    
+    this.normalmap.wrapS = THREE.RepeatWrapping;
+    this.normalmap.wrapT = THREE.ClampToEdgeWrapping;
 
+    this.pedra.wrapS = THREE.RepeatWrapping;
+    this.pedra.wrapT = THREE.RepeatWrapping;
+}
+criarPedra(Posicao,largura,comprimento)
+{
+  let cor = new THREE.Color(15/255,125/255,125/255);
+
+  let materialinvi = [ // faz material a partir da função MakeMat, com repeat. Usa em um dos 2 eixos
+  this.makeMatPedra(0.0, 0.0,1,1), // Right (+X)
+  this.makeMatPedra(0.0, 0.0,1,1), // Left (−X)
+  this.makeMatPedra(0.0, 0.0,8,1), // Top (+Y)
+  this.makeMatPedra(0.0, 0.0,8,1), // Bottom (−Y)
+  this.makeMatPedra(0.0, 0.0,8,1), // Front (+Z)
+  this.makeMatPedra(0.0, 0.0,8,1)  // Back (−Z)
+];
+  
+  
+  let materialinvi2 = [ // faz material a partir da função MakeMat, com repeat. Usa em um dos 2 eixos
+  this.makeMatPedra(0.0, 0.0,12,1), // Right (+X)
+  this.makeMatPedra(0.0, 0.0,12,1), // Left (−X)
+  this.makeMatPedra(0.0, 0.0,1,12), // Top (+Y)
+  this.makeMatPedra(0.0, 0.0,1,12), // Bottom (−Y)
+  this.makeMatPedra(0.0, 0.0,1,1), // Front (+Z)
+  this.makeMatPedra(0.0, 0.0,1,1)  // Back (−Z)
+];
+  
+  
+  let cuboGeometry = new THREE.BoxGeometry(largura,2,comprimento);
+    let Pedra ;
+if (largura>comprimento){ //
+Pedra = new THREE.Mesh(cuboGeometry,materialinvi);
+}
+if(largura<=comprimento){
+  Pedra = new THREE.Mesh(cuboGeometry,materialinvi2);
+}
+  Pedra.position.copy(Posicao);
+  this.cube0.add(Pedra);
+  console.log(Pedra);
+  this.pedras.push(Pedra);
+
+}
+ makeMatPedra(offsetX, offsetY, repeatX,repeatY) { // função para montar textura Pedra
+  const tex =this.pedra.clone(); //clona textura pra n ferrar ela
+  const normal =this.normalmappedra.clone(); // clona normal pra  ferrar
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;// wrap no repeat pra se der bosta
+  tex.offset.set(offsetX, offsetY); // offset de antes(nem usa)
+  tex.repeat.set(repeatX, repeatY); // repeat pra cada lado
+  normal.wrapS = normal.wrapT = THREE.RepeatWrapping; // mesma coisa pra normal pq se n fica estranho
+ normal.offset.set(offsetX, offsetY);
+  normal.repeat.set(repeatX, repeatY);
+
+  return new THREE.MeshLambertMaterial({ map:tex, normalMap:normal}); // cria de vez
+}
  criaPilar(Posicao) {// Cria n
-let cor = new THREE.Color(15/255,125/255,125/255);
 
-let materialinvi= new THREE.MeshLambertMaterial({
-  color: cor,
+
+let materialcilindro= new THREE.MeshLambertMaterial({
+  
   
   reflectivity:0.35,
-  refractionRatio: 0.5
+  refractionRatio: 0.5,
+   side: THREE.DoubleSide 
 
 });
-let materialcone2= new THREE.MeshLambertMaterial({
-  color: cor,
-  emissive:cor,
- emissiveIntensity: 0.1,
+let materialTopoEBaixo =new THREE.MeshLambertMaterial({ // separa o material em 2 para tentar n ferra displacement map
   reflectivity:0.35,
-  refractionRatio: 0.5
-
-});
+  refractionRatio: 0.5,
+   side: THREE.DoubleSide 
+})
+// tirou os cones
 let pi =Math.PI;
 
+//let cilindroGeometry = new THREE.BoxGeometry(3,3,3,32,16);// cilindro centra do
+let cilindroGeometry = new THREE.CylinderGeometry(1,1,6,32,16);// cilindro centra do
+materialcilindro.map = this.stone;
+materialcilindro.normalMap= this.normalmap;
+materialcilindro.normalScale= new THREE.Vector2(1,1);
+materialcilindro.displacementMap = this.dismap; /// adiciona displacement map
+materialcilindro.displacementScale = 0.6;
+materialTopoEBaixo.map = this.stone;
 
-let cilindroGeometry = new THREE.CylinderGeometry(1,1,4,10);// cilindro centra do
-let cilindro= new THREE.Mesh(cilindroGeometry,materialinvi);
-let coneaGeometry = new THREE.ConeGeometry(1.4,2,20,10);
-let cone1 = new THREE.Mesh(coneaGeometry,materialinvi);
-let cone2 = new THREE.Mesh(coneaGeometry,materialcone2);
+
+let cilindro= new THREE.Mesh(cilindroGeometry,[materialcilindro,materialTopoEBaixo,materialTopoEBaixo]);
+
+
 cilindro.position.copy(Posicao);
-cilindro.add(cone1);
-cilindro.add(cone2);
-cone2.rotateX(pi);
-cone1.position.set(0,-1.5,0);
-cone2.position.set(0,1.5,0);
-cone1.castShadow = true;
-cone2.castShadow = true;
+
 cilindro.castShadow = true;
 cilindro.receiveShadow = true;
-cone1.receiveShadow = true;
-cone2.receiveShadow = true;
+
 this.cube0.add(cilindro)
 this.pilares.push(cilindro);
 }

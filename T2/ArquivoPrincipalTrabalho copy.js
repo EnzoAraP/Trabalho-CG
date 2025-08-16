@@ -590,6 +590,14 @@ function estabeleceBoundingBoxes() {
          }
       }
    }
+     let vetorPedra1 = new THREE.Vector3(0.2,8,-49.6);
+   areas[0].criarPedra(vetorPedra1,26,3);
+   let vetorPedra2 = new THREE.Vector3(-22.07,8,49.6);
+   areas[0].criarPedra(vetorPedra2,26,3);
+   let vetorPedra3 = new THREE.Vector3(-33.6,8,30.6);
+   areas[0].criarPedra(vetorPedra3,3,35);
+   let vetorPedra4 = new THREE.Vector3(33.6,8,-21.5);
+   areas[0].criarPedra(vetorPedra4,3,38);
    areas[0].subir_Plataforma();
    const plat = areas[0].plat;
    const boxPlat = new THREE.Box3().setFromObject(plat);

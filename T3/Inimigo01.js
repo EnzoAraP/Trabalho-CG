@@ -27,8 +27,8 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 
 class Lost_Soul {
 
-   constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
-      this.tipo="lost_soul";
+   constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem, dash = false) {
+        this.tipo="lost_soul";
       this.arma = null;
 
       this.voo = true;
@@ -114,7 +114,7 @@ class Lost_Soul {
 
       this.anterior_xz = 0;
       this.anterior_yz = 0;
-
+      this.nasceComDash = dash;
       this.isDashing = false;
       this.dashFrames = 0;
       this.dashDuration = 15;
@@ -135,8 +135,103 @@ class Lost_Soul {
       this.barraFundo = null;
       this.grupoBarras = null;
       this.tamBarraVida = 1.2;
+      
+         //som
+       this.listener = null;
+    this.audioLoader = null;
+    this.Somdano = null;
+    this.SomDash = null;
+
+      if( this.nasceComDash=true)
+      {
+         console.log('dashou');
+     //    this.dashAtivo = true;
+         this.dashInicial();
+      }
+      this.IniciaSound();
 
    }
+   dashInicial()
+{
+    this.girando = true;
+    this.tempoDeGiro = 0;
+
+    const alvoPos = this.personagem_rival.obj.position.clone();
+    const origem = this.obj.position.clone();
+
+    const direcao = alvoPos.clone().sub(origem);
+    const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
+    const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
+
+    // Ajuste do tempo de giro baseado no ângulo - tempo mínimo para garantir rotação
+    if (giroEmGraus <= 30)
+        this.t_max = 3 + Math.floor(giroEmGraus);
+    else if (giroEmGraus <= 90)
+        this.t_max = Math.floor((giroEmGraus - 30) / 2) + 30;
+    else
+        this.t_max = Math.floor((giroEmGraus - 90) / 3) + 60;
+    
+    // Limitar tempo máximo para evitar demoras
+    this.t_max = Math.min(this.t_max, 10);
+    
+    this.quaternionInicial.copy(this.obj.quaternion);
+
+    const dummy = new THREE.Object3D();
+    dummy.position.copy(this.obj.position);
+    dummy.lookAt(alvoPos);
+    this.quaternionFinal.copy(dummy.quaternion);
+    
+    // Em vez de iniciar o dash imediatamente, prepare para iniciar após olhar
+    this.prepararDash = true;
+    
+    // Aplicar a rotação inicial imediatamente para começar virado na direção certa
+    this.obj.quaternion.slerp(this.quaternionFinal, 0.5);
+}
+
+   IniciaSound()
+   {
+      if(!this.listener)
+       this.listener = new THREE.AudioListener();
+      this.camera.add(this.listener);
+      this.audioLoader = new THREE.AudioLoader();
+
+
+   }
+      SomLostSoulGerenciamento(SomEscolha) {
+         
+      
+   if(SomEscolha === "levadano") {
+      // Criar o som apenas se ainda não existir
+      if (!this.Somdano) {
+         this.Somdano = new THREE.PositionalAudio(this.listener);
+       this.audioLoader.load('../0_assetsT3/sounds/lostSoul/injured.wav', (buffer) => {
+            this.Somdano.setBuffer(buffer);
+            this.Somdano.setRefDistance(5); // Ajuste conforme necessário
+            this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
+            this.obj.add(this.Somdano);   // Adicionar ao objeto para que o som siga o inimigo
+            this.Somdano.play();          // Iniciar reprodução
+         });
+      } else if (!this.Somdano.isPlaying) {
+         this.Somdano.play();             // Tocar novamente se já existir e não estiver tocando
+      }
+   }
+   
+   if(SomEscolha === "deudash") {
+      // Criar o som apenas se ainda não existir
+      if (!this.SomDash) {
+         this.SomDash = new THREE.PositionalAudio(this.listener);
+         this.audioLoader.load('../0_assetsT3/sounds/lostSoul/lost_soul_attack.wav', (buffer) => {
+            this.SomDash.setBuffer(buffer); 
+            this.SomDash.setRefDistance(5); // Ajuste conforme necessário
+            this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
+            this.obj.add(this.SomDash);     // Adicionar ao objeto para que o som siga o inimigo
+            this.SomDash.play();            // Iniciar reprodução
+         });
+      } else if (!this.SomDash.isPlaying) {
+         this.SomDash.play();               // Tocar novamente se já existir e não estiver tocando
+      }
+   }
+}
    gerarMovimento2(personagem = this.personagem_rival.obj) {
 
       this.girando = true;
@@ -388,7 +483,7 @@ class Lost_Soul {
 
 
    // ataque_especial com mesmo sistema
-   ataque_especial(scene) {
+   ataque_especial(areas,fronteira, scene) {
       this.girando = true;
       this.tempoDeGiro = 0;
 
@@ -413,7 +508,7 @@ class Lost_Soul {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
-      //if(this.dashpossivel())
+     // if(this.dashpossivel(areas, fronteira))
       this.prepararDash = true; // flag para iniciar dash após giro
    }
 
@@ -426,17 +521,34 @@ class Lost_Soul {
    movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
       if(this.dormindo || this.vida<=0) // Se estiver a dormir, não faz nada
          return;
-      if (this.isDashing) {
+      if (this.isDashing ) {
+         
+         if (this.listener && this.audioLoader) {
+            this.SomLostSoulGerenciamento("deudash");
+        }   
          // Move rapidamente na direção do dash
          let dashStep = this.dashDirection.clone().multiplyScalar(this.dashSpeed * delta);
-         this.obj.position.add(dashStep);
+         
+
+         // Cria uma cópia do objeto para prever a posição
+let objPrev = new THREE.Object3D();
+objPrev.position.copy(this.obj.position);
+objPrev.quaternion.copy(this.obj.quaternion);
+objPrev.scale.copy(this.obj.scale);
+   objPrev.position.add(dashStep);
+
          this.dashFrames++;
 
-         // Opcional: ignore colisão durante o dash, ou adicione checagem se quiser parar ao colidir
-
-         if (this.dashFrames >= this.dashDuration) {
+        let vaiColidir = this.verificaColisaoDash(objPrev, areas, fronteira, dashStep);
+   
+       // ignore colisão durante o dash, ou adicione checagem se quiser parar ao colidir
+     
+         if (vaiColidir ||this.dashFrames >= this.dashDuration) {
             this.isDashing = false;
             this.dashFrames = 0;
+         }
+         else {
+         this.obj.position.add(dashStep);
          }
          return; // não executa o resto do movimento durante o dash
       }
@@ -470,6 +582,8 @@ class Lost_Soul {
 
       }
 
+      if (this.dormindo)
+         return;
 
       this.grupoBarras.lookAt(this.personagem_rival.obj.position);
       if (this.girando) {
@@ -520,7 +634,7 @@ class Lost_Soul {
       if (this.contagemMudanca >= this.maxMudanca) {
          this.contagemEsperaAtaque++;
          if (this.contagemEsperaAtaque == this.maxEsperaAtaque) {
-            this.ataque_especial(scene);
+            this.ataque_especial(areas,fronteira);
             this.contagemEsperaAtaque = 0;
             this.contagemPreAtaque = 1;
             this.maxEsperaAtaque = 2 + Math.floor(Math.random() * 3);
@@ -583,6 +697,13 @@ class Lost_Soul {
             for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
 
                let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+               this.speed = speedColisao[0];
+               if (!colisaoAreaAtual && speedColisao[1])
+                  colisaoAreaAtual = true;
+            }
+            for (var i = 0; i < areas[0].BoundingBoxpedras.length; i++) { // verifica se bate nas pedras em cima do pilar
+
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].BoundingBoxpedras[i], this.speed, true);
                this.speed = speedColisao[0];
                if (!colisaoAreaAtual && speedColisao[1])
                   colisaoAreaAtual = true;
@@ -787,7 +908,7 @@ class Lost_Soul {
    }
    sofrerAtaque(danoInfligido, scene) {
       this.vida -= danoInfligido;
-
+          this.SomLostSoulGerenciamento("levadano");
       console.log("Vida:")
       console.log(this.vida);
       if (!this.padeceu && this.vida <= 0) {
@@ -813,130 +934,144 @@ class Lost_Soul {
       this.dashFrames = 0;
    }
 
-   dashpossivel(scene, areas, fronteira) {
+  verificaColisaoDash(objPrev, areas, fronteira, dashStep) {
+   let grandeArea_e_fechadura = testeGrandesAreas(objPrev, this.grandeArea);
+   let grandeAreaPrev = grandeArea_e_fechadura[0];
+   let redondezasDaFechaduraPrev = grandeArea_e_fechadura[1];
 
-      let colidiu = false;
-      let velocidadeatual = this.speed;
-      const deslocamento = new THREE.Vector3(this.direcao_movimento.x * velocidadeProjetil, this.direcao_movimento.y * velocidadeProjetil, this.direcao_movimento.z * velocidadeProjetil);
-
-      this.obj.position.x += deslocamento.x;
-      this.obj.position.y += deslocamento.y;
-      this.obj.position.z += deslocamento.z;
-      if (proj.frames > 0) {
-         proj.frames++;
-         if (proj.frames == 180)
-            colidiu = true;
-      }
-      else {
-         if (this.obj.position.y < -0.1) {
-            colidiu = true;
-            //console.log("B");
-         }
-         else {
-            if (Math.abs(this.obj.position.x) > 252 || Math.abs(this.obj.position.z) > 252 || Math.abs(this.obj.position.y) > 11.1) {
-               proj.frames = 1;
-            }
-            else {
-               let boxBala = new THREE.Box3().setFromObject(this.obj);
-               let grande_area_e_fechadura = testeGrandesAreas(this.obj, this.area);
-               this.area = grande_area_e_fechadura[0];
-
-               let redFech = grande_area_e_fechadura[1];
-               if (!colidiu && this.area != -1) {
-                  if (this.area == 0) {
-                     for (var i = 0; i < 4; i++) {
-                        if (fronteira[i + 4].intersectsBox(boxBala)) {
-                           colidiu = true;
-                           //console.log("B");
-                           break;
-                        }
-                     }
-                  }
-                  else {
-                     i = this.area - 1;
-                     ////console.log(i);
-                     let cubosBox = areas[i].boundingCubos;
-                     let rampaBox = areas[i].boundingRampa;
-                     if (redFech) {
-                        colidiu = (areas[1].fechadura.box.intersectsBox(boxBala));
-                        //console.log(areas[1].fechadura.box);
-                        //console.log(colidiu);
-                        if (colidiu) {
-                           //console.log("C-0")
-                        }
-                        //console.log("0-C")
-
-                     }
-
-                     for (var j = 0; !colidiu && j < 3; j++) {
-                        if (cubosBox[j].intersectsBox(boxBala)) {
-                           colidiu = true;
-                           //console.log("C");
-
-                        }
-
-                     }
-                     if (!colidiu) {
-                        if (i != 1) {
-                           if (rampaBox.intersectsBox(boxBala)) {
-                              let degrausBox = areas[i].boundingDegraus;
-                              ////console.log(degrausBox)
-                              for (var k = 0; k < 8; k++) {
-                                 if (boxBala.intersectsBox(degrausBox[k])) {
-                                    //console.log(degrausBox[k]);
-                                    colidiu = true;
-                                    //console.log("D");
-                                    break;
-
-                                 }
-                              }
-                           }
-                           else {
-                              if (areas[i].boundingDegraus[7].intersectsBox(boxBala)) {
-                                 colidiu = true;
-                                 //console.log("E");
-                              }
-                           }
-                        }
-                        else {
-                           if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)) {
-                              colidiu = true;
-                           }
-                           else {
-                              colidiu = areas[1].porta.box.intersectsBox(boxBala);
-                           }
-                           for (var j = 0; !colidiu && j < areas[1].num_blocos_extras; j++) {
-                              if (areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)) {
-                                 colidiu = true;
-                                 //console.log("F");
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
-               else {
-                  if (!colidiu && redFech) {
-
-                     colidiu = (areas[1].fechadura.box.intersectsBox(boxBala));
-                     if (colidiu) {
-
-                     }
-
-
-                  }
-               }
-
-            }
-         }
-      }
-      if (colidiu) {
-         //console.log("Colisão" + proj.frames);
-         return colidiu;
-      }
-
-
-      return colidiu;
+   // Verifica limites
+   if (objPrev.position.y < -0.1 ||
+       Math.abs(objPrev.position.x) > 252 ||
+       Math.abs(objPrev.position.z) > 252 ||
+       Math.abs(objPrev.position.y) > 11.1) {
+      return true; // Vai colidir
    }
+
+   if (grandeAreaPrev >= 1) {
+      // Testa cubos
+      for (let j = 0; j < 3; j++) {
+         let speedColisao = verifica_colisoes_com_blocos(
+            objPrev, this.larg, 1.2, this.larg, 
+            dashStep, areas[grandeAreaPrev - 1].boundingCubos[j], 
+            this.dashSpeed, true
+         );
+         if (speedColisao[1]) return true; // VAI COLIDIR
+      }
+
+      // Testa pilares na área 1
+      if (grandeAreaPrev == 1) {
+         for (let i = 0; i < areas[0].boundingBoxesPilares.length; i++) {  //
+            let speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 2, this.larg,
+               dashStep, areas[0].boundingBoxesPilares[i],
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+            
+            
+         }
+          for (let i = 0; i < areas[0].BoundingBoxpedras.length; i++) { // verifica se bateu nas pedras em cima do pilar
+            let speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 2, this.larg,
+               dashStep, areas[0].BoundingBoxpedras[i],
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+            
+            
+         }
+      }
+
+      // Testa porta e plataforma na área 2
+      if (grandeAreaPrev == 2) {
+         let speedColisao = verifica_colisoes_com_blocos(
+            objPrev, this.larg, 1.2, this.larg,
+            dashStep, areas[grandeAreaPrev - 1].porta.box,
+            this.dashSpeed, true
+         );
+         if (speedColisao[1]) return true; // VAI COLIDIR
+
+         // Testa fechadura se estiver nas redondezas
+         if (redondezasDaFechaduraPrev) {
+            speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 1.2, this.larg,
+               dashStep, areas[grandeAreaPrev - 1].fechadura.box,
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+         }
+
+         // Testa plataforma se não estiver em movimento ou subindo
+         if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
+            speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 1.2, this.larg,
+               dashStep, areas[grandeAreaPrev - 1].plataforma.box,
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+         }
+
+         // Testa blocos extras na área 2
+         for (let j = 0; j < areas[1].num_blocos_extras; j++) {
+            speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 1.2, this.larg,
+               dashStep, areas[grandeAreaPrev - 1].boundingBlocosExtras[j],
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+         }
+      }
+      // Testa rampas e degraus para outras áreas (diferente de 2)
+      else if (grandeAreaPrev != 2) {
+         // Simula raycaster para rampa
+         let raycasterPrev = new THREE.Raycaster(objPrev.position, new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
+         let isIntersectingStaircase = raycasterPrev.intersectObject(areas[grandeAreaPrev - 1].degraus[1].rampa).length > 0.01;
+         
+         if (isIntersectingStaircase) {
+            // Testa degraus da rampa
+            for (let k = 0; k < 8; k++) {
+               let speedColisao = verifica_colisoes_com_blocos(
+                  objPrev, this.larg, 1.2, this.larg,
+                  dashStep, areas[grandeAreaPrev - 1].boundingDegraus[k],
+                  this.dashSpeed, true
+               );
+               if (speedColisao[1]) return true; // VAI COLIDIR
+            }
+         } else {
+            // Testa degrau final
+            let speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 1.2, this.larg,
+               dashStep, areas[grandeAreaPrev - 1].boundingDegraus[7],
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+         }
+      }
+   }
+   // Testa fronteiras na grandeArea 0
+   else if (grandeAreaPrev == 0) {
+      for (let j = 0; j < 4; j++) {
+         let speedColisao = verifica_colisoes_com_blocos(
+            objPrev, this.larg, 1.2, this.larg,
+            dashStep, fronteira[j + 4],
+            this.dashSpeed, true
+         );
+         if (speedColisao[1]) return true; // VAI COLIDIR
+      }
+   }
+   // Testa fechadura fora das áreas
+   else {
+      if (redondezasDaFechaduraPrev) {
+         let speedColisao = verifica_colisoes_com_blocos(
+            objPrev, this.larg, 1.2, this.larg,
+            dashStep, areas[1].fechadura.box,
+            this.dashSpeed, true
+         );
+         if (speedColisao[1]) return true; // VAI COLIDIR
+      }
+   }
+
+   return false; // NÃO VAI COLIDIR - DASH É POSSÍVEL
+}
 }
 export { Lost_Soul };

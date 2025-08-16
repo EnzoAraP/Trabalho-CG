@@ -16,6 +16,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
+import {carregar_lost_SoulE2 } from './ArquivoPrincipalTrabalho copy.js';
 
 
 
@@ -25,7 +26,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 
 
 
-class Lost_Soul {
+class pain_elemental {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
       this.arma = null;
@@ -102,7 +103,7 @@ class Lost_Soul {
 
       this.dormindo = true;
 
-      this.vidaMax = 20;
+      this.vidaMax = 100;
       this.vida = this.vidaMax;
 
       this.levaDano = true;
@@ -113,11 +114,13 @@ class Lost_Soul {
 
       this.anterior_xz = 0;
       this.anterior_yz = 0;
-
-      this.isDashing = false;
-      this.dashFrames = 0;
-      this.dashDuration = 15;
-      this.dashSpeed = this.speedPadrao * 18;
+      //especificos do pain_Elemntal;
+      this.atirandoLS = false;
+      this.framesAtirando = 0;
+      this.framesParado = 10;
+      this.LostSouls = [];
+      //fim dos especificos
+    
       this.dashDirection = new THREE.Vector3();
       this.todosMortos = false;
 
@@ -134,8 +137,75 @@ class Lost_Soul {
       this.barraFundo = null;
       this.grupoBarras = null;
       this.tamBarraVida = 1.2;
-
+    this.acordados = 0;
+      this.IniciaSound();
+      this.PrimeiroSom();
    }
+  IniciaSound()
+       {
+          if(!this.listener)
+           this.listener = new THREE.AudioListener();
+          this.camera.add(this.listener);
+          this.audioLoader = new THREE.AudioLoader();
+
+       
+    
+    
+       }
+       PrimeiroSom(){
+         
+            if (!this.Somspawn) {
+             this.Somspawn = new THREE.PositionalAudio(this.listener);
+           this.audioLoader.load('../0_assetsT3/sounds/painElemental/painSight.wav', (buffer) => {
+                this.Somspawn.setBuffer(buffer);
+                this.Somspawn.setRefDistance(5); // Ajuste conforme necessário
+                this.Somspawn.setLoop(false);  // false para tocar apenas uma vez quando ferido
+                this.obj.add(this.Somspawn);   // Adicionar ao objeto para que o som siga o inimigo
+                this.Somspawn.play();          // Iniciar reprodução
+             });
+          } else if (!this.Somspawn.isPlaying) {
+             this.Somspawn.play();             // Tocar novamente se já existir e não estiver tocando
+          }
+             
+          
+       
+         
+       }
+          SomLostSoulGerenciamento(SomEscolha) {
+             
+          
+       if(SomEscolha === "levadano") {
+          // Criar o som apenas se ainda não existir
+          if (!this.Somdano) {
+             this.Somdano = new THREE.PositionalAudio(this.listener);
+           this.audioLoader.load('../0_assetsT3/sounds/painElemental/injured.wav', (buffer) => {
+                this.Somdano.setBuffer(buffer);
+                this.Somdano.setRefDistance(5); // Ajuste conforme necessário
+                this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
+                this.obj.add(this.Somdano);   // Adicionar ao objeto para que o som siga o inimigo
+                this.Somdano.play();          // Iniciar reprodução
+             });
+          } else if (!this.Somdano.isPlaying) {
+             this.Somdano.play();             // Tocar novamente se já existir e não estiver tocando
+          }
+       }
+       
+       if(SomEscolha === "spawnou") {
+          // Criar o som apenas se ainda não existir
+          if (!this.SomDash) {
+             this.SomDash = new THREE.PositionalAudio(this.listener);
+             this.audioLoader.load('../0_assetsT3/sounds/painElemental/painAttack.wav', (buffer) => {
+                this.SomDash.setBuffer(buffer); 
+                this.SomDash.setRefDistance(5); // Ajuste conforme necessário
+                this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
+                this.obj.add(this.SomDash);     // Adicionar ao objeto para que o som siga o inimigo
+                this.SomDash.play();            // Iniciar reprodução
+             });
+          } else if (!this.SomDash.isPlaying) {
+             this.SomDash.play();               // Tocar novamente se já existir e não estiver tocando
+          }
+       }
+    }
    gerarMovimento2(personagem = this.personagem_rival.obj) {
 
       this.girando = true;
@@ -388,6 +458,9 @@ class Lost_Soul {
 
    // ataque_especial com mesmo sistema
    ataque_especial(areas,fronteira, scene) {
+      if(this.acordados<5)
+      {
+         console.log('entrou if');
       this.girando = true;
       this.tempoDeGiro = 0;
 
@@ -412,10 +485,13 @@ class Lost_Soul {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
+        this.SomLostSoulGerenciamento("spawnou");
+ carregar_lost_SoulE2(this.obj.position.clone(), this.obj.getWorldDirection(new THREE.Vector3()));
+ this.acordados++;
      // if(this.dashpossivel(areas, fronteira))
-      this.prepararDash = true; // flag para iniciar dash após giro
+     // this.prepararDash = true; // flag para iniciar dash após giro
    }
-
+   }
 
    // Dentro do movimento()
 
@@ -796,7 +872,7 @@ class Lost_Soul {
    }
    sofrerAtaque(danoInfligido, scene) {
       this.vida -= danoInfligido;
-
+        this.SomLostSoulGerenciamento("levadano");
       console.log("Vida:")
       console.log(this.vida);
       if (!this.padeceu && this.vida <= 0) {
@@ -950,4 +1026,4 @@ class Lost_Soul {
    return false; // NÃO VAI COLIDIR - DASH É POSSÍVEL
 }
 }
-export { Lost_Soul };
+export { pain_elemental };

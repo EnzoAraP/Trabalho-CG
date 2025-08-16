@@ -45,8 +45,43 @@ function carregarArquivoGLB(assetManager, caminho, nomeArq, visbilidadeInicial,n
 
 
 }
+function carregarArquivoGLBGenerico(assetManager, caminho, nomeArq, visbilidadeInicial,numero,scene, escala=1,nome)
+{
+   var loader = new GLTFLoader( );  // Carregador de glb
+   
+   loader.load( caminho + nomeArq + '.glb', function ( gltf ) { // Carregamento assíncrono go glb
+      var obj = gltf.scene.clone(true); // Clona da cena do glb o objeto requisitado
+      //console.log(obj);
+      obj.name = nomeArq; // Nomeia
+      obj.visible = visbilidadeInicial; 
 
-function carregarArquivoObj(assetManager, caminho, nomeArq, visibilidade, caminhomtl, nomeArqMTL, numero, scene) {
+      // Para cada mesh dentro do grupo, coloca sombras
+      obj.traverse( function ( child ) {
+         if( child.isMesh ){ child.castShadow = true; child.receiveShadow=true;}
+         if( child.material ) child.material.side = THREE.DoubleSide;         
+      });
+
+      // Normaliza a escala e fixa a posição:
+      obj = normalizeAndRescale(obj,escala);
+      obj = fixPosition(obj);
+
+      scene.add (obj);
+      if(numero != null){
+      assetManager[nome+numero] = obj;
+      console.log(nome+numero);
+      }
+      else
+      {
+          assetManager[nome] = obj;
+      console.log(nome); 
+      }
+    });
+
+
+}
+
+
+function carregarArquivoObj(assetManager, caminho, nomeArq, visibilidade, caminhomtl, nomeArqMTL, numero, scene,nome) {
  var loader_mtl = new MTLLoader();
   var loader_ob = new OBJLoader();
   loader_mtl.load(caminhomtl + nomeArqMTL + '.mtl', function (mtl) {
@@ -65,8 +100,8 @@ function carregarArquivoObj(assetManager, caminho, nomeArq, visibilidade, caminh
       });
       helper = normalizeAndRescale(helper, 1);
       helper = fixPosition(helper);
-      assetManager["lost_Soul"+ numero] = helper;
-      console.log("lost_Soul" + numero);
+      assetManager[nome + numero] = helper;
+      console.log(nome + numero);
        scene.add(helper);
     });
   });
@@ -125,4 +160,4 @@ function loadOBJFile(assetManager,modelPath, modelName, desiredScale, angle, vis
   });
 }
 
-export {carregarArquivoGLB,carregarArquivoObj,loadOBJFile}
+export {carregarArquivoGLB,carregarArquivoObj,loadOBJFile,carregarArquivoGLBGenerico}

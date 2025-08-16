@@ -44,6 +44,8 @@ class Area1{
        this.boundingBoxplat=null;
        this.pilares = [];
        this.chave = null;
+       this.pedras = [];
+       this.BoundingBoxpedras = [];
 
        this.chaveRem=false;
     }
@@ -58,6 +60,24 @@ subir_Plataforma(){
 
 }
 
+criarPedra(Posicao,largura,comprimento)
+{
+  let cor = new THREE.Color(15/255,125/255,125/255);
+  let materialinvi= new THREE.MeshLambertMaterial({
+    color: cor,
+    
+    reflectivity:0.35,
+    refractionRatio: 0.5
+  
+  });
+  let cuboGeometry = new THREE.BoxGeometry(largura,2,comprimento);
+  let Pedra = new THREE.Mesh(cuboGeometry,materialinvi);
+  Pedra.position.copy(Posicao);
+  this.cube0.add(Pedra);
+  console.log(Pedra);
+  this.pedras.push(Pedra);
+
+}
  criaPilar(Posicao) {// Cria n
 let cor = new THREE.Color(15/255,125/255,125/255);
 
