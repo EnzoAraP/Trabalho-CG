@@ -16,7 +16,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
-import {carregar_lost_SoulE2 } from './ArquivoPrincipalTrabalho copy.js';
+import {carregar_lost_SoulE2 } from './ArquivoPrincipalTrabalho copy 2.js';
 
 
 

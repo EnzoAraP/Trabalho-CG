@@ -12,13 +12,13 @@ import {
 } from "../libs/util/util.js";
 import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.js';
 
-
+import {pain_elemental} from './Inimigo04.js';
 import { areas, testeGrandesAreas, scene } from './criacaoAreas.js';
 import { LancaMisseis, Metralhadora } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
 import { Cacodemon } from './Inimigo02.js';
 import { Lost_Soul } from './Inimigo01.js';
-import { carregarArquivoGLB, carregarArquivoObj } from './funcoesGeometriasExternas.js';
+import { carregarArquivoGLB, carregarArquivoObj,carregarArquivoGLBGenerico } from './funcoesGeometriasExternas.js';
 import { AmbientLight } from '../build/three.module.js';
 import { ElevacaoBloco } from './funcaoElevarBlocoEmY.js';
 import { Soldado } from './Inimigo03.js';
@@ -290,18 +290,91 @@ let assetManagerLost = {
          this.lost_Soul[i].visilbility = false;
    }
 }
+let assetManagerElemental = {
+   elemental_Soul: null,
+   lost_SoulE1:null,
+   lost_SoulE2:null,
+   lost_SoulE3:null,
+   lost_SoulE4:null,
+   lost_SoulE5:null,
+   num:0,
+   num_total: 1,
+   allLoaded: false,
+   //Function
+    checkLoaded: function () {
+      if (!this.allLoaded) {
+         var somatorio = 0;
+
+         if (this.lost_SoulE1 == null) {
+            somatorio++;
+         }
+           if (this.elemental_Soul == null) {
+            somatorio++;
+         }
+
+     //    console.log(somatorio);
+
+         this.allLoaded = (this.lost_SoulE1 != null) && (this.lost_SoulE2 != null) && (this.lost_SoulE3 != null) && (this.lost_SoulE4 != null) && (this.lost_SoulE5 != null) && (this.elemental_Soul !=null);
+      //   console.log(" E1 = "+( this.lost_SoulE1 != null)+' E2 = ' +(this.lost_SoulE2 != null)+' E3 = ' +(this.lost_SoulE3 != null)+'E4 = ' +(this.lost_SoulE4 != null)+' E5 = ' +(this.lost_SoulE5 != null)+' Elemental = ' +(this.elemental_Soul !=null));
+      //   console.log(this.allLoaded);
+      }
+   },
+   //nunca usa
+     hideAll: function () {
+      for (var i = 0; i < this.num; i++)
+         this.lost_Soul[i].visilbility = false;
+   }
+
+}
+
+let assetManagerCacodemon = {
+   // Properties ---------------------------------
+   cacodemonE1: null,
+   cacodemonE2: null,
+   cacodemonE3: null,
+    cacodemonE4: null,
+   num: 0,
+   num_total: 1,
+   allLoaded: false,
+
+   // Functions ----------------------------------
+   checkLoaded: function () {/// cacos da area 4 
+      if (!this.allLoaded) {
+         this.allLoaded = (this.cacodemonE1 != null) && (this.cacodemonE2 != null) && (this.cacodemonE3 != null) && (this.cacodemonE4 !=null);
+
+      }
+      
+   },
+
+   hideAll: function () { // nunca usa 
+      for (var i = 0; i < this.num; i++)
+         this.cacodemon[i].visilbility = false;
+   }
+}
 
 
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1);
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1);
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1);
 
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene);
+///Carregar do Lost SoulArea1
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_Soul");
 
+//Carregar do Elemental+LostSoulElemental
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_SoulE");
+carregarArquivoGLBGenerico(assetManagerElemental, '../T3/ElementalBlender/', 'Corrigido', false,null, scene, 1.8,"elemental_Soul");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "4", scene, 1,"cacodemonE");
 let cacodemon_geometry = new THREE.BoxGeometry(0.6, 1.2, 0.6);
 
 let cacodemon_material = new THREE.MeshLambertMaterial({ color: "rgb(55, 9, 180)" });
@@ -351,6 +424,251 @@ function carregar_cac() {
       novo_cac.grupoBarras = group;
       novo_cac.tamBarraVida = larguraBarra;
       cacodemons.push(novo_cac);
+
+
+   }
+   lancaMisseis.numInimigos = 3;
+}
+///ElementalSoul
+var Elementalvet = [];
+var InimigosArea5 = [];
+var carregouElemental = false;
+var inimigosArea5Morreram = false;
+var Area5Derrotados = [];
+var ElementalAcordado = false;
+function carregar_Elemental() {
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'elemental_Soul';
+      console.log(nome + (i + 1).toString());
+      var obj_Elemental_Soul = assetManagerElemental[nome];
+      obj_Elemental_Soul.castShadow = true;
+      obj_Elemental_Soul.receiveShadow = true;
+
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+      obj_Elemental_Soul.position.set(0,4,0);
+      let novo_Elemental_Soul = new pain_elemental(obj_Elemental_Soul, camera, new THREE.Box3(), 0.6, 3, personagem);
+      novo_Elemental_Soul.barraFrente = barraVida;
+      novo_Elemental_Soul.barraFundo = barraFundo;
+      novo_Elemental_Soul.grupoBarras = group;
+      novo_Elemental_Soul.tamBarraVida = larguraBarra;
+      Elementalvet.push(novo_Elemental_Soul);
+       InimigosArea5.push(novo_Elemental_Soul);
+
+      lancaMisseis.numInimigos =lancaMisseis.numInimigos+1;
+   
+}
+
+// lostSoulE
+var lost_soulvetE = [];
+
+var lost_soul_acordadosE = [];
+var acordados = 0;
+function carregar_lost_SoulE(posicaoElemental = null, direcaoElemental = null) {
+   if (acordados >= 5) {
+      console.log("Limite de Lost Souls atingido");
+      return;
+   }
+
+   const larguraBarra = 1.2;
+   const alturaBarra = 0.15;
+   const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+   const fundoMaterial = new THREE.MeshBasicMaterial({
+      color: "rgb(0, 0, 0)",
+      transparent: true
+   });
+   let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+   // Frente (vermelha) - barra de vida
+   const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+   const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+   let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+   const group = new THREE.Group();
+
+   group.add(barraFundo);
+   group.add(barraVida);
+   
+   // Posicionamento correto da barra vermelha
+   barraVida.position.z = 0.01;
+   
+   group.visible = true;
+   scene.add(group);
+
+   let nome = 'lost_SoulE';
+   var obj_lost_soul = assetManagerElemental[nome + (acordados + 1).toString()];
+   
+   if (!obj_lost_soul) {
+      console.log("Não foi possível encontrar o modelo do Lost Soul");
+      return;
+   }
+   
+   obj_lost_soul.castShadow = true;
+   obj_lost_soul.receiveShadow = true;
+
+   // Posicionamento do Lost Soul
+   if (posicaoElemental && direcaoElemental) {
+      // Usado quando criado pelo Pain Elemental
+      const direcaoNormalizada = direcaoElemental.clone().normalize();
+      direcaoNormalizada.multiplyScalar(3); // 3 unidades à frente
+      
+      obj_lost_soul.position.copy(posicaoElemental);
+      obj_lost_soul.position.add(direcaoNormalizada);
+      obj_lost_soul.position.y += 1; // Levemente acima para não colidir
+   } else {
+      // Posição padrão se não for criado pelo elemental
+      obj_lost_soul.position.set(-70 - (acordados * 5), 5.5, -150 - (acordados * 5));
+   }
+   
+   // Criar com dash ativado quando gerado pelo Pain Elemental
+   let dash = (posicaoElemental != null);
+   let novo_lost_soul = new Lost_Soul(obj_lost_soul, camera, new THREE.Box3(), 0.6, 3, personagem, dash);
+   
+   novo_lost_soul.barraFrente = barraVida;
+   novo_lost_soul.barraFundo = barraFundo;
+   novo_lost_soul.grupoBarras = group;
+   novo_lost_soul.tamBarraVida = larguraBarra;
+   
+   // Posicionamento do grupo de barras
+   group.position.copy(obj_lost_soul.position).add(new THREE.Vector3(0, 1.2, 0));
+   group.lookAt(camera.position);
+   
+   novo_lost_soul.acordar();
+   lost_soulvetE.push(novo_lost_soul);
+     InimigosArea5.push(novo_lost_soul);
+   acordados++;
+   
+   lancaMisseis.numInimigos++;
+   
+   return novo_lost_soul;
+}
+function carregar_lost_SoulE2(posicaoElemental= null,direcaoElemental=null) {
+   if (acordados<=5){
+      
+      console.log(acordados);
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'lost_SoulE';
+      console.log(nome + (acordados + 1).toString());
+      var obj_lost_soul = assetManagerElemental[nome + (acordados + 1).toString()];
+      obj_lost_soul.castShadow = true;
+      obj_lost_soul.receiveShadow = true;
+       if (posicaoElemental && direcaoElemental) {
+      // Usado quando criado pelo Pain Elemental
+      const direcaoNormalizada = direcaoElemental.clone().normalize();
+    //  direcaoNormalizada.multiplyScalar(3); // 3 unidades à frente
+      
+      obj_lost_soul.position.copy(posicaoElemental);
+      obj_lost_soul.position.add(direcaoNormalizada);
+    //  obj_lost_soul.position.y += 1; // Levemente acima para não colidir
+   }
+      group.position.copy(obj_lost_soul.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+
+      let novo_lost_soul = new Lost_Soul(obj_lost_soul, camera, new THREE.Box3(), 0.6, 3, personagem,true);
+      novo_lost_soul.barraFrente = barraVida;
+      novo_lost_soul.barraFundo = barraFundo;
+      novo_lost_soul.grupoBarras = group;
+      novo_lost_soul.tamBarraVida = larguraBarra;
+      lost_soulvetE.push(novo_lost_soul);
+       InimigosArea5.push(novo_lost_soul);
+        novo_lost_soul.acordar();
+      acordados++;
+      lancaMisseis.numInimigos =  lancaMisseis.numInimigos+1;
+      return novo_lost_soul;
+   }
+}
+var cacodemons_Area5 = [];
+var carregou_cac_Area5 = false;
+
+var cac_Area5_acordados= false;
+function carregar_cac_Area5() {
+   for (var i = 0; i < 4; i++) {
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'cacodemonE';
+      var obj_cacodemon = assetManagerCacodemon[nome + (i + 1).toString()];
+      obj_cacodemon.castShadow = true;
+      obj_cacodemon.receiveShadow = true;
+
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+      obj_cacodemon.position.set(i, 0.3, -i);
+      let arma_cac = new LancaMisseis(obj_cacodemon, [personagem], false);
+      let novo_cac = new Cacodemon(obj_cacodemon, camera, new THREE.Box3(), 0.6, 5, arma_cac, personagem);
+      novo_cac.barraFrente = barraVida;
+      novo_cac.barraFundo = barraFundo;
+      novo_cac.grupoBarras = group;
+      novo_cac.tamBarraVida = larguraBarra;
+      console.log(novo_cac);
+      cacodemons_Area5.push(novo_cac);
+      InimigosArea5.push(novo_cac);
 
 
    }
@@ -755,6 +1073,32 @@ function estabeleceBoundingBoxes() {
          }
       }
    }
+   let vetorPedra1 = new THREE.Vector3(0.2,9,-49.6);
+   areas[0].criarPedra(vetorPedra1,26,3);
+   let vetorPedra2 = new THREE.Vector3(-22.07,9,49.6);
+   areas[0].criarPedra(vetorPedra2,26,3);
+   let vetorPedra3 = new THREE.Vector3(-33.6,9,30.6);
+   areas[0].criarPedra(vetorPedra3,3,35);
+   let vetorPedra4 = new THREE.Vector3(33.6,9,-21.5);
+   areas[0].criarPedra(vetorPedra4,3,38);
+    if (areas[0].pedras && areas[0].pedras.length > 0) {// cria bounding box para as pedras dos pilares
+      console.log('Entrou pedras');
+      for (var i = 0; i < areas[0].pedras.length; i++) {
+
+         const pedra = areas[0].pedras[i];
+
+         // Verifique se o pilar e sua malha existem
+         if (pedra) {
+            const box = new THREE.Box3().setFromObject(pedra);
+       //     console.log(box);
+            areas[0].BoundingBoxpedras.push(box);
+         //   console.log(areas[0].boundingBoxesPilares);
+            const helper4 = new THREE.Box3Helper(areas[0].BoundingBoxpedras[i], 0xffff00); // Amarelo
+         //   scene.add(helper4);
+
+         }
+      }
+   }
    areas[0].subir_Plataforma();
    const plat = areas[0].plat;
    const boxPlat = new THREE.Box3().setFromObject(plat);
@@ -883,7 +1227,8 @@ areas[3].muralhas[0].abrindo = true;
 let losts_adicionados = false;
 let cacs_adicionados = false;
 let soldados_adicionados = false;
-
+var Elemental_Soul_morreu = false; // verifica se o Elemental Soul morreu
+let teste = true;
 
 personagem.gerarBarraDeVida();
 render();
@@ -935,7 +1280,22 @@ function render() {
       carregar_lost_Soul();
       carregou_vetor_lost = true;
    }
+///Elemental
+      assetManagerElemental.checkLoaded(); // verifica se o Elemental e seus Lost carregaram
+   if (!carregouElemental && assetManagerElemental.allLoaded) {
+      console.log("CarregouElemental");
+      carregar_Elemental();
+    
+      carregouElemental = true;
+   }
 
+    //Cacos area4
+      assetManagerCacodemon.checkLoaded(); // verifica se o Elemental e seus Lost carregaram
+   if (!carregou_cac_Area5 && assetManagerCacodemon.allLoaded) {
+      console.log("CarregouElemental");
+     carregar_cac_Area5();
+      carregou_cac_Area5 = true;
+   }
    // fps.update(0.016);
 
    if (controle.isLocked) {
@@ -1164,8 +1524,96 @@ function render() {
 
          areas[3].posicionar_chave3(null);
       }
+ if(personagem.chegada_area4)
+      {
+            lancaMisseis.inimigos = InimigosArea5;
+               metralhadora.inimigos = InimigosArea5;
+         if (!ElementalAcordado) {
+             Elementalvet[i].acordar();
+            ElementalAcordado = true;
+            
+         }
+         
+         if (armasNovosDerrotados.length != 0)
+            Area5Derrotados = Area5Derrotados.concat(armasNovosDerrotados);
+         if (derrotados2 != null)
+            Area5Derrotados.push(derrotados2);
+        
+         for (var i = 0; i < Area5Derrotados.length; i++) {
 
+            Area5Derrotados[i].sumir();
+            if (Area5Derrotados[i].sumiu) {
+               console.log("AAA");
+               scene.remove(Area5Derrotados[i].obj);
+               scene.remove(Area5Derrotados[i].grupoBarras);
+            }
+            if (Area5Derrotados[i].sumiu)
+               Area5Derrotados.splice(i, 1);
+         }
+         if (InimigosArea5.length == 0) {
+
+
+            //    if(!areas[0].bloco_elevado && !areas[0].elevar_bloco)
+            //      areas[0].elevar_bloco=true;
+            //  if(areas[0].elevar_bloco)
+            //      areas[0].fazer_elevar_bloco();
+            if (Area5Derrotados == 0 && !inimigosArea5Morreram) {
+
+           
+               //lancaMisseis.inimigos = cacodemons;
+               lancaMisseis.type = 2;
+               armasNovosDerrotados = [];
+               inimigosArea5Morreram = true;
+               //areas[0].subir_Plataforma();
+              
+
+
+            }
+         
+      }
    }
+      
+      
+      //Elemental
+      /*
+      if(assetManagerElemental.allLoaded && assetManagerCacodemon.allLoaded) // acorda elemental para ele aparecer
+      {
+         if(!ElementalAcordado)
+         {
+         console.log('acordou');
+         Elementalvet[0].acordar();
+         ElementalAcordado=true;
+         }
+          Elementalvet[0].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+         if(!cac_Area5_acordados)
+         {
+            console.log('acordou Caco');
+            console.log(cacodemons_Area5);
+            for(var i =0;i<cacodemons_Area5.length;i++)
+            {
+               console.log('Entrou no for')
+             cacodemons_Area5[i].acordar();
+            }
+            cac_Area5_acordados = true;
+         }
+          for (var i = 0; i < cacodemons_Area5.length; i++) {
+
+            cacodemons_Area5[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+              cacodemons_Area5[i].arma.controle_projeteis(scene, areas, fronteira);
+         }
+         if (lost_soulvetE.length > 0) {
+  // Movimentar cada Lost Soul no vetor
+  for (var i = 0; i < lost_soulvetE.length; i++) {
+    if (lost_soulvetE[i]) {
+      // Fazer o movimento
+      lost_soulvetE[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+      
+      // Não atualizamos o grupo de barras aqui, conforme solicitado
+    }
+  }
+}
+      }*/
+   } 
    //////console.log(verdade);
    //////console.log(groundPlane);
 
@@ -1182,3 +1630,4 @@ function render() {
    areas[3].posicionar_objetos();
    //console.log(lancaMisseis.inimigos);
 }
+export {carregar_lost_SoulE,carregar_lost_SoulE2};
