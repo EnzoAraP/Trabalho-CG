@@ -402,7 +402,9 @@ function carregar_cac() {
 
 ///ElementalSoul
 var Elementalvet = [];
+var InimigosArea5 = [];
 var carregouElemental = false;
+var inimigosArea5Morreram = false;
 var Area5Derrotados = [];
 var ElementalAcordado = false;
 function carregar_Elemental() {
@@ -445,6 +447,7 @@ function carregar_Elemental() {
       novo_Elemental_Soul.grupoBarras = group;
       novo_Elemental_Soul.tamBarraVida = larguraBarra;
       Elementalvet.push(novo_Elemental_Soul);
+       InimigosArea5.push(novo_Elemental_Soul);
 
       lancaMisseis.numInimigos =lancaMisseis.numInimigos+1;
    
@@ -455,8 +458,87 @@ var lost_soulvetE = [];
 
 var lost_soul_acordadosE = [];
 var acordados = 0;
-function carregar_lost_SoulE() {
+function carregar_lost_SoulE(posicaoElemental = null, direcaoElemental = null) {
+   if (acordados >= 5) {
+      console.log("Limite de Lost Souls atingido");
+      return;
+   }
+
+   const larguraBarra = 1.2;
+   const alturaBarra = 0.15;
+   const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+   const fundoMaterial = new THREE.MeshBasicMaterial({
+      color: "rgb(0, 0, 0)",
+      transparent: true
+   });
+   let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+   // Frente (vermelha) - barra de vida
+   const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+   const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+   let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+   const group = new THREE.Group();
+
+   group.add(barraFundo);
+   group.add(barraVida);
    
+   // Posicionamento correto da barra vermelha
+   barraVida.position.z = 0.01;
+   
+   group.visible = true;
+   scene.add(group);
+
+   let nome = 'lost_SoulE';
+   var obj_lost_soul = assetManagerElemental[nome + (acordados + 1).toString()];
+   
+   if (!obj_lost_soul) {
+      console.log("Não foi possível encontrar o modelo do Lost Soul");
+      return;
+   }
+   
+   obj_lost_soul.castShadow = true;
+   obj_lost_soul.receiveShadow = true;
+
+   // Posicionamento do Lost Soul
+   if (posicaoElemental && direcaoElemental) {
+      // Usado quando criado pelo Pain Elemental
+      const direcaoNormalizada = direcaoElemental.clone().normalize();
+      direcaoNormalizada.multiplyScalar(3); // 3 unidades à frente
+      
+      obj_lost_soul.position.copy(posicaoElemental);
+      obj_lost_soul.position.add(direcaoNormalizada);
+      obj_lost_soul.position.y += 1; // Levemente acima para não colidir
+   } else {
+      // Posição padrão se não for criado pelo elemental
+      obj_lost_soul.position.set(-70 - (acordados * 5), 5.5, -150 - (acordados * 5));
+   }
+   
+   // Criar com dash ativado quando gerado pelo Pain Elemental
+   let dash = (posicaoElemental != null);
+   let novo_lost_soul = new Lost_Soul(obj_lost_soul, camera, new THREE.Box3(), 0.6, 3, personagem, dash);
+   
+   novo_lost_soul.barraFrente = barraVida;
+   novo_lost_soul.barraFundo = barraFundo;
+   novo_lost_soul.grupoBarras = group;
+   novo_lost_soul.tamBarraVida = larguraBarra;
+   
+   // Posicionamento do grupo de barras
+   group.position.copy(obj_lost_soul.position).add(new THREE.Vector3(0, 1.2, 0));
+   group.lookAt(camera.position);
+   
+   novo_lost_soul.acordar();
+   lost_soulvetE.push(novo_lost_soul);
+     InimigosArea5.push(novo_lost_soul);
+   acordados++;
+   
+   lancaMisseis.numInimigos++;
+   
+   return novo_lost_soul;
+}
+function carregar_lost_SoulE2(posicaoElemental= null,direcaoElemental=null) {
+   if (acordados<=5){
+      
+      console.log(acordados);
       const larguraBarra = 1.2;
       const alturaBarra = 0.15;
       const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
@@ -480,25 +562,36 @@ function carregar_lost_SoulE() {
       scene.add(group);
 
       let nome = 'lost_SoulE';
-      console.log(nome + (i + 1).toString());
-      var obj_lost_soul = assetManagerElemental[nome + (i + 1).toString()];
+      console.log(nome + (acordados + 1).toString());
+      var obj_lost_soul = assetManagerElemental[nome + (acordados + 1).toString()];
       obj_lost_soul.castShadow = true;
       obj_lost_soul.receiveShadow = true;
-
-      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+       if (posicaoElemental && direcaoElemental) {
+      // Usado quando criado pelo Pain Elemental
+      const direcaoNormalizada = direcaoElemental.clone().normalize();
+    //  direcaoNormalizada.multiplyScalar(3); // 3 unidades à frente
+      
+      obj_lost_soul.position.copy(posicaoElemental);
+      obj_lost_soul.position.add(direcaoNormalizada);
+    //  obj_lost_soul.position.y += 1; // Levemente acima para não colidir
+   }
+      group.position.copy(obj_lost_soul.position).add(new THREE.Vector3(0, 1.2, 0));
 
       barraVida.position.z = 0.01;
 
-      obj_lost_soul.position.set(-70 - (i * 5), 5.5, -150 - (i * 5));
+
       let novo_lost_soul = new Lost_Soul(obj_lost_soul, camera, new THREE.Box3(), 0.6, 3, personagem,true);
       novo_lost_soul.barraFrente = barraVida;
       novo_lost_soul.barraFundo = barraFundo;
       novo_lost_soul.grupoBarras = group;
       novo_lost_soul.tamBarraVida = larguraBarra;
       lost_soulvetE.push(novo_lost_soul);
+       InimigosArea5.push(novo_lost_soul);
+        novo_lost_soul.acordar();
       acordados++;
-      lancaMisseis.numInimigos =  lancaMisseis.numInimigos;
-   
+      lancaMisseis.numInimigos =  lancaMisseis.numInimigos+1;
+      return novo_lost_soul;
+   }
 }
 var cacodemons_Area5 = [];
 var carregou_cac_Area5 = false;
@@ -546,6 +639,7 @@ function carregar_cac_Area5() {
       novo_cac.tamBarraVida = larguraBarra;
       console.log(novo_cac);
       cacodemons_Area5.push(novo_cac);
+      InimigosArea5.push(novo_cac);
 
 
    }
@@ -608,6 +702,8 @@ function carregar_lost_Soul() {
 var lancaMisseis = new LancaMisseis(camera, lost_soulvet, true);
 
 var metralhadora = new Metralhadora(camera, scene, lost_soulvet);
+ lancaMisseis.inimigos = InimigosArea5;
+               metralhadora.inimigos = InimigosArea5;
 
 var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 
@@ -921,7 +1017,7 @@ function render() {
    if (!carregouElemental && assetManagerElemental.allLoaded) {
       console.log("CarregouElemental");
       carregar_Elemental();
-      carregar_lost_SoulE();
+    
       carregouElemental = true;
    }
 
@@ -1053,11 +1149,52 @@ function render() {
       }
       if(personagem.chegada_area4)
       {
+            lancaMisseis.inimigos = InimigosArea5;
+               metralhadora.inimigos = InimigosArea5;
          if (!ElementalAcordado) {
              Elementalvet[i].acordar();
             ElementalAcordado = true;
+            
          }
+         
+         if (armasNovosDerrotados.length != 0)
+            Area5Derrotados = Area5Derrotados.concat(armasNovosDerrotados);
+         if (derrotados2 != null)
+            Area5Derrotados.push(derrotados2);
+        
+         for (var i = 0; i < Area5Derrotados.length; i++) {
+
+            Area5Derrotados[i].sumir();
+            if (Area5Derrotados[i].sumiu) {
+               console.log("AAA");
+               scene.remove(Area5Derrotados[i].obj);
+               scene.remove(Area5Derrotados[i].grupoBarras);
+            }
+            if (Area5Derrotados[i].sumiu)
+               Area5Derrotados.splice(i, 1);
+         }
+         if (InimigosArea5.length == 0) {
+
+
+            //    if(!areas[0].bloco_elevado && !areas[0].elevar_bloco)
+            //      areas[0].elevar_bloco=true;
+            //  if(areas[0].elevar_bloco)
+            //      areas[0].fazer_elevar_bloco();
+            if (Area5Derrotados == 0 && !inimigosArea5Morreram) {
+
+           
+               //lancaMisseis.inimigos = cacodemons;
+               lancaMisseis.type = 2;
+               armasNovosDerrotados = [];
+               inimigosArea5Morreram = true;
+               //areas[0].subir_Plataforma();
+              
+
+
+            }
+         
       }
+   }
       
       
       //Elemental
@@ -1077,7 +1214,7 @@ function render() {
             for(var i =0;i<cacodemons_Area5.length;i++)
             {
                console.log('Entrou no for')
-             cacodemons_Area5[i].acordar();
+         //    cacodemons_Area5[i].acordar();
             }
             cac_Area5_acordados = true;
          }
@@ -1086,7 +1223,58 @@ function render() {
             cacodemons_Area5[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
               cacodemons_Area5[i].arma.controle_projeteis(scene, areas, fronteira);
          }
+         if (lost_soulvetE.length > 0) {
+  // Movimentar cada Lost Soul no vetor
+  for (var i = 0; i < lost_soulvetE.length; i++) {
+    if (lost_soulvetE[i]) {
+      // Fazer o movimento
+      lost_soulvetE[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+      
+      // Não atualizamos o grupo de barras aqui, conforme solicitado
+    }
+  }
+}
+//a partir daqui apagar
+  if (armasNovosDerrotados.length != 0)
+            Area5Derrotados = Area5Derrotados.concat(armasNovosDerrotados);
+         if (derrotados2 != null)
+            Area5Derrotados.push(derrotados2);
+        
+         for (var i = 0; i < Area5Derrotados.length; i++) {
+
+            Area5Derrotados[i].sumir();
+            if (Area5Derrotados[i].sumiu) {
+               console.log("AAA");
+               scene.remove(Area5Derrotados[i].obj);
+               scene.remove(Area5Derrotados[i].grupoBarras);
+            }
+            if (Area5Derrotados[i].sumiu)
+               Area5Derrotados.splice(i, 1);
+         }
+         if (InimigosArea5.length == 0) {
+
+
+            //    if(!areas[0].bloco_elevado && !areas[0].elevar_bloco)
+            //      areas[0].elevar_bloco=true;
+            //  if(areas[0].elevar_bloco)
+            //      areas[0].fazer_elevar_bloco();
+            if (Area5Derrotados == 0 && !inimigosArea5Morreram) {
+
+           
+               //lancaMisseis.inimigos = cacodemons;
+               lancaMisseis.type = 2;
+               armasNovosDerrotados = [];
+               inimigosArea5Morreram = true;
+               //areas[0].subir_Plataforma();
+              
+
+
+            }
+         
       }
+      //parar apagar aqui
+      }
+      
       if (pode) {
          personagem.pegou = true;
          if(!criou_elevar){
@@ -1128,4 +1316,4 @@ function render() {
       inicializadasBoxes = true;
    }
 }
-export {carregar_lost_SoulE};
+export {carregar_lost_SoulE,carregar_lost_SoulE2};

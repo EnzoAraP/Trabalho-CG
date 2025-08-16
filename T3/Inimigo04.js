@@ -16,7 +16,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
-import {carregar_lost_SoulE } from './ArquivoPrincipalTrabalho copy.js';
+import {carregar_lost_SoulE2 } from './ArquivoPrincipalTrabalho copy.js';
 
 
 
@@ -137,7 +137,7 @@ class pain_elemental {
       this.barraFundo = null;
       this.grupoBarras = null;
       this.tamBarraVida = 1.2;
-   
+    this.acordados = 0;
 
    }
  
@@ -393,6 +393,9 @@ class pain_elemental {
 
    // ataque_especial com mesmo sistema
    ataque_especial(areas,fronteira, scene) {
+      if(this.acordados<5)
+      {
+         console.log('entrou if');
       this.girando = true;
       this.tempoDeGiro = 0;
 
@@ -417,11 +420,12 @@ class pain_elemental {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
- 
+ carregar_lost_SoulE2(this.obj.position.clone(), this.obj.getWorldDirection(new THREE.Vector3()));
+ this.acordados++;
      // if(this.dashpossivel(areas, fronteira))
      // this.prepararDash = true; // flag para iniciar dash após giro
    }
-
+   }
 
    // Dentro do movimento()
 

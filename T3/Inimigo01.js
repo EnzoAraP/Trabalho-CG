@@ -136,11 +136,48 @@ class Lost_Soul {
       this.tamBarraVida = 1.2;
       if( this.nasceComDash=true)
       {
-         this.iniciarDash();
+         console.log('dashou');
+         this.dashInicial();
       }
 
    }
-  
+   dashInicial()
+{
+    this.girando = true;
+    this.tempoDeGiro = 0;
+
+    const alvoPos = this.personagem_rival.obj.position.clone();
+    const origem = this.obj.position.clone();
+
+    const direcao = alvoPos.clone().sub(origem);
+    const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao);
+    const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180);
+
+    // Ajuste do tempo de giro baseado no ângulo - tempo mínimo para garantir rotação
+    if (giroEmGraus <= 30)
+        this.t_max = 3 + Math.floor(giroEmGraus);
+    else if (giroEmGraus <= 90)
+        this.t_max = Math.floor((giroEmGraus - 30) / 2) + 30;
+    else
+        this.t_max = Math.floor((giroEmGraus - 90) / 3) + 60;
+    
+    // Limitar tempo máximo para evitar demoras
+    this.t_max = Math.min(this.t_max, 10);
+    
+    this.quaternionInicial.copy(this.obj.quaternion);
+
+    const dummy = new THREE.Object3D();
+    dummy.position.copy(this.obj.position);
+    dummy.lookAt(alvoPos);
+    this.quaternionFinal.copy(dummy.quaternion);
+    
+    // Em vez de iniciar o dash imediatamente, prepare para iniciar após olhar
+    this.prepararDash = true;
+    
+    // Aplicar a rotação inicial imediatamente para começar virado na direção certa
+    this.obj.quaternion.slerp(this.quaternionFinal, 0.5);
+}
+
    gerarMovimento2(personagem = this.personagem_rival.obj) {
 
       this.girando = true;
