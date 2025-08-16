@@ -16,6 +16,7 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { testeGrandesAreas } from './criacaoAreas.js';
 
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
+import {carregar_lost_SoulE } from './ArquivoPrincipalTrabalho copy.js';
 
 
 
@@ -117,6 +118,7 @@ class pain_elemental {
       this.atirandoLS = false;
       this.framesAtirando = 0;
       this.framesParado = 10;
+      this.LostSouls = [];
       //fim dos especificos
     
       this.dashDirection = new THREE.Vector3();
@@ -135,8 +137,10 @@ class pain_elemental {
       this.barraFundo = null;
       this.grupoBarras = null;
       this.tamBarraVida = 1.2;
+   
 
    }
+ 
    gerarMovimento2(personagem = this.personagem_rival.obj) {
 
       this.girando = true;
@@ -413,6 +417,7 @@ class pain_elemental {
       dummy.position.copy(this.obj.position);
       dummy.lookAt(alvoPos);
       this.quaternionFinal.copy(dummy.quaternion);
+ 
      // if(this.dashpossivel(areas, fronteira))
      // this.prepararDash = true; // flag para iniciar dash após giro
    }
@@ -951,4 +956,4 @@ class pain_elemental {
    return false; // NÃO VAI COLIDIR - DASH É POSSÍVEL
 }
 }
-export { Lost_Soul };
+export { pain_elemental };

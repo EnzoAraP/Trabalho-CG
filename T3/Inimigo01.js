@@ -27,7 +27,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 
 class Lost_Soul {
 
-   constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
+   constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem, dash = false) {
       this.arma = null;
 
       this.voo = true;
@@ -113,7 +113,7 @@ class Lost_Soul {
 
       this.anterior_xz = 0;
       this.anterior_yz = 0;
-
+      this.nasceComDash = dash;
       this.isDashing = false;
       this.dashFrames = 0;
       this.dashDuration = 15;
@@ -134,8 +134,13 @@ class Lost_Soul {
       this.barraFundo = null;
       this.grupoBarras = null;
       this.tamBarraVida = 1.2;
+      if( this.nasceComDash=true)
+      {
+         this.iniciarDash();
+      }
 
    }
+  
    gerarMovimento2(personagem = this.personagem_rival.obj) {
 
       this.girando = true;
@@ -423,7 +428,7 @@ class Lost_Soul {
 
 
    movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
-      if (this.isDashing) {
+      if (this.isDashing ) {
          // Move rapidamente na direção do dash
          let dashStep = this.dashDirection.clone().multiplyScalar(this.dashSpeed * delta);
          
@@ -592,6 +597,13 @@ class Lost_Soul {
             for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
 
                let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+               this.speed = speedColisao[0];
+               if (!colisaoAreaAtual && speedColisao[1])
+                  colisaoAreaAtual = true;
+            }
+            for (var i = 0; i < areas[0].BoundingBoxpedras.length; i++) { // verifica se bate nas pedras em cima do pilar
+
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].BoundingBoxpedras[i], this.speed, true);
                this.speed = speedColisao[0];
                if (!colisaoAreaAtual && speedColisao[1])
                   colisaoAreaAtual = true;
@@ -848,13 +860,25 @@ class Lost_Soul {
 
       // Testa pilares na área 1
       if (grandeAreaPrev == 1) {
-         for (let i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
+         for (let i = 0; i < areas[0].boundingBoxesPilares.length; i++) {  //
             let speedColisao = verifica_colisoes_com_blocos(
                objPrev, this.larg, 2, this.larg,
                dashStep, areas[0].boundingBoxesPilares[i],
                this.dashSpeed, true
             );
             if (speedColisao[1]) return true; // VAI COLIDIR
+            
+            
+         }
+          for (let i = 0; i < areas[0].BoundingBoxpedras.length; i++) { // verifica se bateu nas pedras em cima do pilar
+            let speedColisao = verifica_colisoes_com_blocos(
+               objPrev, this.larg, 2, this.larg,
+               dashStep, areas[0].BoundingBoxpedras[i],
+               this.dashSpeed, true
+            );
+            if (speedColisao[1]) return true; // VAI COLIDIR
+            
+            
          }
       }
 

@@ -549,6 +549,14 @@ class Cacodemon {
                      console.log("bateu");
                   }
                }
+                for (var i = 0; i < areas[0].BoundingBoxpedras.length; i++) {// verifica bater com pedras em cima do pilar
+
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].BoundingBoxpedras[i], this.speed, true);
+                  this.speed = speedColisao[0];
+                  if (speedColisao[1] == true) {
+                     console.log("bateu");
+                  }
+               }
 
                let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, true);
                this.speed = colisaoPlat[0];

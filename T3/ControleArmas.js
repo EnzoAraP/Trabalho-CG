@@ -553,10 +553,24 @@ class LancaMisseis {
                            if (areas[0].boundingBoxesPilares[i].intersectsBox(boxBala)) {
 
                               colidiu = true;
-                              console.log(colidiu);
+                          
                               break;
                            }
+                           
                         }
+                        for (var i = 0; i < areas[0].BoundingBoxpedras.length; i++) {
+
+                           if (areas[0].BoundingBoxpedras[i].intersectsBox(boxBala)) {
+
+                              colidiu = true;
+                 
+                              break;
+                           }
+                           
+                        }
+                        
+                        
+
                      }
                      if (proj.area_proj == 0) {
                         for (var i = 0; i < 4; i++) {

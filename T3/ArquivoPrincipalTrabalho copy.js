@@ -18,7 +18,8 @@ import { LancaMisseis, Metralhadora } from './ControleArmas.js';
 import { Personagem } from './movimentoPersonagem.js';
 import { Cacodemon } from './Inimigo02.js';
 import { Lost_Soul } from './Inimigo01.js';
-import { carregarArquivoGLB, carregarArquivoObj } from './funcoesGeometriasExternas.js';
+import {pain_elemental} from './Inimigo04.js';
+import { carregarArquivoGLB, carregarArquivoObj, carregarArquivoGLBGenerico} from './funcoesGeometriasExternas.js';
 import { AmbientLight } from '../build/three.module.js';
 import { ElevacaoBloco } from './funcaoElevarBlocoEmY.js';
 
@@ -257,22 +258,97 @@ let assetManagerLost = {
          this.lost_Soul[i].visilbility = false;
    }
 }
+let assetManagerElemental = {
+   elemental_Soul: null,
+   lost_SoulE1:null,
+   lost_SoulE2:null,
+   lost_SoulE3:null,
+   lost_SoulE4:null,
+   lost_SoulE5:null,
+   num:0,
+   num_total: 1,
+   allLoaded: false,
+   //Function
+    checkLoaded: function () {
+      if (!this.allLoaded) {
+         var somatorio = 0;
+
+         if (this.lost_SoulE1 == null) {
+            somatorio++;
+         }
+           if (this.elemental_Soul == null) {
+            somatorio++;
+         }
+
+     //    console.log(somatorio);
+
+         this.allLoaded = (this.lost_SoulE1 != null) && (this.lost_SoulE2 != null) && (this.lost_SoulE3 != null) && (this.lost_SoulE4 != null) && (this.lost_SoulE5 != null) && (this.elemental_Soul !=null);
+      //   console.log(" E1 = "+( this.lost_SoulE1 != null)+' E2 = ' +(this.lost_SoulE2 != null)+' E3 = ' +(this.lost_SoulE3 != null)+'E4 = ' +(this.lost_SoulE4 != null)+' E5 = ' +(this.lost_SoulE5 != null)+' Elemental = ' +(this.elemental_Soul !=null));
+      //   console.log(this.allLoaded);
+      }
+   },
+   //nunca usa
+     hideAll: function () {
+      for (var i = 0; i < this.num; i++)
+         this.lost_Soul[i].visilbility = false;
+   }
+
+}
+
+let assetManagerCacodemon = {
+   // Properties ---------------------------------
+   cacodemonE1: null,
+   cacodemonE2: null,
+   cacodemonE3: null,
+    cacodemonE4: null,
+   num: 0,
+   num_total: 1,
+   allLoaded: false,
+
+   // Functions ----------------------------------
+   checkLoaded: function () {/// cacos da area 4 
+      if (!this.allLoaded) {
+         this.allLoaded = (this.cacodemonE1 != null) && (this.cacodemonE2 != null) && (this.cacodemonE3 != null) && (this.cacodemonE4 !=null);
+
+      }
+      
+   },
+
+   hideAll: function () { // nunca usa 
+      for (var i = 0; i < this.num; i++)
+         this.cacodemon[i].visilbility = false;
+   }
+}
+
 
 
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1);
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1);
 carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1);
 
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene);
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene);
+///Carregar do Lost SoulArea1
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_Soul");
 
+//Carregar do Elemental+LostSoulElemental
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_SoulE");
+carregarArquivoGLBGenerico(assetManagerElemental, '../T3/ElementalBlender/', 'Corrigido', false,null, scene, 4,"elemental_Soul");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "4", scene, 1,"cacodemonE");
 let cacodemon_geometry = new THREE.BoxGeometry(0.6, 1.2, 0.6);
 
-let cacodemon_material = new THREE.MeshLambertMaterial({ color: "rgb(55, 9, 180)" });
 
+let cacodemon_material = new THREE.MeshLambertMaterial({ color: "rgb(55, 9, 180)" });
+//var 
 var cacodemons = [];
 var carregou_vetor_cac = false;
 var cacodemons_derrotados = [];
@@ -318,6 +394,158 @@ function carregar_cac() {
       novo_cac.grupoBarras = group;
       novo_cac.tamBarraVida = larguraBarra;
       cacodemons.push(novo_cac);
+
+
+   }
+   lancaMisseis.numInimigos = 3;
+}
+
+///ElementalSoul
+var Elementalvet = [];
+var carregouElemental = false;
+var Area5Derrotados = [];
+var ElementalAcordado = false;
+function carregar_Elemental() {
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'elemental_Soul';
+      console.log(nome + (i + 1).toString());
+      var obj_Elemental_Soul = assetManagerElemental[nome];
+      obj_Elemental_Soul.castShadow = true;
+      obj_Elemental_Soul.receiveShadow = true;
+
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+      obj_Elemental_Soul.position.set(0,4,0);
+      let novo_Elemental_Soul = new pain_elemental(obj_Elemental_Soul, camera, new THREE.Box3(), 0.6, 3, personagem);
+      novo_Elemental_Soul.barraFrente = barraVida;
+      novo_Elemental_Soul.barraFundo = barraFundo;
+      novo_Elemental_Soul.grupoBarras = group;
+      novo_Elemental_Soul.tamBarraVida = larguraBarra;
+      Elementalvet.push(novo_Elemental_Soul);
+
+      lancaMisseis.numInimigos =lancaMisseis.numInimigos+1;
+   
+}
+
+// lostSoulE
+var lost_soulvetE = [];
+
+var lost_soul_acordadosE = [];
+var acordados = 0;
+function carregar_lost_SoulE() {
+   
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'lost_SoulE';
+      console.log(nome + (i + 1).toString());
+      var obj_lost_soul = assetManagerElemental[nome + (i + 1).toString()];
+      obj_lost_soul.castShadow = true;
+      obj_lost_soul.receiveShadow = true;
+
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+      obj_lost_soul.position.set(-70 - (i * 5), 5.5, -150 - (i * 5));
+      let novo_lost_soul = new Lost_Soul(obj_lost_soul, camera, new THREE.Box3(), 0.6, 3, personagem,true);
+      novo_lost_soul.barraFrente = barraVida;
+      novo_lost_soul.barraFundo = barraFundo;
+      novo_lost_soul.grupoBarras = group;
+      novo_lost_soul.tamBarraVida = larguraBarra;
+      lost_soulvetE.push(novo_lost_soul);
+      acordados++;
+      lancaMisseis.numInimigos =  lancaMisseis.numInimigos;
+   
+}
+var cacodemons_Area5 = [];
+var carregou_cac_Area5 = false;
+
+var cac_Area5_acordados= false;
+function carregar_cac_Area5() {
+   for (var i = 0; i < 4; i++) {
+      const larguraBarra = 1.2;
+      const alturaBarra = 0.15;
+      const fundoGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const fundoMaterial = new THREE.MeshBasicMaterial({
+         color: "rgb(0, 0, 0)",
+         //opacity: 0.6,       // Meio transparente
+         transparent: true
+      });
+      let barraFundo = new THREE.Mesh(fundoGeometry, fundoMaterial);
+
+
+      // Frente (verde) - a parte que será "cortada"
+      const frenteGeometry = new THREE.PlaneGeometry(larguraBarra, alturaBarra);
+      const frenteMaterial = new THREE.MeshBasicMaterial({ color: "rgb(231, 16, 16)" });
+      let barraVida = new THREE.Mesh(frenteGeometry, frenteMaterial);
+      const group = new THREE.Group();
+
+      group.add(barraFundo);
+      group.add(barraVida);
+      group.visible = false;
+      scene.add(group);
+
+      let nome = 'cacodemonE';
+      var obj_cacodemon = assetManagerCacodemon[nome + (i + 1).toString()];
+      obj_cacodemon.castShadow = true;
+      obj_cacodemon.receiveShadow = true;
+
+      group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
+
+      barraVida.position.z = 0.01;
+
+      obj_cacodemon.position.set(i, 0.3, -i);
+      let arma_cac = new LancaMisseis(obj_cacodemon, [personagem], false);
+      let novo_cac = new Cacodemon(obj_cacodemon, camera, new THREE.Box3(), 0.6, 5, arma_cac, personagem);
+      novo_cac.barraFrente = barraVida;
+      novo_cac.barraFundo = barraFundo;
+      novo_cac.grupoBarras = group;
+      novo_cac.tamBarraVida = larguraBarra;
+      console.log(novo_cac);
+      cacodemons_Area5.push(novo_cac);
 
 
    }
@@ -533,36 +761,37 @@ function estabeleceBoundingBoxes() {
 
    for (let i = -33.6; i <= 33.6; i = i + 11.2)// parede direita
    {
-      let vetorteste2 = new THREE.Vector3(i, 4.5, -49.6);
+    
+      let vetorteste2 = new THREE.Vector3(i, 5, -49.6);
       areas[0].criaPilar(vetorteste2);
       //area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
-      //criarBoundingBox(pilar);
+      //criarBoundingBox(pilar); 
    }
    for (let i = -33.6; i <= 33.6; i = i + 11.2)// parede esqureda
    {
-      let vetorteste3 = new THREE.Vector3(i, 4.5, 49.6);
+      let vetorteste3 = new THREE.Vector3(i, 5, 49.6);
       areas[0].criaPilar(vetorteste3);
       //area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
    }
    for (let i = 49.6; i >= -49.6; i = i - 11.2)// parede tras
    {
-      let vetorteste3 = new THREE.Vector3(-33.6, 4.5, i);
+      let vetorteste3 = new THREE.Vector3(-33.6, 5, i);
       areas[0].criaPilar(vetorteste3);
       //area1.pilares.push(pilar);
       ///criarBoundingBox(pilar);
    }
    for (let i = 49.6; i >= 0; i = i - 11.2)// parede escada esquerda
    {
-      let vetorteste3 = new THREE.Vector3(33.6, 4.5, i);
+      let vetorteste3 = new THREE.Vector3(33.6, 5, i);
       areas[0].criaPilar(vetorteste3);
       //area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
    }
    for (let i = -49.6; i <= 0; i = i + 11.2)// parede escada direita
    {
-      let vetorteste3 = new THREE.Vector3(33.6, 4.5, i);
+      let vetorteste3 = new THREE.Vector3(33.6, 5, i);
       areas[0].criaPilar(vetorteste3);
       ////area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
@@ -577,23 +806,42 @@ function estabeleceBoundingBoxes() {
          // Verifique se o pilar e sua malha existem
          if (pilar) {
             const box = new THREE.Box3().setFromObject(pilar);
-            console.log(box);
+       //     console.log(box);
             areas[0].boundingBoxesPilares.push(box);
-            console.log(areas[0].boundingBoxesPilares);
+         //   console.log(areas[0].boundingBoxesPilares);
             const helper4 = new THREE.Box3Helper(areas[0].boundingBoxesPilares[i], 0xffff00); // Amarelo
           //  scene.add(helper4);
 
          }
       }
    }
-     let vetorPedra1 = new THREE.Vector3(0.2,8,-49.6);
+  
+     let vetorPedra1 = new THREE.Vector3(0.2,9,-49.6);
    areas[0].criarPedra(vetorPedra1,26,3);
-   let vetorPedra2 = new THREE.Vector3(-22.07,8,49.6);
+   let vetorPedra2 = new THREE.Vector3(-22.07,9,49.6);
    areas[0].criarPedra(vetorPedra2,26,3);
-   let vetorPedra3 = new THREE.Vector3(-33.6,8,30.6);
+   let vetorPedra3 = new THREE.Vector3(-33.6,9,30.6);
    areas[0].criarPedra(vetorPedra3,3,35);
-   let vetorPedra4 = new THREE.Vector3(33.6,8,-21.5);
+   let vetorPedra4 = new THREE.Vector3(33.6,9,-21.5);
    areas[0].criarPedra(vetorPedra4,3,38);
+    if (areas[0].pedras && areas[0].pedras.length > 0) {// cria bounding box para as pedras dos pilares
+      console.log('Entrou pedras');
+      for (var i = 0; i < areas[0].pedras.length; i++) {
+
+         const pedra = areas[0].pedras[i];
+
+         // Verifique se o pilar e sua malha existem
+         if (pedra) {
+            const box = new THREE.Box3().setFromObject(pedra);
+       //     console.log(box);
+            areas[0].BoundingBoxpedras.push(box);
+         //   console.log(areas[0].boundingBoxesPilares);
+            const helper4 = new THREE.Box3Helper(areas[0].BoundingBoxpedras[i], 0xffff00); // Amarelo
+         //   scene.add(helper4);
+
+         }
+      }
+   }
    areas[0].subir_Plataforma();
    const plat = areas[0].plat;
    const boxPlat = new THREE.Box3().setFromObject(plat);
@@ -632,11 +880,12 @@ let pode = false;
 let entrou = false;
 
 var Lost_soul_morreram = false;
+var Elemental_Soul_morreu = false; // verifica se o Elemental Soul morreu
 
 var criou_elevar=false;
 
 let elevacaoBloco = null;
-
+let teste = true;
 render();
 
 
@@ -667,6 +916,23 @@ function render() {
       carregou_vetor_lost = true;
    }
 
+   ///Elemental
+      assetManagerElemental.checkLoaded(); // verifica se o Elemental e seus Lost carregaram
+   if (!carregouElemental && assetManagerElemental.allLoaded) {
+      console.log("CarregouElemental");
+      carregar_Elemental();
+      carregar_lost_SoulE();
+      carregouElemental = true;
+   }
+
+    //Cacos area4
+      assetManagerCacodemon.checkLoaded(); // verifica se o Elemental e seus Lost carregaram
+   if (!carregou_cac_Area5 && assetManagerCacodemon.allLoaded) {
+      console.log("CarregouElemental");
+     carregar_cac_Area5();
+      carregou_cac_Area5 = true;
+   }
+
    // fps.update(0.016);
 
    if (controle.isLocked) {
@@ -694,6 +960,7 @@ function render() {
             for (var i = 0; i < cacodemons.length; i++) {
                cacodemons[i].acordar();
             }
+
          }
 
          if (armasNovosDerrotados.length != 0)
@@ -736,7 +1003,9 @@ function render() {
          if (!lost_soul_acordados) {
             for (var i = 0; i < lost_soulvet.length; i++) {
                lost_soulvet[i].acordar();
+           //    lost_soulvet[i].girarpain();
             }
+            lost_soul_acordados = true;
          }
 
          if (armasNovosDerrotados.length != 0)
@@ -782,6 +1051,42 @@ function render() {
          }
 
       }
+      if(personagem.chegada_area4)
+      {
+         if (!ElementalAcordado) {
+             Elementalvet[i].acordar();
+            ElementalAcordado = true;
+         }
+      }
+      
+      
+      //Elemental
+      if(assetManagerElemental.allLoaded && assetManagerCacodemon.allLoaded) // acorda elemental para ele aparecer
+      {
+         if(!ElementalAcordado)
+         {
+         console.log('acordou');
+         Elementalvet[0].acordar();
+         ElementalAcordado=true;
+         }
+          Elementalvet[0].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+         if(!cac_Area5_acordados)
+         {
+            console.log('acordou Caco');
+            console.log(cacodemons_Area5);
+            for(var i =0;i<cacodemons_Area5.length;i++)
+            {
+               console.log('Entrou no for')
+             cacodemons_Area5[i].acordar();
+            }
+            cac_Area5_acordados = true;
+         }
+          for (var i = 0; i < cacodemons_Area5.length; i++) {
+
+            cacodemons_Area5[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+              cacodemons_Area5[i].arma.controle_projeteis(scene, areas, fronteira);
+         }
+      }
       if (pode) {
          personagem.pegou = true;
          if(!criou_elevar){
@@ -823,3 +1128,4 @@ function render() {
       inicializadasBoxes = true;
    }
 }
+export {carregar_lost_SoulE};

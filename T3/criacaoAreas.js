@@ -19,7 +19,7 @@ let scene = new THREE.Scene(); // Create main scene
 
 
 //var materialCubo = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material 
-var materialCubo1 = new THREE.MeshLambertMaterial({ color: "rgb(47, 235, 9)"}); // cria o material dos cubos da área 1
+var materialCubo1 = new THREE.MeshLambertMaterial({ color: "rgba(255, 255, 255, 1)"}); // cria o material dos cubos da área 1
 var materialCubo2 = new THREE.MeshLambertMaterial({ color: "rgb(185, 51, 27)"}); // cria o material dos cubos da área 2
 var materialCubo3 = new THREE.MeshLambertMaterial({ color: "rgb(12, 26, 92)"}); // cria o material dos cubos da área 3
 var materialCubo4 = new THREE.MeshLambertMaterial({ color: "rgb(221, 158, 22)"}); // cria o material dos cubos da área 4
@@ -48,11 +48,11 @@ var cubeGeo6 = new THREE.BoxGeometry(140, 4, 100);
 var cubeGeo2_area2 = new THREE.BoxGeometry(66.5, 4, 2);
 //scene.add(sphere);
 
-
-
+//Loader para chão e escada da área 1.
+ 
 //Area 1
 var area1 = new Area1([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,materialCubo2]);
-area1.degraus=criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materiais_cubos[1]);
+area1.degraus=criar_degraus(new THREE.Vector3(-65.5, 0, -150), 4, 5, 2, 8, 90, materiais_cubos[0]);
 area1.boundingBoxesPilares = [];
 area1.cubos = [area1.cube1, area1.cube2, area1.cube3];
 var area2 = new Area2([cubeGeo0,cubeGeo1,cubeGeo2_area2,cubeGeo3],[materialCubo1,materialCubo2]);
