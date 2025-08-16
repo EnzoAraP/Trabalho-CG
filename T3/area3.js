@@ -220,6 +220,12 @@ class Area3 {
         this.boundingCube4 = null;
         this.boundingCube5 = null;
 
+        this.cube4.castShadow=true;
+        this.cube5.castShadow=true;
+
+        this.cube4.receiveShadow=true;
+        this.cube5.receiveShadow=true;
+
 
 
         const shape = new THREE.Shape();
@@ -248,6 +254,8 @@ class Area3 {
 
         this.fachadaOval1 = this.hangar;
 
+        
+
 
         this.fachadaOval2 = new THREE.Mesh(geometry, material);
         this.fachadaOval2.translateY(this.altura_geral / 2 + 0.2);
@@ -255,6 +263,12 @@ class Area3 {
         this.fachadaOval2.rotateY(Math.PI / 2);
         this.cube0.add(this.fachadaOval2);
 
+
+        this.fachadaOval1.castShadow=true;
+        this.fachadaOval1.receiveShadow=true;
+
+        this.fachadaOval2.castShadow=true;
+        this.fachadaOval2.receiveShadow=true;
         // Cria um contorno meia elipse (sem preenchimento) com base no mesmo shape da frente
 
         const pontosPerfil = [];
@@ -320,10 +334,15 @@ class Area3 {
         material2.side = THREE.DoubleSide;
         const tetoOval = new THREE.Mesh(geometria, material2);
 
+        
+
 
         // Posicionamento
 
         this.tetoOval = tetoOval;
+
+        tetoOval.castShadow=true;
+        tetoOval.receiveShadow=true;
 
         this.cube0.add(this.tetoOval);
         this.tetoOval.translateY(this.altura_geral / 2);
@@ -375,11 +394,20 @@ class Area3 {
     }
 
     colisoes_bala_area3(boxBala) {
+
         let colidiu = false;
-        colidiu = this.porta1.box.intersectsBox(boxBala)
+        let boxExpandida = this.porta1.box.clone();
+        let margemX = 0.3;
+        boxExpandida.min.x -= margemX;
+        boxExpandida.max.x += margemX;
+        colidiu = boxExpandida.intersectsBox(boxBala);
         if (colidiu)
             return true;
-        colidiu = this.porta2.box.intersectsBox(boxBala)
+        boxExpandida = this.porta2.box.clone();
+        margemX = 0.3;
+        boxExpandida.min.x -= margemX;
+        boxExpandida.max.x += margemX;
+        colidiu = boxExpandida.intersectsBox(boxBala);
         if (colidiu)
             return true;
         colidiu = this.boundingCube4.intersectsBox(boxBala)
@@ -389,17 +417,17 @@ class Area3 {
         if (colidiu)
             return true;
         colidiu = this.assetManager.planeBox.intersectsBox(boxBala)
-            if (colidiu)
-                return true;
+        if (colidiu)
+            return true;
         colidiu = this.plat_chave_box.intersectsBox(boxBala)
-            if (colidiu)
-                return true;   
+        if (colidiu)
+            return true;
         colidiu = this.chave3Box.intersectsBox(boxBala)
-            if (colidiu)
-                return true;   
-        
+        if (colidiu)
+            return true;
+
         return false;
-  
+
 
     }
 

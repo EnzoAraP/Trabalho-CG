@@ -224,7 +224,7 @@ class Metralhadora {
             }
             if (bloqueou)
                break;
-            if (i != 1 && i!=2) { // Verificações de escadas
+            if (i != 1 && i != 2) { // Verificações de escadas
                let degrausBox = areas[i].boundingDegraus;
                if (raio.intersectBox(rampaBox, pontoIntersecao)) { // Se adentra bloco onde está a escada, faz a mesma verificação para os degraus
                   distancia = origem.distanceTo(pontoIntersecao);
@@ -272,7 +272,7 @@ class Metralhadora {
                }
 
             }
-            else if(i==1){   // Verificação para as coisas especiais da área 2, começando pelo suporte da fechadura
+            else if (i == 1) {   // Verificação para as coisas especiais da área 2, começando pelo suporte da fechadura
                if (raio.intersectBox(areas[1].fechadura.box, pontoIntersecao)) {
                   distancia = origem.distanceTo(pontoIntersecao);
                   if (distancia < distMax) {
@@ -355,7 +355,7 @@ class Metralhadora {
                }
 
             }
-            else if(i==2){
+            else if (i == 2) {
                if (raio.intersectBox(areas[i].porta1.box, pontoIntersecao)) {
                   distancia = origem.distanceTo(pontoIntersecao);
                   if (distancia < distMax) {
@@ -411,6 +411,179 @@ class Metralhadora {
 
                   }
                }
+            }
+            if (i == 3) {
+               for (var j = 0; j < areas[i].muralhas.length; j++) {
+                  if (raio.intersectBox(areas[i].muralhas[j].box, pontoIntersecao)) {
+                     
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+               }
+               if(bloqueou)
+                  break;
+
+               for (let j = 0; j < areas[i].plataformas.length; j++) {
+                  if (raio.intersectBox(areas[i].plataformas[j].box, pontoIntersecao)) {
+                     console.log("PlatIntersec");
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+
+               }
+               if(bloqueou)
+                  break;
+               for (let j = 0; j < areas[i].pontes_box.length; j++) {
+                  if (raio.intersectBox(areas[i].pontes_box[j], pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+               }
+
+               if(bloqueou)
+                  break;
+
+               for (let j = 0; j < areas[i].paredes_janelas_box.length; j++) {
+                  if (raio.intersectBox(areas[i].paredes_janelas_box[j], pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+               }
+
+               if(bloqueou)
+                  break;
+
+               for (let j = 0; j < areas[i].torres.length; j++) {
+                  if (raio.intersectBox(areas[i].torres_box[j], pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+
+               }
+               if(bloqueou)
+                  break;
+               if (raio.intersectBox(areas[i].assetManager.BigBenBox, pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+
+               for (let j = 0; j < areas[i].blocosExtras.length; j++) {
+                  if (raio.intersectBox(areas[i].boundingBlocosExtras[j], pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+
+               }
+
+               if(bloqueou)
+                  break;
+
+               for (let j = 0; j < areas[i].esferas.length; j++) {
+                  if (raio.intersectBox(areas[i].esferas_box[j], pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+
+
+               }
+
+                if(bloqueou)
+                  break;
+
+               for (let j = 0; j < areas[i].portais.length; j++) {
+                  if (raio.intersectBox(areas[i].portais_box[j], pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+                  }
+
+
+               }
+               if(bloqueou)
+                  break;
+
+               if (raio.intersectBox(areas[i].porta.box, pontoIntersecao)) {
+                     distancia = origem.distanceTo(pontoIntersecao);
+                     if (distancia < distMax) {
+                        bloqueou = true;
+                        break;
+                     }
+                     else if (distancia < distMaxCubos) {
+                        distMaxCubos = distancia;
+
+                     }
+               }
+               
+
             }
 
             if (bloqueou)
@@ -652,7 +825,7 @@ class LancaMisseis {
 
                         }
                         if (!colidiu) {
-                           if (i != 1 && i!=2) {
+                           if (i != 1 && i != 2) {
                               if (rampaBox.intersectsBox(boxBala)) {
                                  let degrausBox = areas[i].boundingDegraus;
                                  ////console.log(degrausBox)
@@ -673,31 +846,31 @@ class LancaMisseis {
                                  }
                               }
                            }
-                           else 
-                              if(i==1){
-                              if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)) {
-                                 colidiu = true;
-                              }
-                              else {
-                                 colidiu = areas[1].porta.box.intersectsBox(boxBala);
-                              }
-                              for (var j = 0; !colidiu && j < areas[1].num_blocos_extras; j++) {
-                                 if (areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)) {
+                           else
+                              if (i == 1) {
+                                 if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)) {
                                     colidiu = true;
-                                    //console.log("F");
                                  }
+                                 else {
+                                    colidiu = areas[1].porta.box.intersectsBox(boxBala);
+                                 }
+                                 for (var j = 0; !colidiu && j < areas[1].num_blocos_extras; j++) {
+                                    if (areas[1].boundingBlocosExtras[j].intersectsBox(boxBala)) {
+                                       colidiu = true;
+                                       //console.log("F");
+                                    }
+                                 }
+                                 if (!colidiu) {
+                                    if ((areas[1].elevar_bloco || areas[1].bloco_elevado) && !areas[1].chave2Retirada && areas[1].chave2Box.intersectsBox(boxBala))
+                                       colidiu = true;
+                                 }
+
                               }
-                              if (!colidiu) {
-                                 if ((areas[1].elevar_bloco || areas[1].bloco_elevado) && !areas[1].chave2Retirada && areas[1].chave2Box.intersectsBox(boxBala))
-                                    colidiu = true;
-                              }
-                              
+                           if (i == 2) {
+                              colidiu = areas[2].colisoes_bala_area3(boxBala);
                            }
-                           if(i==2){
-                                 colidiu=areas[2].colisoes_bala_area3(boxBala);
-                           }
-                           if(i==3)
-                              colidiu=areas[3].colisoes_bala_area4(boxBala);
+                           if (i == 3)
+                              colidiu = areas[3].colisoes_bala_area4(boxBala);
                         }
                      }
                   }

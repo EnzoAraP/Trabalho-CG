@@ -68,11 +68,11 @@ class Personagem {
 
       this.saiu_plataforma_a4 = [false, false];
 
-      this.possui_chave1 = true;
+      this.possui_chave1 = false;
 
-      this.possui_chave2 = true;
+      this.possui_chave2 = false;
 
-      this.possui_chave3 = true;
+      this.possui_chave3 = false;
 
       this.pegou_chave1 = false;
 
@@ -115,7 +115,7 @@ class Personagem {
 
    mudar_arma(num_arma = 0) {
       if (num_arma == 0) {
-         //console.log("ABC");
+         ////console.log("ABC");
          if (this.num_arma_atual == 1)
             num_arma = 2;
          else
@@ -211,14 +211,14 @@ class Personagem {
             }
 
             if (this.grandeArea == 1) {
-               //  console.log(areas[0].boundingBoxesPilares);
+               //  //console.log(areas[0].boundingBoxesPilares);
 
                for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
 
                   let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
                   this.speed = speedColisao[0];
                   if (speedColisao[1] == true) {
-                     console.log("bateu");
+                     //console.log("bateu");
                   }
                }
                if (this.pegou == true) {
@@ -226,7 +226,7 @@ class Personagem {
                   this.speed = colisaoPlat[0];
                   let pegouS = colisaoPlat[1];
                   if (pegouS && !this.possui_chave1) {
-                     console.log("Pegou a chave!");
+                     //console.log("Pegou a chave!");
                      this.possui_chave1 = true;
                      this.pegou_chave1=true;
 
@@ -236,9 +236,16 @@ class Personagem {
             }
 
             if (this.grandeArea == 4) {
-               //  console.log(areas[0].boundingBoxesPilares);
+               //  //console.log(areas[0].boundingBoxesPilares);
                this.speed=areas[this.grandeArea-1].colisoes_area4(this.speed,this.obj,this.larg,2,this.larg,moveDir,false,this.area,this.naPlataforma_a4);
-
+               if(areas[3].porta.abrindo || areas[3].porta.aberta){
+                 let speedColisao= verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].painel_box, this.speed, delta);
+                  this.speed= speedColisao[0];
+                  if(areas[3].porta.aberta && speedColisao[1]){
+                     this.finalizar_simulacao();
+                     return;
+                  }
+               }
 
             }
 
@@ -264,13 +271,13 @@ class Personagem {
                      this.speed = speedColisao[0];
                      colisaoComAPlataforma = speedColisao[1];
                      if (colisaoComAPlataforma) {
-                        ////console.log("Plat");
+                        //////console.log("Plat");
                      }
                   }
                   else {
-                     ////console.log("Porta");
-                     ////console.log(colisaoAreaAtual);
-                     ////console.log(speedColisao[1]);
+                     //////console.log("Porta");
+                     //////console.log(colisaoAreaAtual);
+                     //////console.log(speedColisao[1]);
                   }
 
 
@@ -297,7 +304,7 @@ class Personagem {
                   let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, true);
                   this.speed = speedColisao[0];
                   if(speedColisao[1] && !this.pegou_chave3){
-                     console.log("cheave3");
+                     //console.log("cheave3");
                      areas[2].plat_chave.remove(areas[2].chave3);
                      this.pegou_chave3=true;
                   }
@@ -320,10 +327,10 @@ class Personagem {
                   && objeto.position.z <= pos_escada.z + (largura_esc - this.larg / 2) && objeto.position.z >= pos_escada.z - (largura_esc - this.larg / 2)
                   //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
                );
-               //console.log(objeto.position);
-               //console.log(this.regiaoEscada);
+               ////console.log(objeto.position);
+               ////console.log(this.regiaoEscada);
 
-               //console.log(pos_escada);
+               ////console.log(pos_escada);
                let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.0001; // Teste da rampa
 
 
@@ -345,10 +352,10 @@ class Personagem {
                   moveDir.y += (altura_total / comp_total);
                   let vetorProj = new THREE.Vector3();
                   vetorProj.copy(moveDir);
-                  ////console.log(vetorProj);
+                  //////console.log(vetorProj);
                   vetorProj.projectOnVector(dir_rampa);
                   let moveProjecao = vetorProj.length();
-                  ////console.log(moveProjecao);
+                  //////console.log(moveProjecao);
                   if (Math.abs(moveProjecao) > 0.0001) {
                      // Move na direção da rampa : incluir subida/descida
                      moveDir.y = vetorProj.y;
@@ -356,7 +363,10 @@ class Personagem {
                   if (this.area == -1) {
                      this.area = this.grandeArea - 1; // Se entrou na rampa, entrou na área com blocos correspondente
                   }
-                  ////console.log(moveDir.y);
+                  if(this.area==3 && !this.chegada_area4){
+                     this.chegada_area4=true;
+                  }
+                  //////console.log(moveDir.y);
                }
             }
 
@@ -407,9 +417,9 @@ class Personagem {
       &&  verifica_colisoes_com_blocos(this.obj, this.larg, 2.1, this.larg, moveDir, areas[3].boundingCubos[1], this.speed, delta)[1]){
          this.obj.position.y=6.15;
       }
-      console.log(this.obj.position.y)
+      //console.log(this.obj.position.y)
 
-         // console.log(moveDir);
+         // //console.log(moveDir);
       }
 
       this.speed = this.speedPadrao;
@@ -439,7 +449,7 @@ class Personagem {
          }
          else {
             if (this.voo) {
-               ////console.log(areas[0].degraus[1].rampa)
+               //////console.log(areas[0].degraus[1].rampa)
                if (this.grandeArea != 2 && this.grandeArea != 3)
                   isIntersectingStaircase = this.raycaster.intersectObjects([areas[this.grandeArea - 1].degraus[1].rampa, areas[this.grandeArea - 1].degraus[0].degraus[7]]).length > 0.0001;
                else if (this.grandeArea == 2)
@@ -460,14 +470,14 @@ class Personagem {
       let condicaoEspecialBordas = (this.area == -1 || this.area == 3 || this.naPlataforma || this.regiaoEscada);
 
 
-      ////console.log(intersectaPlataforma);
+      //////console.log(intersectaPlataforma);
       if (!isIntersectingGround && !isIntersectingStaircase && !intersectaPlataforma && condicaoEspecialBordas) {
-         //console.log("queda");
+         ////console.log("queda");
 
          this.obj.position.y -= 7 * delta;
          this.raycaster.ray.origin.copy(this.obj.position);
          if (this.grandeArea >= 1) {
-            ////console.log(area);
+            //////console.log(area);
             if (this.area != -1) {
                this.box = new THREE.Box3().setFromCenterAndSize(
                   new THREE.Vector3(this.obj.position.x, this.obj.position.y - 1.05, this.obj.position.z),
@@ -491,7 +501,7 @@ class Personagem {
 
                if (isIntersectingGround || isIntersectingStaircase || intersectaPlataforma) {
                   this.obj.position.y += 7 * delta;
-                  //console.log("volta");
+                  ////console.log("volta");
                }
             }
 
@@ -517,10 +527,10 @@ class Personagem {
          if (this.naPlataforma && this.area == -1)
             this.area = 1;
          if (!areas[1].plataforma.em_movimento && !areas[1].plataforma.subir && objeto.position.y <= 2.2) {
-            ////console.log("Desce");
+            //////console.log("Desce");
             areas[1].plataforma.em_movimento = (objeto.position.x <= pos_plataforma_a2.x + (3 + this.larg) && objeto.position.x >= pos_plataforma_a2.x - (3 + this.larg)
                && objeto.position.z <= pos_plataforma_a2.z + (3 + this.larg) && objeto.position.z >= pos_plataforma_a2.z - (3 + this.larg));
-            // //console.log(areas[1].plataforma.em_movimento);
+            // ////console.log(areas[1].plataforma.em_movimento);
          }
          else if (!areas[1].plataforma.em_movimento && !areas[1].plataforma.emEspera && this.naPlataforma && (areas[1].plataforma.subir || this.saiu_plataforma)) {
             areas[1].plataforma.emEspera = true;
@@ -562,7 +572,7 @@ class Personagem {
                && objeto.position.z <= pos_plataforma_a2.z + (2 - this.larg / 2) && objeto.position.z >= pos_plataforma_a2.z - (2 - this.larg / 2)
                //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
             );
-            console.log(this.naPlataforma_a4[i]);
+            //console.log(this.naPlataforma_a4[i]);
             if (!this.saiu_plataforma_a4[i] && !this.naPlataforma_a4[i])
                this.saiu_plataforma_a4[i] = objeto.position.x > (pos_plataforma_a2.x + 1) || objeto.position.x < (pos_plataforma_a2.x - 1)
                   || objeto.position.z > (pos_plataforma_a2.z + 1) || objeto.position.z < (pos_plataforma_a2.z - 1);
@@ -570,17 +580,17 @@ class Personagem {
 
 
             if (!areas[3].plataformas[i].em_movimento && !areas[3].plataformas[i].subir && objeto.position.y <= 6.4) {
-               ////console.log("Desce");
+               //////console.log("Desce");
                areas[3].plataformas[i].em_movimento = (objeto.position.x <= pos_plataforma_a2.x + (3 + this.larg) && objeto.position.x >= pos_plataforma_a2.x - (3 + this.larg)
                   && objeto.position.z <= pos_plataforma_a2.z + (3 + this.larg) && objeto.position.z >= pos_plataforma_a2.z - (3 + this.larg));
-               // //console.log(areas[1].plataforma.em_movimento);
+               // ////console.log(areas[1].plataforma.em_movimento);
             }
             else if (!areas[3].plataformas[i].em_movimento && !areas[3].plataformas[i].emEspera && this.naPlataforma_a4[i] && (areas[3].plataformas[i].subir || this.saiu_plataforma_a4[i])) {
                areas[3].plataformas[i].emEspera = true;
             }
 
             if (areas[3].plataformas[i].emEspera) {
-               console.log("Espera");
+               //console.log("Espera");
                if (!this.naPlataforma_a4[i]) {
                   areas[3].plataformas[i].tempo_espera = 0;
                   areas[3].plataformas[i].emEspera = false;
@@ -604,7 +614,7 @@ class Personagem {
 
       if (!this.chegada_area1 && this.area == 0)
          this.chegada_area1 = true;
-      ////console.log(moveDir.y);
+      //////console.log(moveDir.y);
 
       if (reset == true) {
          this.obj.position.set(3, 4, 8);
@@ -621,7 +631,7 @@ class Personagem {
       if (!this.chegada_area3)
          this.chegada_area3 = cheg3;
       if (areas[1].porta.abrindo) {
-         areas[1].abrir_porta(4, 1);
+         areas[1].abrir_porta(6, 1);
 
       }
       else if (areas[1].porta.aberta && areas[1].plataforma.em_movimento) {
@@ -634,26 +644,26 @@ class Personagem {
          let qtd_mov = areas[1].mover_plataforma(limite, mult);
          if (this.naPlataforma && this.raycaster.intersectObject(areas[1].plataforma.mesh).length > 0.01) {
             this.obj.position.y += qtd_mov;
-            //console.log(this.obj.position.y);
+            ////console.log(this.obj.position.y);
          }
-         ////console.log("Plat");
+         //////console.log("Plat");
       }
       if (areas[2].porta1.abrindo) {
          areas[2].abrir_porta(35, 1);
-         console.log("catapimbas");
+         //console.log("catapimbas");
 
       }
       if (areas[3].muralhas[0].abrindo) {
          areas[3].abrir_muralha(-areas[3].altura_muralha / 2 - 2.5, -1);
-         console.log("catatal");
+         //console.log("catatal");
 
       }
       else if (areas[3].muralhas[0].aberta) {
-         //console.log("aa");
+         ////console.log("aa");
          for (let i = 0; i < areas[3].plataformas.length; i++) {
-            //console.log("aa");
+            ////console.log("aa");
             if (areas[3].plataformas[i].em_movimento) {
-               // console.log("move");
+               // //console.log("move");
                let mult = 1;
                let limite = areas[3].altura_plataformas / 2 + 2;
                if (!areas[3].plataformas[i].subir) {
@@ -663,11 +673,11 @@ class Personagem {
                let qtd_mov = areas[3].mover_plataforma(limite, mult, i);
                if (this.naPlataforma_a4[i] && this.raycaster.intersectObject(areas[3].plataformas[i].mesh).length > 0.01) {
                   this.obj.position.y += qtd_mov;
-                  //console.log(this.obj.position.y);
+                  ////console.log(this.obj.position.y);
                }
             }
          }
-         ////console.log("Plat");
+         //////console.log("Plat");
       }
 
 
@@ -718,14 +728,14 @@ class Personagem {
    }
 
    sofrerAtaque(danoInfligido, scene) {
-      console.log("Atacado fui, non!");
+      //console.log("Atacado fui, non!");
       if(!this.levaDano)
          return;
       this.vida -= danoInfligido;// Decrementa vida em caso de ataque
 
       
-      console.log("Vida:");
-      console.log(this.vida);
+      //console.log("Vida:");
+      //console.log(this.vida);
       if (!this.padeceu && this.vida <= 0) { // Se ainda não padeceu e a vida chegou a 0 ou algo menor que isso, coloca 0 na vida e acusa fim do inimigo
          this.vida = 0;
          this.padeceu = true;
@@ -759,6 +769,18 @@ class Personagem {
     setTimeout(() => {
         location.reload();
     }, 3000);
+}
+
+ finalizar_simulacao() {
+    // Exibe mensagem
+    this.simulacao_finalizada=true;
+    const msg = document.getElementById('mensagemVitoria');
+    msg.style.display = 'block';
+
+    // Após 3 segundos, recarrega
+    setTimeout(() => {
+        location.reload();
+    }, 5000);
 }
 
 }

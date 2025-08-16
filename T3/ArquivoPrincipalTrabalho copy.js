@@ -697,7 +697,7 @@ function render() {
          if (derrotados2 != null)
             cacodemons_derrotados.push(derrotados2);
          for (var i = 0; i < cacodemons.length; i++) {
-
+            
             cacodemons[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
             cacodemons[i].arma.controle_projeteis(scene, areas, fronteira);
 

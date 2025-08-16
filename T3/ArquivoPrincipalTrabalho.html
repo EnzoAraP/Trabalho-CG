@@ -57,8 +57,46 @@
     text-align: center;
     z-index: 999;
 }
-</style>
+#mensagemVitoria {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 128, 0, 0.9); /* verde translúcido */
+    color: #fff;
+    padding: 20px 40px;
+    font-size: 72px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 999;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+}
 
+#mensagemChaves {
+    display: none;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 128, 255, 0.5);
+    color: white;
+    padding: 20px 40px;
+    font-size: 64px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 999;
+    box-shadow: 0 0 20px rgba(0, 128, 255, 0.7);
+}
+
+
+
+
+
+
+</style>
+<div id="mensagemChaves">Você obteve todas as chaves!</div>
+<div id="mensagemVitoria">🎉 Você venceu! 🎉</div>
 <div id="mensagemDerrota">Você morreu!</div>
 
   <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->

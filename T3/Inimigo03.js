@@ -162,6 +162,8 @@ class Soldado {
     acordar() {
         this.dormindo = false;
         this.obj.visible = true;
+        //this.obj.castShadow=true;
+        //this.obj.receiveShadow=true;
         this.grupoBarras.visible = true;
     }
 

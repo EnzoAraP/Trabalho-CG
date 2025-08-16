@@ -23,6 +23,9 @@ import { AmbientLight } from '../build/three.module.js';
 import { ElevacaoBloco } from './funcaoElevarBlocoEmY.js';
 import { Soldado } from './Inimigo03.js';
 
+let possui_todas_as_chaves=false;
+let tempo_exibindo=180;
+
 let light, camera, keyboard, material;
 var stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -60,7 +63,7 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 1);
 dirLight.position.set(450, 500, 420);
 dirLight.castShadow = true;
 
-let apagar_luzes=false;
+let apagar_luzes = false;
 
 dirLight.castShadow = true;
 dirLight.intensity = 1;
@@ -107,21 +110,21 @@ const lerpConfig = {
    move: true
 };
 
-export function ativar_fim_da_luz_por_derrota(){
-   apagar_luzes=true;
+export function ativar_fim_da_luz_por_derrota() {
+   apagar_luzes = true;
 }
 
 function findar_luz() {
-         scene.remove(light);
-        //console.log(personagem.area);
-        if(light.intensity>0)
-         light.intensity=0;
-        if(dirLight.intensity>0)
-         dirLight.intensity-=0.05;
-        if(fillLight.intensity>0)
-         fillLight.intensity-=0.05;
-         if(areas[2].luz_local.intensity>0)  
-            areas[2].luz_local.intensity-=0.05;
+   scene.remove(light);
+   //console.log(personagem.area);
+   if (light.intensity > 0)
+      light.intensity = 0;
+   if (dirLight.intensity > 0)
+      dirLight.intensity -= 0.05;
+   if (fillLight.intensity > 0)
+      fillLight.intensity -= 0.05;
+   if (areas[2].luz_local.intensity > 0)
+      areas[2].luz_local.intensity -= 0.05;
 
 }
 function mudanca_luz() {
@@ -162,7 +165,7 @@ scene.add(camera);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 material;
-let material2 = new THREE.MeshLambertMaterial({ color: "rgb(39, 164, 168)" });
+let material2 = areas[3].estabelecerMaterial("./texturas_geral/area2/big_wall2.jpg", 65, 2, 0, 0,"rgba(145, 117, 112, 1)");
 const controle = new PointerLockControls(camera, renderer.domElement);
 controle.pointerSpeed = 0.6;
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
@@ -170,7 +173,7 @@ let planegeometry = new THREE.BoxGeometry(500, 0.1, 500); // Plano base 500x500
 let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
 let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das muralhas em x
 
-let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("../assets/textures/intertravado.jpg",125,125,0,0));
+let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("../assets/textures/intertravado.jpg", 125, 125, 0, 0));
 
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
@@ -396,7 +399,7 @@ function carregar_lost_Soul() {
 }
 
 
-var inimigos_atual=[];
+var inimigos_atual = [];
 
 var lancaMisseis = new LancaMisseis(camera, inimigos_atual, true);
 
@@ -449,12 +452,22 @@ window.addEventListener('keyup', (event) => MovimentoVerificador(event.keyCode, 
 function MovimentoVerificador(key, value) {
    switch (key) {
       case 71:
-         if(value){
-            personagem.levaDano=!personagem.levaDano;
-            personagem.grupoBarras.visible=!personagem.grupoBarras.visible;
+         if (value) {
+            personagem.levaDano = !personagem.levaDano;
+            personagem.grupoBarras.visible = !personagem.grupoBarras.visible;
          }
          break;
-      
+         case 67:
+         if (!possui_todas_as_chaves) {
+            const msg = document.getElementById('mensagemChaves');
+            msg.style.display = 'block';
+            personagem.possui_chave1=true;
+            personagem.possui_chave2=true;
+            personagem.possui_chave3=true;
+            possui_todas_as_chaves=true;
+         }
+         break;
+
       case 87:
          moveForward = value;
          break;
@@ -496,17 +509,17 @@ function MovimentoVerificador(key, value) {
          break;
 
    }
-   if(key==16){
+   if (key == 16) {
       console.log("Shift");
-           if(value){
-            personagem.speed=2*personagem.speedBase;
-            personagem.speedPadrao=2*personagem.speedBase;
-         } 
-         else{
-            personagem.speed=personagem.speedBase;
-            personagem.speedPadrao=personagem.speedBase;
-         }
+      if (value) {
+         personagem.speed = 2 * personagem.speedBase;
+         personagem.speedPadrao = 2 * personagem.speedBase;
       }
+      else {
+         personagem.speed = personagem.speedBase;
+         personagem.speedPadrao = personagem.speedBase;
+      }
+   }
 }
 
 //var materialCubo = setDefaultMaterial("rgb(43, 175, 114)"); // create a basic material 
@@ -522,7 +535,7 @@ function estabeleceBoundingBoxes() {
 
       for (var j = 0; j < 3; j++) {
 
-         if(i==2)
+         if (i == 2)
             areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos2[j]));
          else
             areas[i].boundingCubos.push(new THREE.Box3().setFromObject(areas[i].cubos[j]));
@@ -559,19 +572,19 @@ function estabeleceBoundingBoxes() {
 
 
    }
-   
+
 
    areas[3].box_extras_area4();
-   for(let i=0; i<areas[3].muralhas.length;i++){
+   for (let i = 0; i < areas[3].muralhas.length; i++) {
       areas[3].muralhas[i].box = new THREE.Box3().setFromObject(areas[3].muralhas[i].mesh);
    }
-   for(let i=0; i<areas[3].pontes_box.length;i++){
+   for (let i = 0; i < areas[3].pontes_box.length; i++) {
       areas[3].pontes_box[i] = new THREE.Box3().setFromObject(areas[3].pontes[i]);
    }
-   for(let i=0; i<areas[3].paredes_janelas_box.length;i++){
+   for (let i = 0; i < areas[3].paredes_janelas_box.length; i++) {
       areas[3].paredes_janelas_box[i] = new THREE.Box3().setFromObject(areas[3].paredes_janelas[i]);
    }
-   for(let i=0; i<areas[3].torres_box.length;i++){
+   for (let i = 0; i < areas[3].torres_box.length; i++) {
       areas[3].torres_box[i] = new THREE.Box3().setFromObject(areas[3].torres[i]);
    }
    areas[3].fechadura.box = new THREE.Box3().setFromObject(areas[3].fechadura.mesh);
@@ -582,19 +595,19 @@ function estabeleceBoundingBoxes() {
    const helper27 = new THREE.Box3Helper(areas[3].plataformas[1].box, 0xffff00); // Amarelo
    scene.add(helper27);
 
-   areas[2].plat_chave_box= new THREE.Box3().setFromObject(areas[2].plat_chave);
+   areas[2].plat_chave_box = new THREE.Box3().setFromObject(areas[2].plat_chave);
    areas[2].posicionar_chave3();
-   areas[2].elevador_bloco=new ElevacaoBloco(areas[2].plat_chave,areas[2].plat_chave_box,-areas[2].altura_geral/2-1.5,-areas[2].altura_geral/2+1,240);
-           
+   areas[2].elevador_bloco = new ElevacaoBloco(areas[2].plat_chave, areas[2].plat_chave_box, -areas[2].altura_geral / 2 - 1.5, -areas[2].altura_geral / 2 + 1, 240);
+
    areas[2].porta1.box = new THREE.Box3().setFromObject(areas[2].porta1.mesh);
    areas[2].porta2.box = new THREE.Box3().setFromObject(areas[2].porta2.mesh);
    const helper22 = new THREE.Box3Helper(areas[2].porta1.box, 0xffff00); // Amarelo
    scene.add(helper22);
    areas[2].fachadaOvalbox1 = new THREE.Box3().setFromObject(areas[2].fachadaOval1);
-  
+
    areas[2].fachadaOvalbox2 = new THREE.Box3().setFromObject(areas[2].fachadaOval2);
    areas[2].tetoOvalBox = new THREE.Box3().setFromObject(areas[2].tetoOval);
-   
+
 
    areas[2].boundingCube4 = new THREE.Box3().setFromObject(areas[2].cube4);
    areas[2].boundingCube5 = new THREE.Box3().setFromObject(areas[2].cube5);
@@ -749,7 +762,7 @@ function setMaterial(file, repeatU = 1, repeatV = 1, color = 'rgb(255,255,255)')
 
 
 let soldados = [];
-let soldados_derrotados=[];
+let soldados_derrotados = [];
 for (let i = 0; i < 8; i++) {
    let soldado = new Soldado(null, camera, new THREE.Box3(), 0.6, 2, null, personagem, scene);
 
@@ -780,26 +793,26 @@ for (let i = 0; i < 8; i++) {
 
    barraVida.position.z = 0.01;
 
-      soldado.barraFrente = barraVida;
-      soldado.barraFundo = barraFundo;
-      soldado.grupoBarras = group;
-      soldado.tamBarraVida = larguraBarra;
+   soldado.barraFrente = barraVida;
+   soldado.barraFundo = barraFundo;
+   soldado.grupoBarras = group;
+   soldado.tamBarraVida = larguraBarra;
 
    soldados.push(soldado);
 
 }
 
 let sold_acordados = false;
+/*
+personagem.obj.position.set(areas[3].cube0.position.x + 5, areas[3].cube0.position.y + 4.2, areas[3].cube0.position.z);
+personagem.area = 3;
+personagem.grandeArea = 4;
+areas[3].muralhas[0].abrindo = true;
+*/
 
-personagem.obj.position.set(areas[3].cube0.position.x+5,areas[3].cube0.position.y+4.2,areas[3].cube0.position.z);
-personagem.area=3;
-personagem.grandeArea=4;
-areas[3].muralhas[0].abrindo=true;
-
-
-let losts_adicionados=false;
-let cacs_adicionados=false;
-let soldados_adicionados=false;
+let losts_adicionados = false;
+let cacs_adicionados = false;
+let soldados_adicionados = false;
 
 
 personagem.gerarBarraDeVida();
@@ -807,11 +820,26 @@ render();
 
 
 function render() {
-   if(apagar_luzes){
+   if (apagar_luzes) {
       findar_luz();
       return;
    }
-   areas[2].troca_de_luz(dirLight,fillLight,personagem);
+   if(personagem.simulacao_finalizada)
+      return;
+   console.log(possui_todas_as_chaves);
+   if(possui_todas_as_chaves && tempo_exibindo>=0){
+      tempo_exibindo--;
+      console.log(tempo_exibindo)
+      if(tempo_exibindo==0){
+         console.log("none");
+         const msg = document.getElementById('mensagemChaves');
+            msg.style.display = 'none';
+      }
+
+
+   }
+
+   areas[2].troca_de_luz(dirLight, fillLight, personagem);
 
    if (mudancaLuz) {
       contadorMudancaLuz++;
@@ -865,35 +893,35 @@ function render() {
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
 
       if (personagem.chegada_area3) {
-       
+
          if (!sold_acordados) {
             for (var i = 0; i < soldados.length; i++) {
 
                console.log("acordou");
                soldados[i].acordar();
-       
+
             }
-            lancaMisseis.inimigos=lancaMisseis.inimigos.concat(soldados);
-            metralhadora.inimigos=lancaMisseis.inimigos;
+            lancaMisseis.inimigos = lancaMisseis.inimigos.concat(soldados);
+            metralhadora.inimigos = lancaMisseis.inimigos;
             sold_acordados = true;
          }
          for (var i = 0; i < soldados.length; i++) {
 
             soldados[i].movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene);
          }
-          if (armasNovosDerrotados.length != 0){
-            for(let cont=0;cont<armasNovosDerrotados.length;cont++){
-               if(armasNovosDerrotados[cont].tipo=='soldado')
+         if (armasNovosDerrotados.length != 0) {
+            for (let cont = 0; cont < armasNovosDerrotados.length; cont++) {
+               if (armasNovosDerrotados[cont].tipo == 'soldado')
                   soldados_derrotados.push(armasNovosDerrotados[cont]);
             }
-          }
-         if (derrotados2 != null && derrotados2.tipo=="soldado")
+         }
+         if (derrotados2 != null && derrotados2.tipo == "soldado")
             soldados_derrotados.push(derrotados2);
-          for (var i = 0; i < soldados_derrotados.length; i++) {
-            soldados_derrotados[i].sumir(areas,delta);
+         for (var i = 0; i < soldados_derrotados.length; i++) {
+            soldados_derrotados[i].sumir(areas, delta);
             if (soldados_derrotados[i].sumiu) {
                ////console.log("AAA");
-               
+
             }
          }
       }
@@ -902,22 +930,28 @@ function render() {
          if (!cac_acordados) {
             for (var i = 0; i < cacodemons.length; i++) {
                cacodemons[i].acordar();
-               
+
             }
-            lancaMisseis.inimigos=lancaMisseis.inimigos.concat(cacodemons);
-            metralhadora.inimigos=lancaMisseis.inimigos;
+            lancaMisseis.inimigos = lancaMisseis.inimigos.concat(cacodemons);
+            metralhadora.inimigos = lancaMisseis.inimigos;
             cac_acordados = true;
          }
 
-         if (armasNovosDerrotados.length != 0){
-            for(let cont=0;cont<armasNovosDerrotados.length;cont++){
-               if(armasNovosDerrotados[cont].tipo=='cacodemon')
+         if (armasNovosDerrotados.length != 0) {
+            for (let cont = 0; cont < armasNovosDerrotados.length; cont++) {
+               if (armasNovosDerrotados[cont].tipo == 'cacodemon')
                   cacodemons_derrotados.push(armasNovosDerrotados[cont]);
             }
-          }
-         if (derrotados2 != null && derrotados2.tipo=="cacodemon")
+         }
+         if (derrotados2 != null && derrotados2.tipo == "cacodemon")
             cacodemons_derrotados.push(derrotados2);
          for (var i = 0; i < cacodemons.length; i++) {
+            if (cacodemons[i].vida <= 0) {
+               cacodemons.splice(i, 1);
+               i--;
+               continue;
+            }
+
 
             cacodemons[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
             cacodemons[i].arma.controle_projeteis(scene, areas, fronteira);
@@ -952,24 +986,30 @@ function render() {
       if (personagem.chegada_area1) {
          if (!lost_soul_acordados) {
             for (var i = 0; i < lost_soulvet.length; i++) {
-               lost_soul_acordados=true;
+               lost_soul_acordados = true;
                lost_soulvet[i].acordar();
-               
-              
+
+
             }
-             lancaMisseis.inimigos=lancaMisseis.inimigos.concat(lost_soulvet);
-             metralhadora.inimigos=lancaMisseis.inimigos;
+            lancaMisseis.inimigos = lancaMisseis.inimigos.concat(lost_soulvet);
+            metralhadora.inimigos = lancaMisseis.inimigos;
          }
 
-         if (armasNovosDerrotados.length != 0){
-            for(let cont=0;cont<armasNovosDerrotados.length;cont++){
-               if(armasNovosDerrotados[cont].tipo=='lost_soul')
+         if (armasNovosDerrotados.length != 0) {
+            for (let cont = 0; cont < armasNovosDerrotados.length; cont++) {
+               if (armasNovosDerrotados[cont].tipo == 'lost_soul')
                   lost_soul_derrotados.push(armasNovosDerrotados[cont]);
             }
-          }
-         if (derrotados2 != null && derrotados2.tipo=="lost_soul")
+         }
+         if (derrotados2 != null && derrotados2.tipo == "lost_soul")
             lost_soul_derrotados.push(derrotados2);
          for (var i = 0; i < lost_soulvet.length; i++) {
+            if (lost_soulvet[i].vida <= 0) {
+               lost_soulvet.splice(i, 1);
+               i--;
+               continue;
+            }
+
 
             lost_soulvet[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
          }
@@ -1033,20 +1073,32 @@ function render() {
 
 
       }
+
+      if (personagem.chegada_area4 && lancaMisseis.inimigos.length==0 && !areas[3].porta.abrindo && !areas[3].porta.aberta){
+         console.log("Abrir!");
+         areas[3].porta.abrindo=true;
+      }
+
+      if (areas[3].porta.abrindo) {
+          console.log("Abrindo!");
+         areas[3].abrir_porta(6.6, 1);
+
+      }
+
       if (areas[1].porta.abrindo && areas[1].chave1 == null) {
          let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: "rgb(95,40,180)" }));
          areas[1].posicionar_chave1(chave);
       }
 
       if (areas[3].muralhas[0].abrindo && areas[3].chave3 == null) {
-         
+
          areas[3].posicionar_chave3(null);
       }
 
    }
    //////console.log(verdade);
    //////console.log(groundPlane);
-   
+
 
    renderer.render(scene, camera) // Render scene
    requestAnimationFrame(render);
@@ -1058,5 +1110,5 @@ function render() {
    areas[2].elevador_bloco.fazer_elevar_bloco();
    areas[2].posicionar_aviao();
    areas[3].posicionar_objetos();
-   console.log(lancaMisseis.inimigos);
+   //console.log(lancaMisseis.inimigos);
 }

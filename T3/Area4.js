@@ -40,10 +40,10 @@ class Area4 {
         this.material_pontes2 = [
             new THREE.MeshBasicMaterial(),
             new THREE.MeshBasicMaterial(),
-            this.estabelecerMaterialJaCarregado(textura_pontes2, 6, 2, 0, 0, cor_pontes),
-            this.estabelecerMaterialJaCarregado(textura_pontes2, 6, 2, 0, 0, cor_pontes),
-            this.estabelecerMaterialJaCarregado(textura_pontes, 6, 0.5, 0, 0, cor_pontes),
-            this.estabelecerMaterialJaCarregado(textura_pontes, 6, 0.5, 0, 0, cor_pontes),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_pontes2), 2, 6, 0, 0, cor_pontes),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_pontes2), 6, 2, 0, 0, cor_pontes),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_pontes), 0.5, 6, 0, 0, cor_pontes),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_pontes), 0.5, 6, 0, 0, cor_pontes),
 
         ];
 
@@ -164,7 +164,7 @@ class Area4 {
         this.material_plataforma_a2 = [
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas / 4, 0, 0),
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas / 4, 0, 0),
-            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(texturaPlatA2), 1, 1, 0, 0, "rgb(1, 1, 29)"),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(texturaPlatA2), 1, 1, 0, 0, "rgba(212, 150, 16, 1)"),
             new THREE.MeshBasicMaterial(),
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas / 4, 0, 0),
             this.estabelecerMaterialJaCarregado(texturaPlatA2, 1, this.altura_plataformas / 4, 0, 0),
@@ -283,8 +283,8 @@ class Area4 {
 
         this.plataforma1_area_4.translateZ(this.ez - 10 - 2.5 - 2);
         this.plataforma2_area_4.translateZ(-this.ez + 10 + 2.5 + 2);
-        this.plataforma1_area_4.translateY(-this.altura_plataformas / 2 + 0.051 + 2);
-        this.plataforma2_area_4.translateY(-this.altura_plataformas / 2 + 0.051 + 2);
+        this.plataforma1_area_4.translateY(this.altura_plataformas / 2 + 0.051 + 2);
+        this.plataforma2_area_4.translateY(this.altura_plataformas / 2 + 0.051 + 2);
 
         this.muralha1 = { mesh: this.muralha1_area_4, box: null, abrindo: false, aberta: false };
         this.muralha2 = { mesh: this.muralha2_area_4, box: null, abrindo: false, aberta: false };
@@ -293,8 +293,8 @@ class Area4 {
         this.muralhas = [this.muralha1, this.muralha2, this.muralha3, this.muralha4];
         this.fechadura = { mesh: this.suporte_fechadura, box: null };
 
-        this.plataforma1 = { mesh: this.plataforma1_area_4, box: null, em_movimento: false, subir: true, tempo_espera: 0, emEspera: false };
-        this.plataforma2 = { mesh: this.plataforma2_area_4, box: null, em_movimento: false, subir: true, tempo_espera: 0, emEspera: false };
+        this.plataforma1 = { mesh: this.plataforma1_area_4, box: null, em_movimento: false, subir: false, tempo_espera: 0, emEspera: false };
+        this.plataforma2 = { mesh: this.plataforma2_area_4, box: null, em_movimento: false, subir: false, tempo_espera: 0, emEspera: false };
         for (var i = 0; i < this.muralhas.length; i++) {
             this.muralhas[i].mesh.castShadow = true;
             this.muralhas[i].mesh.receiveShadow = true;
@@ -495,6 +495,87 @@ class Area4 {
 
         // Resultado: this.esferas.length === 6
 
+        this.geometria_porta = new BoxGeometry(0.6, 6, 4);
+
+        let textura_porta = this.loader.load('./texturas_geral/area2/door_texture2.jpg');
+
+        let rep_porta = 1 / 2;
+        this.material_porta = [
+            this.estabelecerMaterialJaCarregado(textura_porta, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(textura_porta, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(textura_porta, 1, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_porta), 1 / 8, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_porta), 1 / 8, 1, 0, 0),
+            this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_porta), 1 / 8, 1, 0, 0)
+
+        ];
+
+
+        this.porta_area_2 = new THREE.Mesh(this.geometria_porta, this.material_porta);
+        this.porta_area_2_aberta = false;
+        this.porta_2_abrindo = false;
+
+        this.centro_portas = new THREE.Mesh(this.geometria_porta, new THREE.MeshBasicMaterial());
+        this.centro_portas.material.visible = false;
+
+        this.cube0.add(this.centro_portas);
+        this.centro_portas.add(this.porta_area_2);
+        this.centro_portas.translateY(2 + 3);
+        this.centro_portas.translateX(70 - 0.3);
+
+        this.portal1_geo = new BoxGeometry(0.6, 6, 0.6);
+        this.portal2_geo = new BoxGeometry(0.6, 0.6, 5.2);
+
+        this.material_portal1 = this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_pontes), 0.5, 3, 0, 0, "rgba(221, 136, 97, 1)");
+        this.material_portal2 = this.estabelecerMaterialJaCarregado(new THREE.Texture().copy(textura_pontes), 2.6, 0.5, 0, 0, "rgba(83, 235, 214, 1)");
+
+        this.portais = [new THREE.Mesh(this.portal1_geo, this.material_portal1), new THREE.Mesh(this.portal1_geo, this.material_portal1),
+        new THREE.Mesh(this.portal2_geo, this.material_portal2)
+        ]
+        this.centro_portas.add(this.portais[0]);
+        this.centro_portas.add(this.portais[1]);
+        this.centro_portas.add(this.portais[2]);
+
+        this.portais[0].translateZ(-2 - 0.3);
+        this.portais[1].translateZ(2 + 0.3);
+        this.portais[2].translateY(3 + 0.3);
+
+        this.portais[0].castShadow = true;
+        this.portais[0].receiveShadow = true;
+        this.portais[1].castShadow = true;
+        this.portais[1].receiveShadow = true;
+        this.portais[2].castShadow = true;
+        this.portais[2].receiveShadow = true;
+
+
+        this.material_painel = new THREE.MeshPhongMaterial({
+            color: "rgba(40, 201, 153, 1)",
+            emissive: "rgba(23, 218, 185, 1)",
+            specular: 0xffffff,
+            shininess: 80,
+            reflectivity: 0.95,
+            refractionRatio: 0.3
+        });
+
+        this.geometria_painel = new BoxGeometry(0.5, 6, 4);
+        this.painel = new THREE.Mesh(this.geometria_painel, this.material_painel);
+        this.painel.castShadow = true;
+        this.painel.receiveShadow = true;
+        this.painel.visible=false;
+        this.centro_portas.add(this.painel);
+
+        this.porta = { mesh: this.porta_area_2, box: null, abrindo: false, aberta: false };
+        this.porta.mesh.castShadow = true;
+        this.porta.mesh.receiveShadow = true;
+
+        this.portais_box = [null, null, null];
+
+        this.painel_box = null;
+
+        this.area_finalizada = false;
+
+        this.comecou_a_abrir_porta = false;
+
 
         this.carregar_objetos();
 
@@ -541,6 +622,11 @@ class Area4 {
             this.caixas_esferas[i].visible = false;
             this.esferas[i].add(this.caixas_esferas[i]);
         }
+        for (let i = 0; i < this.portais.length; i++) {
+            this.portais_box[i] = new THREE.Box3().setFromObject(this.portais[i]);
+        }
+        this.painel_box = new THREE.Box3().setFromObject(this.painel);
+        this.porta.box = new THREE.Box3().setFromObject(this.porta.mesh);
     }
 
     colisoes_area4(speed, obj, largx, altura, largz, moveDir, contar_subida, area, naPlataforma_a4) {
@@ -597,7 +683,20 @@ class Area4 {
                 }
 
             }
-            let speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.assetManager.BigBenBox, speed, contar_subida);
+            for (let i = 0; i < this.portais.length; i++) {
+
+
+                let speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.portais_box[i], speed, contar_subida);
+                speed = speedColisao[0];
+                colisaoComAPlataforma = speedColisao[1];
+                if (colisaoComAPlataforma) {
+                    console.log("colide");
+                }
+
+            }
+            let speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.porta.box, speed, contar_subida);
+            speed = speedColisao[0];
+            speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.assetManager.BigBenBox, speed, contar_subida);
             speed = speedColisao[0];
             speed = this.colisoes_blocos_esferas_area4(speed, obj, largx, altura, largz, moveDir, contar_subida);
         }
@@ -678,10 +777,31 @@ class Area4 {
 
 
         }
+
+        for (let i = 0; i < this.portais.length; i++) {
+            let boxExpandida = this.portais_box[i].clone();
+            let margemX = 0.2; 
+            boxExpandida.min.x -= margemX;
+            boxExpandida.max.x += margemX;
+            colidiu = boxExpandida.intersectsBox(boxBala);
+            if (colidiu)
+                return true;
+
+
+        }
+        let boxExpandida = this.porta.box.clone();
+        let margemX = 0.2; // quanto você quer aumentar
+        boxExpandida.min.x -= margemX;
+        boxExpandida.max.x += margemX;
+        colidiu = boxExpandida.intersectsBox(boxBala);
+        if (colidiu)
+            return true;
+
         return false;
 
 
     }
+
 
     posicionar_objetos() {
 
@@ -784,6 +904,36 @@ class Area4 {
         }
 
     }
+
+    abrir_porta(limiteY, multiplicador) {
+        if (!this.comecou_a_abrir_porta) {
+             this.painel.visible=true;
+            // Fazer com que a porte adentre a área 2 e não fique para fora:
+            //this.muralha1.mesh.translateY(-0.02);
+            //this.muralha2.mesh.translateX(-0.02);
+            //this.muralha3.mesh.translateX(-0.02);
+            //this.muralha4.mesh.translateX(-0.02);
+            this.porta.mesh.translateX(0.01);
+            this.comecou_a_abrir_porta = true;
+        }
+        let vel_porta = 0.02;
+
+        this.porta.mesh.position.y += multiplicador * vel_porta;
+        this.porta.box.setFromObject(this.porta.mesh);
+
+
+
+
+        // Se alcançar o limite:
+        if (multiplicador * this.porta.mesh.position.y >= multiplicador * limiteY) {
+
+            this.porta.abrindo = false;
+            this.porta.aberta = true;
+
+        }
+
+    }
+
     posicionar_chave3(chave) {
 
         this.chave3 = criarChave(this.fechadura.mesh, new THREE.Vector3(0, 0, 0), 0.5, "rgba(7, 16, 194, 1)", "rgba(6, 129, 88, 1)"); // Vai à função de criação de chave
