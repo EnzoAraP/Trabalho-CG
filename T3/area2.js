@@ -369,7 +369,7 @@ class Area2 {
         if ((this.elevar_bloco || this.bloco_elevado) && !this.chave2Retirada) { // Só faz sentido retirar a chave se o bloco estiver sendo elevado ou terminou de se elevar e a chave ainda não foi retirada
             console.log(this.chave2Box);
             if (personagem.box.intersectsBox(this.chave2Box)) {
-
+                personagem.possui_chave2=true;
                 this.cube0.remove(this.chave2);
                 scene.remove(this.chave2);
                 this.chave2Retirada = true;

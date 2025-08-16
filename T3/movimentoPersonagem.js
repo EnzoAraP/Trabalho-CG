@@ -111,6 +111,17 @@ class Personagem {
       this.eixo_x = new THREE.Vector3(1, 0, 0);
       this.eixo_y = new THREE.Vector3(0, 1, 0);
       this.eixo_z = new THREE.Vector3(0, 0, 1);
+
+
+      this.listener = new THREE.AudioListener();
+      camera.add(this.listener);
+
+      this.somAtaque = new THREE.Audio(this.listener);
+      const audioLoader = new THREE.AudioLoader();
+      audioLoader.load('../0_assetsT3/sounds/playerInjured.wav', (buffer) => {
+         this.somAtaque.setBuffer(buffer);
+         this.somAtaque.setVolume(0.5);
+      })
    }
 
    mudar_arma(num_arma = 0) {
@@ -732,6 +743,9 @@ class Personagem {
       if(!this.levaDano)
          return;
       this.vida -= danoInfligido;// Decrementa vida em caso de ataque
+
+      if (this.somAtaque.isPlaying) this.somAtaque.stop();
+      this.somAtaque.play();
 
       
       //console.log("Vida:");

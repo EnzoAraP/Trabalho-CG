@@ -17,6 +17,104 @@ import { testeGrandesAreas } from './criacaoAreas.js';
 import { SpriteMixer } from '../libs/sprites_antigo/SpriteMixer.js';
 
 
+class LancaMisse2is {
+   constructor(donoDaArma, inimigos, ehJogador, dano = 10, velocidadeProjetil = 1.4, corArma = "rgb(226, 17, 17)", corProjetil = "rgb(15, 187, 10)") {
+        this.tempoUltimoTiro = 0;
+        this.ehJogador = ehJogador;
+        this.donoDaArma = donoDaArma;
+        this.inimigos = inimigos;
+        this.numInimigos = inimigos.length;
+        this.velocidadeProjetil = velocidadeProjetil;
+        this.danoInfligido = dano;
+        this.vetProjetil = [];
+        this.projetilGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+
+        this.obj = new THREE.Object3D();
+        this.donoDaArma.add(this.obj);
+
+        if (ehJogador) {
+            this.spriteMixer = new SpriteMixer();
+
+            new THREE.TextureLoader().load('./2025.1_T2_Assets/spritesdoom.png', (tex) => {
+               
+                this.actionSprite = this.spriteMixer.ActionSprite(tex, 4, 1);
+                this.obj.add(this.actionSprite);
+
+                this.actionSprite.position.set(0.0, -1.0, -3.3);
+                this.actionSprite.scale.set(1.06*0.75, 1.35*0.75, 1);
+                this.actionSprite.material.alphaTest = 0.8;
+                this.actionSprite.material.depthTest = false;
+
+                this.action = this.spriteMixer.Action(this.actionSprite, 0, 3, 125);
+                this.action.playLoop();
+            });
+
+            this.projetilMaterial = new THREE.MeshLambertMaterial({ color: corProjetil });
+        } else {
+            // Inimigos usam projetil diferente
+            this.projetilMaterial = new THREE.MeshLambertMaterial({ color: "rgb(196, 168, 45)" });
+        }
+
+        this.parou = true;
+        this.disparando = false;
+    }
+
+    setVisible(flag) {
+        if (this.actionSprite) this.actionSprite.visible = flag;
+    }
+
+    iniciarDisparo() {
+        if (this.action) this.action.playLoop();
+        this.disparando = true;
+        this.parou = false;
+    }
+
+    pararDisparo() {
+        if (this.action) this.action.stop();
+        this.disparando = false;
+        this.parou = true;
+    }
+
+    atualizar(delta) {
+        if (this.spriteMixer) this.spriteMixer.update(delta);
+    }
+
+    atirar(scene, camera, verdade, dist = 1) {
+      const tentativaDisparo = performance.now();  
+      if (!verdade && tentativaDisparo - this.tempoUltimoTiro >= 498) {
+            this.pararDisparo();
+            return;
+        }
+
+        if (this.parou) this.iniciarDisparo();
+
+        this.atualizar(1/60);
+
+        tentativaDisparo = performance.now();
+        if (tentativaDisparo - this.tempoUltimoTiro >= 500) {
+            this.tempoUltimoTiro = tentativaDisparo;
+
+         
+         
+            
+            const projetil = new THREE.Mesh(this.projetilGeometry, this.projetilMaterial);
+
+            const spawnProjetil = camera.position.clone();
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+            spawnProjetil.add(direction.clone().multiplyScalar(dist));
+            projetil.position.copy(spawnProjetil);
+
+            this.vetProjetil.push({ mesh: projetil, direction, frames: 0, area_proj: -1 });
+            scene.add(projetil);
+        }
+    }
+
+   
+
+
+}
+
 const clock = new THREE.Clock();
 
 class Metralhadora {
@@ -75,6 +173,17 @@ class Metralhadora {
 
          donoDaArma.add(this.actionSprite);
       });
+
+
+      this.listener = new THREE.AudioListener();
+        this.donoDaArma.add(this.listener);
+
+        this.somTiro = new THREE.Audio(this.listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load('../0_assetsT3/sounds/chaingunFiring.wav', (buffer) => {
+           this.somTiro.setBuffer(buffer);
+           this.somTiro.setVolume(0.3);
+        });
    }
 
    setVisible(flag) {
@@ -156,6 +265,8 @@ class Metralhadora {
 
       }
 
+      
+
       if (this.parou) { // Se estiver parado, indica que o movimento voltou e chama as funções de animação
          this.iniciarDisparo();
          this.atualizar();
@@ -167,6 +278,8 @@ class Metralhadora {
       const tentativaDisparo = performance.now();
       if (!this.atirarAgora) // Variável controlada pela função da annimação
          return;
+      if (this.somTiro) this.somTiro.stop(); // reinicia se ainda estiver tocando
+         this.somTiro.play();   
       console.log("AAt")
       this.numInimigos = this.inimigos.length; // Atualiza número de inimigos
       const origem = new THREE.Vector3(); // Origem dos tiros(Arma)
@@ -620,88 +733,108 @@ class Metralhadora {
 
 class LancaMisseis {
    constructor(donoDaArma, inimigos, ehJogador, dano = 10, velocidadeProjetil = 1.4, corArma = "rgb(226, 17, 17)", corProjetil = "rgb(15, 187, 10)") {
-      this.tempoUltimoTiro = 0;
-      this.ehJogador = ehJogador;
-      if (ehJogador) { // Para o jogador, um cilindro visível como arma
-         this.cylinderGeometry = new THREE.CylinderGeometry(0.06, 0.06, 1.2, 32);
-         this.cylinderMaterial = new THREE.MeshLambertMaterial({ color: corArma });
-         this.cylinder = new THREE.Mesh(this.cylinderGeometry, this.cylinderMaterial);
-         this.cylinder.castShadow = true;
-         this.cylinder.receiveShadow = true;
-         this.projetilMaterial = new THREE.MeshLambertMaterial({ color: corProjetil });
-      }
+        this.tempoUltimoTiro = 0;
+        this.ehJogador = ehJogador;
+        this.donoDaArma = donoDaArma;
+        this.inimigos = inimigos;
+        this.numInimigos = inimigos.length;
+        this.velocidadeProjetil = velocidadeProjetil;
+        this.danoInfligido = dano;
+        this.vetProjetil = [];
+        this.projetilGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+
+        this.obj = new THREE.Object3D();
+        this.donoDaArma.add(this.obj);
+
+        if (ehJogador) {
+            this.spriteMixer = new SpriteMixer();
+
+            this.listener = new THREE.AudioListener();
+                     this.donoDaArma.add(this.listener);
+
+                     this.somTiro = new THREE.Audio(this.listener);
+                     const audioLoader = new THREE.AudioLoader();
+                     audioLoader.load('../0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
+                        this.somTiro.setBuffer(buffer);
+                        this.somTiro.setVolume(0.5);
+                     });
+            new THREE.TextureLoader().load('./2025.1_T2_Assets/spritesdoom.png', (tex) => {
+               
+                this.actionSprite = this.spriteMixer.ActionSprite(tex, 4, 1);
+                this.obj.add(this.actionSprite);
+
+                this.actionSprite.position.set(0.0, -1.0, -3.3);
+                this.actionSprite.scale.set(1.06*0.75, 1.35*0.75, 1);
+                this.actionSprite.material.alphaTest = 0.8;
+                this.actionSprite.material.depthTest = false;
+
+                this.action = this.spriteMixer.Action(this.actionSprite, 0, 3, 125);
+                this.action.playLoop();
+            });
+
+            this.projetilMaterial = new THREE.MeshLambertMaterial({ color: corProjetil });
+        } else {
+            // Inimigos usam projetil diferente
+            this.projetilMaterial = new THREE.MeshLambertMaterial({ color: "rgb(196, 168, 45)" });
+        }
+
+        this.parou = true;
+        this.disparando = false;
+    }
+
+    setVisible(flag) {
+        if (this.actionSprite) this.actionSprite.visible = flag;
+    }
+
+    iniciarDisparo() {
+        if (this.action) this.action.playLoop();
+        this.disparando = true;
+        this.parou = false;
+    }
+
+    pararDisparo() {
+        if (this.action) this.action.stop();
+        this.disparando = false;
+        this.parou = true;
+    }
+
+    atualizar(delta) {
+        if (this.spriteMixer) this.spriteMixer.update(delta);
+    }
+
+    atirar(scene, camera, verdade, dist = 1) {
+      const tentativaDisparo = performance.now();  
+      if (!verdade && tentativaDisparo - this.tempoUltimoTiro >= 500) {
+            this.pararDisparo();
+            return;
+        }
+
+        if (this.parou) this.iniciarDisparo();
+
+        this.atualizar(1/60);
 
 
-      else { // Para o inimigo(Cacodemon), um cilindro invisível, só para atirar
-
-         this.abstractGunGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-         this.invisbleMaterial = new THREE.MeshBasicMaterial({
-            color: "red",
-            visible: false
-         }); // Material invisível
-         this.cylinder = new THREE.Mesh(this.abstractGunGeometry, this.invisbleMaterial);
-         this.projetilMaterial = new THREE.MeshLambertMaterial({ color: "rgb(196, 168, 45)" });
-
-      }
-
-      this.cylinder.position.set(0, 0, 0);
-      this.cylinder.rotation.x = -Math.PI / 2; //  Girando a arma para ficar na posição correta
-
-      ////console.log(cylinder);
-      //criacao do projetil( vetor que os armazena a todos)
-      this.vetProjetil = [];
-      this.projetilGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-      this.inimigos = inimigos;
-      this.numInimigos = this.inimigos.length;
-      this.donoDaArma = donoDaArma;
-
-      donoDaArma.add(this.cylinder);// Adiciona arma no jogo
-      this.cylinder.position.set(0, -0.3, -0.8); // Estabelece posição da rama para ficar corretamente na câmera
-      this.velocidadeProjetil = velocidadeProjetil;
-      this.danoInfligido = dano;
-
-      this.obj = this.cylinder;
-
-      this.parou = true;
-   }
-
-
-
-
-
-   // Criação da arma:
-
-
-
-
-
-
-   atirar(scene, camera, verdade, dist = 1) {
-
-      if (verdade == true) {
-
-         const tentativaDisparo = performance.now();
-
-         if (tentativaDisparo - this.tempoUltimoTiro >= 500) {
+        if (tentativaDisparo - this.tempoUltimoTiro >= 500) {
             this.tempoUltimoTiro = tentativaDisparo;
+
+            if(this.ehJogador){
+            if (this.somTiro) this.somTiro.stop(); // reinicia se ainda estiver tocando
+         this.somTiro.play();
+         }
+         
+            
             const projetil = new THREE.Mesh(this.projetilGeometry, this.projetilMaterial);
 
-            // posicao do projetil
-            const spawnProjetil = new THREE.Vector3();
-            spawnProjetil.copy(camera.position);
-
+            const spawnProjetil = camera.position.clone();
             const direction = new THREE.Vector3();
             camera.getWorldDirection(direction);
-
             spawnProjetil.add(direction.clone().multiplyScalar(dist));
             projetil.position.copy(spawnProjetil);
 
             this.vetProjetil.push({ mesh: projetil, direction, frames: 0, area_proj: -1 });
-
             scene.add(projetil);
-         }
-      }
-   }
+        }
+    }
 
    controle_acerto_inimigos(boxBala, areaBala, scene) {
       if (this.ehJogador) {

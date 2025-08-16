@@ -340,6 +340,7 @@ class Area3 {
         // Posicionamento
 
         this.tetoOval = tetoOval;
+        this.tetoOvalBox=null;
 
         tetoOval.castShadow=true;
         tetoOval.receiveShadow=true;
@@ -425,6 +426,10 @@ class Area3 {
         colidiu = this.chave3Box.intersectsBox(boxBala)
         if (colidiu)
             return true;
+        colidiu = this.tetoOvalBox.intersectsBox(boxBala)
+        if (colidiu)
+            return true;
+      
 
         return false;
 

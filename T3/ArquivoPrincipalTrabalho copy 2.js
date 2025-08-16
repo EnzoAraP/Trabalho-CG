@@ -22,7 +22,12 @@ import { carregarArquivoGLB, carregarArquivoObj } from './funcoesGeometriasExter
 import { AmbientLight } from '../build/three.module.js';
 import { ElevacaoBloco } from './funcaoElevarBlocoEmY.js';
 import { Soldado } from './Inimigo03.js';
+import { CubeTextureLoaderSingleFile } from '../libs/util/cubeTextureLoaderSingleFile.js';
 
+
+
+let cubeMapTexture = new CubeTextureLoaderSingleFile().loadSingle('./2025.1_T2_Assets/subtract.png', 1);
+scene.background = cubeMapTexture;
 let possui_todas_as_chaves=false;
 let tempo_exibindo=180;
 
@@ -159,6 +164,11 @@ camera.lookAt(camLook);
 
 scene.add(camera);
 ////console.log("AAAA");
+var listener = new THREE.AudioListener();
+camera.add(listener);
+
+
+
 
 
 
@@ -433,7 +443,66 @@ controle.addEventListener('unlock', function () {
    blocker.style.display = 'block';
    textoEsq.style.display = '';
 });
+// --- Audio setup (corrigido) ---
+var firstClick = true;      // <-- declarado corretamente
+let bgReady = false;        // indica quando o buffer está carregado
 
+const backgroundMusic = new THREE.Audio(listener);
+let audioLoader = new THREE.AudioLoader();
+
+// Carrega o áudio
+audioLoader.load('../0_assetsT3/sounds/doom.mp3',
+  function(buffer) { // onLoad
+    backgroundMusic.setBuffer(buffer);
+    backgroundMusic.setLoop(true);
+    backgroundMusic.setVolume(0.4);
+    bgReady = true;
+    // Se o usuário já interagiu (click ocorreu antes do load), pode começar agora
+    if (!firstClick) {
+      backgroundMusic.play();
+    }
+  },
+  undefined, // onProgress (opcional)
+  function(err) { // onError
+    console.error('Erro ao carregar audio doom.mp3:', err);
+  }
+);
+
+// NÃO chame backgroundMusic.play() imediatamente aqui (autoplay bloqueado)
+// let musicOn = true; // variáveis de estado (define depois)
+let musicOn = true;
+
+// Click (ou outro gesto) autoriza o áudio no navegador
+window.addEventListener('click', function () {
+  let startMessage = document.getElementById('start-message');
+  if (startMessage) startMessage.style.display = 'none';
+
+  if (firstClick) {
+    firstClick = false;
+    // Se o buffer já estiver pronto, toca; caso contrário, o callback do loader fará tocar.
+    if (bgReady) {
+      backgroundMusic.play();
+    } else {
+      // opcional: mostra loading visual até bgReady ficar true
+      console.log('Áudio ainda carregando — vai iniciar assim que pronto.');
+    }
+  }
+});
+
+// Atalho para ligar/desligar com Q (mantém seu comportamento)
+window.addEventListener('keydown', function(event) {
+  if(event.code === 'KeyQ') {
+    if(musicOn) {
+      console.log("musika");
+      backgroundMusic.pause();
+      musicOn = false;
+    } else {
+      backgroundMusic.play();
+      // só tenta tocar se buffer pronto
+      musicOn = true;
+    }
+  }
+});
 
 
 let moveForward = false;
@@ -573,7 +642,7 @@ function estabeleceBoundingBoxes() {
 
    }
 
-
+   
    areas[3].box_extras_area4();
    for (let i = 0; i < areas[3].muralhas.length; i++) {
       areas[3].muralhas[i].box = new THREE.Box3().setFromObject(areas[3].muralhas[i].mesh);
@@ -595,6 +664,7 @@ function estabeleceBoundingBoxes() {
    const helper27 = new THREE.Box3Helper(areas[3].plataformas[1].box, 0xffff00); // Amarelo
    scene.add(helper27);
 
+   areas[2].tetoOvalBox=new THREE.Box3().setFromObject(areas[2].tetoOval);
    areas[2].plat_chave_box = new THREE.Box3().setFromObject(areas[2].plat_chave);
    areas[2].posicionar_chave3();
    areas[2].elevador_bloco = new ElevacaoBloco(areas[2].plat_chave, areas[2].plat_chave_box, -areas[2].altura_geral / 2 - 1.5, -areas[2].altura_geral / 2 + 1, 240);
