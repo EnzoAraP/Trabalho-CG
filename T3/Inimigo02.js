@@ -130,7 +130,7 @@ class Cacodemon {
       this.barraFundo=null;
       this.grupoBarras=null;
       this.tamBarraVida=1.2;
-
+   this.IniciaSound();
    }
    gerarMovimento2(personagem = this.personagem_rival.obj) {
 
@@ -263,6 +263,50 @@ class Cacodemon {
       this.dormindo=false;
       this.obj.visible=true;
       this.grupoBarras.visible=true;
+   }
+   IniciaSound()
+      {
+         if(!this.listener)
+          this.listener = new THREE.AudioListener();
+         this.camera.add(this.listener);
+         this.audioLoader = new THREE.AudioLoader();
+   
+   
+      }
+         SomLostSoulGerenciamento(SomEscolha) {
+            
+         
+      if(SomEscolha === "levadano") {
+         // Criar o som apenas se ainda não existir
+         if (!this.Somdano) {
+            this.Somdano = new THREE.PositionalAudio(this.listener);
+          this.audioLoader.load('../0_assetsT3/sounds/lostSoul/injured.wav', (buffer) => {
+               this.Somdano.setBuffer(buffer);
+               this.Somdano.setRefDistance(5); // Ajuste conforme necessário
+               this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
+               this.obj.add(this.Somdano);   // Adicionar ao objeto para que o som siga o inimigo
+               this.Somdano.play();          // Iniciar reprodução
+            });
+         } else if (!this.Somdano.isPlaying) {
+            this.Somdano.play();             // Tocar novamente se já existir e não estiver tocando
+         }
+      }
+      
+      if(SomEscolha === "deudash") {
+         // Criar o som apenas se ainda não existir
+         if (!this.SomDash) {
+            this.SomDash = new THREE.PositionalAudio(this.listener);
+            this.audioLoader.load('../0_assetsT3/sounds/lostSoul/lost_soul_attack.wav', (buffer) => {
+               this.SomDash.setBuffer(buffer); 
+               this.SomDash.setRefDistance(5); // Ajuste conforme necessário
+               this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
+               this.obj.add(this.SomDash);     // Adicionar ao objeto para que o som siga o inimigo
+               this.SomDash.play();            // Iniciar reprodução
+            });
+         } else if (!this.SomDash.isPlaying) {
+            this.SomDash.play();               // Tocar novamente se já existir e não estiver tocando
+         }
+      }
    }
 
    // Função para operar seu sumiço gradativo

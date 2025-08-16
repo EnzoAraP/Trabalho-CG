@@ -59,7 +59,7 @@ function carregarArquivoGLBGenerico(assetManager, caminho, nomeArq, visbilidadeI
       });
 
       // Normaliza a escala e fixa a posição:
-      obj = normalizeAndRescale(obj,1);
+      obj = normalizeAndRescale(obj,escala);
       obj = fixPosition(obj);
 
       scene.add (obj);

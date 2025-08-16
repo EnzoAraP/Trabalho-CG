@@ -339,7 +339,7 @@ carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false,
 carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_SoulE");
 carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_SoulE");
 carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_SoulE");
-carregarArquivoGLBGenerico(assetManagerElemental, '../T3/ElementalBlender/', 'Corrigido', false,null, scene, 4,"elemental_Soul");
+carregarArquivoGLBGenerico(assetManagerElemental, '../T3/ElementalBlender/', 'Corrigido', false,null, scene, 1.8,"elemental_Soul");
 carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1,"cacodemonE");
 carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1,"cacodemonE");
 carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1,"cacodemonE");
@@ -1214,7 +1214,7 @@ function render() {
             for(var i =0;i<cacodemons_Area5.length;i++)
             {
                console.log('Entrou no for')
-         //    cacodemons_Area5[i].acordar();
+             cacodemons_Area5[i].acordar();
             }
             cac_Area5_acordados = true;
          }
