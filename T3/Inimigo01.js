@@ -28,6 +28,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class Lost_Soul {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
+      this.tipo="lost_soul";
       this.arma = null;
 
       this.voo = true;
@@ -423,6 +424,8 @@ class Lost_Soul {
 
 
    movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
+      if(this.dormindo || this.vida<=0) // Se estiver a dormir, não faz nada
+         return;
       if (this.isDashing) {
          // Move rapidamente na direção do dash
          let dashStep = this.dashDirection.clone().multiplyScalar(this.dashSpeed * delta);
@@ -467,8 +470,6 @@ class Lost_Soul {
 
       }
 
-      if (this.dormindo)
-         return;
 
       this.grupoBarras.lookAt(this.personagem_rival.obj.position);
       if (this.girando) {

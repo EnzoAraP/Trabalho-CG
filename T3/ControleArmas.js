@@ -588,7 +588,7 @@ class LancaMisseis {
                //console.log("B");
             }
             else {
-               if (Math.abs(proj.mesh.position.x) > 252 || Math.abs(proj.mesh.position.z) > 252 || Math.abs(proj.mesh.position.y) > 15.1) {
+               if (Math.abs(proj.mesh.position.x) > 252 || Math.abs(proj.mesh.position.z) > 252 || Math.abs(proj.mesh.position.y) > 50) {
                   proj.frames = 1;
                }
                else {
@@ -652,7 +652,7 @@ class LancaMisseis {
 
                         }
                         if (!colidiu) {
-                           if (i != 1) {
+                           if (i != 1 && i!=2) {
                               if (rampaBox.intersectsBox(boxBala)) {
                                  let degrausBox = areas[i].boundingDegraus;
                                  ////console.log(degrausBox)
@@ -673,7 +673,8 @@ class LancaMisseis {
                                  }
                               }
                            }
-                           else {
+                           else 
+                              if(i==1){
                               if (areas[1].porta.aberta && (areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && areas[1].plataforma.box.intersectsBox(boxBala)) {
                                  colidiu = true;
                               }
@@ -690,7 +691,13 @@ class LancaMisseis {
                                  if ((areas[1].elevar_bloco || areas[1].bloco_elevado) && !areas[1].chave2Retirada && areas[1].chave2Box.intersectsBox(boxBala))
                                     colidiu = true;
                               }
+                              
                            }
+                           if(i==2){
+                                 colidiu=areas[2].colisoes_bala_area3(boxBala);
+                           }
+                           if(i==3)
+                              colidiu=areas[3].colisoes_bala_area4(boxBala);
                         }
                      }
                   }

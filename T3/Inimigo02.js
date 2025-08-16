@@ -28,6 +28,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class Cacodemon {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, arma, personagem) {
+      this.tipo="cacodemon";
       this.voo = true;
       this.obj = objeto;
 
@@ -343,6 +344,8 @@ class Cacodemon {
 
       this.direcao_movimento.applyMatrix4(rotMatrixY);
 
+
+
       if (this.direcao_movimento.y < -0.1 || this.direcao_movimento.y > 0) {
         
          let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
@@ -446,7 +449,7 @@ class Cacodemon {
 
       }
 
-      if(this.dormindo) // Se estiver a dormir, não faz nada
+      if(this.dormindo || this.vida<=0) // Se estiver a dormir, não faz nada
          return;
 
       //console.log(this.personagem_rival.obj.position);
@@ -534,7 +537,7 @@ class Cacodemon {
 
          let colisaoAreaAtual = false;
          for (var j = 0; j < 3; j++) { // Teste do movimento para os cubos
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, delta,true);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCubos[j], this.speed, true);
             this.speed = speedColisao[0];
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
@@ -545,14 +548,14 @@ class Cacodemon {
 
                for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, delta, true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, );
                   this.speed = speedColisao[0];
                   if (speedColisao[1] == true) {
                      console.log("bateu");
                   }
                }
 
-               let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, delta, true);
+               let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, );
                this.speed = colisaoPlat[0];
                   
 
@@ -560,15 +563,15 @@ class Cacodemon {
             }
          if (this.grandeArea == 2) {
 
-            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, delta,true);
+            let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, true);
             this.speed = speedColisao[0];
             let colisaoComAPorta = speedColisao[1];
             let colisaoComAPlataforma = false;
             if (this.redondezasDaFechadura) {
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, delta,true);
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, true);
                this.speed = speedColisao[0];
                if(areas[this.grandeArea-1].chave1!=null){
-                   speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, delta,true);
+                   speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, true);
                    this.speed = speedColisao[0];
                }
 
@@ -576,7 +579,7 @@ class Cacodemon {
             else {
                if ((areas[1].plataforma.em_movimento || !areas[1].plataforma.subir) && !this.naPlataforma) {
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, delta,true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].plataforma.box, this.speed, true);
                   this.speed = speedColisao[0];
                   colisaoComAPlataforma = speedColisao[1];
                   if (colisaoComAPlataforma) {
@@ -595,7 +598,7 @@ class Cacodemon {
             if (this.area == 1 && !this.naPlataforma && !colisaoComAPorta) {
                let colisaoExtras = false;
                for (var j = 0; j < areas[1].num_blocos_extras && !colisaoExtras; j++) { // Teste do movimento para os cubos
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, delta,true);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingBlocosExtras[j], this.speed, true);
                   this.speed = speedColisao[0];
                   colisaoExtras = speedColisao[1];
 
@@ -604,7 +607,15 @@ class Cacodemon {
 
 
          }
-         else {
+         else if (this.grandeArea == 3) {
+               this.speed=areas[this.grandeArea-1].colisoes_area3(this.speed,this.obj,this.larg,2,this.larg,moveDir,true,this.area);
+               if(areas[this.grandeArea-1].soldados_derrotados==8){
+                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, true);
+                  
+               }
+
+            
+            /*
             let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.01; // Teste da rampa
 
 
@@ -639,19 +650,27 @@ class Cacodemon {
                }
                //console.log(moveDir.y);
             }
+               */
+         }
+         else{
+             for (var j = 0; j < areas[this.grandeArea-1].boundingDegraus.length; j++) {
+
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea-1].boundingDegraus[1], this.speed, true);
+            this.speed = colisaoSpeed[0];
+         }
          }
 
       }
       else if (this.grandeArea == 0) {
          for (var j = 0; j < 4; j++) {
 
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed, delta,true);
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, fronteira[j + 4], this.speed, true);
             this.speed = colisaoSpeed[0];
          }
       }
       else {
          if (this.redondezasDaFechadura) {
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed, delta,true);
+            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[1].fechadura.box, this.speed, true);
             this.speed = colisaoSpeed[0];
          }
       }

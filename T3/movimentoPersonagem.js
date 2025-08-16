@@ -19,6 +19,7 @@ import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 import { Area3 } from './area3.js';
 
 import {ativar_fim_da_luz_por_derrota} from './ArquivoPrincipalTrabalho copy 2.js';
+import { Area4 } from './Area4.js';
 
 var eixo_x = new THREE.Vector3(1, 0, 0);
 var eixo_y = new THREE.Vector3(0, 1, 0);
@@ -236,61 +237,9 @@ class Personagem {
 
             if (this.grandeArea == 4) {
                //  console.log(areas[0].boundingBoxesPilares);
-               let colisaoComAPlataforma = false;
-               for (var i = 0; i < areas[this.grandeArea - 1].muralhas.length; i++) {
+               this.speed=areas[this.grandeArea-1].colisoes_area4(this.speed,this.obj,this.larg,2,this.larg,moveDir,false,this.area,this.naPlataforma_a4);
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].muralhas[i].box, this.speed, true);
-                  this.speed = speedColisao[0];
 
-               }
-               if (this.area == 3) {
-                  for (let i = 0; i < areas[3].plataformas.length; i++) {
-                     if ((areas[3].plataformas[i].em_movimento || !areas[3].plataformas[i].subir) && !this.naPlataforma_a4[i]) {
-
-                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plataformas[i].box, this.speed, delta);
-                        this.speed = speedColisao[0];
-                        colisaoComAPlataforma = speedColisao[1];
-                        if (colisaoComAPlataforma) {
-                           console.log("colide");
-                        }
-                     }
-                  }
-                  for (let i = 0; i < areas[3].pontes_box.length; i++) {
-                     
-
-                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].pontes_box[i], this.speed, delta);
-                        this.speed = speedColisao[0];
-                        colisaoComAPlataforma = speedColisao[1];
-                        if (colisaoComAPlataforma) {
-                           console.log("colide");
-                        }
-                     
-                  }
-                  for (let i = 0; i < areas[3].paredes_janelas_box.length; i++) {
-                     
-
-                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].paredes_janelas_box[i], this.speed, delta);
-                        this.speed = speedColisao[0];
-                        colisaoComAPlataforma = speedColisao[1];
-                        if (colisaoComAPlataforma) {
-                           console.log("colide");
-                        }
-                     
-                  }
-                  for (let i = 0; i < areas[3].torres.length; i++) {
-                     
-
-                        let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].torres_box[i], this.speed, delta);
-                        this.speed = speedColisao[0];
-                        colisaoComAPlataforma = speedColisao[1];
-                        if (colisaoComAPlataforma) {
-                           console.log("colide");
-                        }
-                     
-                  }
-                 let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[3].assetManager.BigBenBox, this.speed, delta);
-                  this.speed = speedColisao[0];
-               }
             }
 
             if (this.grandeArea == 2) {
@@ -343,24 +292,9 @@ class Personagem {
 
             }
             else if (this.grandeArea == 3) {
-               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta1.box, this.speed, delta);
-               this.speed = speedColisao[0];
-               console.log(speedColisao[1]);
-
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].porta2.box, this.speed, delta);
-               this.speed = speedColisao[0];
-
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube4, this.speed, delta);
-               this.speed = speedColisao[0];
-
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].boundingCube5, this.speed, delta);
-               this.speed = speedColisao[0];
-
-               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].assetManager.planeBox, this.speed, delta);
-               this.speed = speedColisao[0];
-
+               this.speed=areas[this.grandeArea-1].colisoes_area3(this.speed,this.obj,this.larg,2,this.larg,moveDir,false,this.area);
                if(areas[this.grandeArea-1].soldados_derrotados==8){
-                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, delta);
+                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, true);
                   this.speed = speedColisao[0];
                   if(speedColisao[1] && !this.pegou_chave3){
                      console.log("cheave3");
@@ -458,6 +392,7 @@ class Personagem {
 
 
          
+         
          this.obj.position.add(moveDir); //Movimenta objeto da câmera
 
 
@@ -466,6 +401,13 @@ class Personagem {
          this.grandeArea = grandeArea_e_fechadura[0];
          this.redondezasDaFechadura = grandeArea_e_fechadura[1];
          this.redondezasDaFechadura2 = grandeArea_e_fechadura[2];
+
+         if( (this.area == 0 || this.area == 3 )&& this.obj.position.y<6.1 && 
+         verifica_colisoes_com_blocos(this.obj, this.larg, 2.1, this.larg, moveDir, areas[3].boundingDegraus[7], this.speed, delta)[1]
+      &&  verifica_colisoes_com_blocos(this.obj, this.larg, 2.1, this.larg, moveDir, areas[3].boundingCubos[1], this.speed, delta)[1]){
+         this.obj.position.y=6.15;
+      }
+      console.log(this.obj.position.y)
 
          // console.log(moveDir);
       }
@@ -490,7 +432,8 @@ class Personagem {
                   if (!isIntersectingGround && !intersectaPlataforma) {
                      isIntersectingGround = this.raycaster.intersectObjects([...areas[this.grandeArea - 1].pontes,
                         areas[this.grandeArea - 1].paredes_janelas[0],areas[this.grandeArea - 1].paredes_janelas[2],
-                        ...areas[this.grandeArea - 1].torres]).length > 0.0001;
+                        ...areas[this.grandeArea - 1].torres,...areas[this.grandeArea - 1].blocosExtras
+                        ,...areas[this.grandeArea - 1].caixas_esferas]).length > 0.0001;
                   }
             }
          }

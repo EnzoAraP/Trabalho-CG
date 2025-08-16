@@ -33,6 +33,7 @@ const clock = new THREE.Clock();
 class Soldado {
 
     constructor(objeto, camera, boxInimigo, larg, speedPadrao, arma, personagem, scene) {
+        this.tipo="soldado";
         this.voo = true;
         this.obj = objeto;
 

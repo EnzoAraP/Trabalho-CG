@@ -15,6 +15,7 @@ import { BoxGeometry } from '../build/three.module.js';
 import { criarChave } from './criacaoChave.js';
 import { loadOBJFile } from './funcoesGeometriasExternas.js';
 import { ElevacaoBloco } from './funcaoElevarBlocoEmY.js';
+import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
 
 
@@ -26,7 +27,7 @@ class Area3 {
         let texturaCubes = "./texturas_geral/area2/textura_hangar.jpg";
         let texturaMap = null;
 
-        this.soldados_derrotados=0;
+        this.soldados_derrotados = 0;
 
         this.altura_geral = 16;
         this.compPorta = 30;
@@ -155,7 +156,7 @@ class Area3 {
 
 
             this.cubos = [this.cube1, this.cube2, this.cube3];
-            this.cubos2 = [this.cube1, this.cube2, this.cube3];
+        this.cubos2 = [this.cube1, this.cube2, this.cube3];
 
         // Posições dos blocos que ficam em cima da área 2:
 
@@ -340,35 +341,87 @@ class Area3 {
 
 
         this.materialPlat = this.estabelecerMaterial('./texturas_geral/area2/hangar_concrete_floor_compressed.webp', 1, 1, 0, 0, "rgba(139, 187, 107, 1)");
-        this.geometriaPlat = new THREE.BoxGeometry(2,2,2);
-        this.plat_chave = new THREE.Mesh(this.geometriaPlat,this.materialPlat);
-        this.plat_chave_box=null;
+        this.geometriaPlat = new THREE.BoxGeometry(2, 2, 2);
+        this.plat_chave = new THREE.Mesh(this.geometriaPlat, this.materialPlat);
+        this.plat_chave_box = null;
         this.cube0.add(this.plat_chave);
-        this.plat_chave.translateY(-1.5-this.altura_geral/2);
-        this.elevador_bloco=null;
+        this.plat_chave.translateY(-1.5 - this.altura_geral / 2);
+        this.elevador_bloco = null;
 
-        
+
     }
 
-    derrotar_soldado(){
+    colisoes_area3(speed, obj, largx, altura, largz, moveDir, contar_subida, area = 3) {
+
+        let speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.porta1.box, speed, contar_subida);
+        speed = speedColisao[0];
+        console.log(speedColisao[1]);
+
+        speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.porta2.box, speed, contar_subida);
+        speed = speedColisao[0];
+
+        speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.boundingCube4, speed, contar_subida);
+        speed = speedColisao[0];
+
+        speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.boundingCube5, speed, contar_subida);
+        speed = speedColisao[0];
+
+        speedColisao = verifica_colisoes_com_blocos(obj, largx, altura, largz, moveDir, this.assetManager.planeBox, speed, contar_subida);
+        speed = speedColisao[0];
+
+
+
+        return speed;
+    }
+
+    colisoes_bala_area3(boxBala) {
+        let colidiu = false;
+        colidiu = this.porta1.box.intersectsBox(boxBala)
+        if (colidiu)
+            return true;
+        colidiu = this.porta2.box.intersectsBox(boxBala)
+        if (colidiu)
+            return true;
+        colidiu = this.boundingCube4.intersectsBox(boxBala)
+        if (colidiu)
+            return true;
+        colidiu = this.boundingCube5.intersectsBox(boxBala)
+        if (colidiu)
+            return true;
+        colidiu = this.assetManager.planeBox.intersectsBox(boxBala)
+            if (colidiu)
+                return true;
+        colidiu = this.plat_chave_box.intersectsBox(boxBala)
+            if (colidiu)
+                return true;   
+        colidiu = this.chave3Box.intersectsBox(boxBala)
+            if (colidiu)
+                return true;   
+        
+        return false;
+  
+
+    }
+
+    derrotar_soldado() {
         this.soldados_derrotados++;
-        if(this.soldados_derrotados==8)
-            this.elevador_bloco.elevar_bloco=true;
-    
+        if (this.soldados_derrotados == 8)
+            this.elevador_bloco.elevar_bloco = true;
+
     }
 
-    posicionar_chave3(){
+    posicionar_chave3() {
         this.chave3 = criarChave(this.plat_chave, new THREE.Vector3(0, 0, 0), 0.5, "rgba(7, 16, 194, 1)", "rgba(6, 129, 88, 1)"); // Vai à função de criação de chave
-        
-        
-                this.chave3.translateY(1); // Coloca o centro na parte de cima do suporte-fechadura
-                this.chave3Box = new THREE.Box3().setFromObject(this.chave3);
-                const size = new THREE.Vector3();
-                this.chave3Box.getSize(size); // Obtém tamanho da chave
-        
-                this.chave3.translateY(size.y / 2); // Translada metade do tamanho da chave para que ela fique com a base sobre o suporte
-        
-                this.chave3Box.setFromObject(this.chave3);
+
+
+        this.chave3.translateY(1); // Coloca o centro na parte de cima do suporte-fechadura
+        this.chave3Box = new THREE.Box3().setFromObject(this.chave3);
+        const size = new THREE.Vector3();
+        this.chave3Box.getSize(size); // Obtém tamanho da chave
+
+        this.chave3.translateY(size.y / 2); // Translada metade do tamanho da chave para que ela fique com a base sobre o suporte
+
+        this.chave3Box.setFromObject(this.chave3);
     }
 
     criar_luz(scene) {
@@ -399,15 +452,15 @@ class Area3 {
 
 
 
-       scene.add(dirLight);
-       scene.add(dirLight.target);
+        scene.add(dirLight);
+        scene.add(dirLight.target);
         dirLight.position.set(34.8, 16, 49.7);
 
 
-        this.luz_local=dirLight;
+        this.luz_local = dirLight;
         this.luz_local.position.add(this.posicao_ini);
         this.luz_local.target.position.add(this.posicao_ini);
-        this.luz_local.target.position.add(new THREE.Vector3(0,-this.altura_geral/2,0));
+        this.luz_local.target.position.add(new THREE.Vector3(0, -this.altura_geral / 2, 0));
         // (opcional) Ajuda para visualizar o volume de sombra
         const helper = new THREE.CameraHelper(dirLight.shadow.camera);
         scene.add(helper);
@@ -417,25 +470,25 @@ class Area3 {
 
     }
 
-    troca_de_luz(luz_principal,luz_sec, personagem) {
+    troca_de_luz(luz_principal, luz_sec, personagem) {
         //console.log(personagem.area);
-        if (personagem.area==2) {
-            if (this.luz_local.intensity<0.4) {
-                if (luz_principal.intensity > 0){
+        if (personagem.area == 2) {
+            if (this.luz_local.intensity < 0.4) {
+                if (luz_principal.intensity > 0) {
                     luz_principal.intensity -= 0.025;
                     luz_sec.intensity -= 0.015;
-                }    
+                }
                 this.luz_local.intensity += 0.01;
             }
             if (this.luz_local.intensity > 0.39)
                 this.luz_local_acesa = true;
         }
         else {
-            if (luz_principal.intensity<1) {
-             
-                    luz_principal.intensity += 0.025;
-                    luz_sec.intensity += 0.015;
-                 
+            if (luz_principal.intensity < 1) {
+
+                luz_principal.intensity += 0.025;
+                luz_sec.intensity += 0.015;
+
                 this.luz_local.intensity -= 0.01;
             }
             if (this.luz_local.intensity < 0.007)

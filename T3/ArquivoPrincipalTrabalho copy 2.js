@@ -396,10 +396,11 @@ function carregar_lost_Soul() {
 }
 
 
+var inimigos_atual=[];
 
-var lancaMisseis = new LancaMisseis(camera, lost_soulvet, true);
+var lancaMisseis = new LancaMisseis(camera, inimigos_atual, true);
 
-var metralhadora = new Metralhadora(camera, scene, lost_soulvet);
+var metralhadora = new Metralhadora(camera, scene, inimigos_atual);
 
 var obj = controle.getObject(); // Objeto da câmera do Poniter lock Controls
 
@@ -560,6 +561,7 @@ function estabeleceBoundingBoxes() {
    }
    
 
+   areas[3].box_extras_area4();
    for(let i=0; i<areas[3].muralhas.length;i++){
       areas[3].muralhas[i].box = new THREE.Box3().setFromObject(areas[3].muralhas[i].mesh);
    }
@@ -788,12 +790,17 @@ for (let i = 0; i < 8; i++) {
 }
 
 let sold_acordados = false;
-/*
+
 personagem.obj.position.set(areas[3].cube0.position.x+5,areas[3].cube0.position.y+4.2,areas[3].cube0.position.z);
 personagem.area=3;
 personagem.grandeArea=4;
 areas[3].muralhas[0].abrindo=true;
-*/
+
+
+let losts_adicionados=false;
+let cacs_adicionados=false;
+let soldados_adicionados=false;
+
 
 personagem.gerarBarraDeVida();
 render();
@@ -858,23 +865,29 @@ function render() {
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
 
       if (personagem.chegada_area3) {
-         lancaMisseis.inimigos = soldados;
-               metralhadora.inimigos = soldados;
+       
          if (!sold_acordados) {
             for (var i = 0; i < soldados.length; i++) {
 
                console.log("acordou");
                soldados[i].acordar();
+       
             }
+            lancaMisseis.inimigos=lancaMisseis.inimigos.concat(soldados);
+            metralhadora.inimigos=lancaMisseis.inimigos;
             sold_acordados = true;
          }
          for (var i = 0; i < soldados.length; i++) {
 
             soldados[i].movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene);
          }
-          if (armasNovosDerrotados.length != 0)
-            soldados_derrotados = soldados_derrotados.concat(armasNovosDerrotados);
-         if (derrotados2 != null)
+          if (armasNovosDerrotados.length != 0){
+            for(let cont=0;cont<armasNovosDerrotados.length;cont++){
+               if(armasNovosDerrotados[cont].tipo=='soldado')
+                  soldados_derrotados.push(armasNovosDerrotados[cont]);
+            }
+          }
+         if (derrotados2 != null && derrotados2.tipo=="soldado")
             soldados_derrotados.push(derrotados2);
           for (var i = 0; i < soldados_derrotados.length; i++) {
             soldados_derrotados[i].sumir(areas,delta);
@@ -889,13 +902,20 @@ function render() {
          if (!cac_acordados) {
             for (var i = 0; i < cacodemons.length; i++) {
                cacodemons[i].acordar();
+               
             }
+            lancaMisseis.inimigos=lancaMisseis.inimigos.concat(cacodemons);
+            metralhadora.inimigos=lancaMisseis.inimigos;
             cac_acordados = true;
          }
 
-         if (armasNovosDerrotados.length != 0)
-            cacodemons_derrotados = cacodemons_derrotados.concat(armasNovosDerrotados);
-         if (derrotados2 != null)
+         if (armasNovosDerrotados.length != 0){
+            for(let cont=0;cont<armasNovosDerrotados.length;cont++){
+               if(armasNovosDerrotados[cont].tipo=='cacodemon')
+                  cacodemons_derrotados.push(armasNovosDerrotados[cont]);
+            }
+          }
+         if (derrotados2 != null && derrotados2.tipo=="cacodemon")
             cacodemons_derrotados.push(derrotados2);
          for (var i = 0; i < cacodemons.length; i++) {
 
@@ -932,13 +952,22 @@ function render() {
       if (personagem.chegada_area1) {
          if (!lost_soul_acordados) {
             for (var i = 0; i < lost_soulvet.length; i++) {
+               lost_soul_acordados=true;
                lost_soulvet[i].acordar();
+               
+              
             }
+             lancaMisseis.inimigos=lancaMisseis.inimigos.concat(lost_soulvet);
+             metralhadora.inimigos=lancaMisseis.inimigos;
          }
 
-         if (armasNovosDerrotados.length != 0)
-            lost_soul_derrotados = lost_soul_derrotados.concat(armasNovosDerrotados);
-         if (derrotados2 != null)
+         if (armasNovosDerrotados.length != 0){
+            for(let cont=0;cont<armasNovosDerrotados.length;cont++){
+               if(armasNovosDerrotados[cont].tipo=='lost_soul')
+                  lost_soul_derrotados.push(armasNovosDerrotados[cont]);
+            }
+          }
+         if (derrotados2 != null && derrotados2.tipo=="lost_soul")
             lost_soul_derrotados.push(derrotados2);
          for (var i = 0; i < lost_soulvet.length; i++) {
 
@@ -964,8 +993,8 @@ function render() {
             //      areas[0].fazer_elevar_bloco();
             if (lost_soul_derrotados == 0 && !Lost_soul_morreram) {
 
-               lancaMisseis.inimigos = cacodemons;
-               metralhadora.inimigos = cacodemons;
+               //lancaMisseis.inimigos = cacodemons;
+               //metralhadora.inimigos = cacodemons;
                //lancaMisseis.inimigos = cacodemons;
                lancaMisseis.type = 2;
                armasNovosDerrotados = [];
@@ -1029,5 +1058,5 @@ function render() {
    areas[2].elevador_bloco.fazer_elevar_bloco();
    areas[2].posicionar_aviao();
    areas[3].posicionar_objetos();
-   
+   console.log(lancaMisseis.inimigos);
 }
