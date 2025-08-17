@@ -469,7 +469,7 @@ function carregar_Elemental() {
 
       barraVida.position.z = 0.01;
 
-      obj_Elemental_Soul.position.set(0,4,0);
+      obj_Elemental_Soul.position.set(120,10,0);
       let novo_Elemental_Soul = new pain_elemental(obj_Elemental_Soul, camera, new THREE.Box3(), 0.6, 3, personagem);
       novo_Elemental_Soul.barraFrente = barraVida;
       novo_Elemental_Soul.barraFundo = barraFundo;
@@ -658,8 +658,23 @@ function carregar_cac_Area5() {
       group.position.copy(obj.position).add(new THREE.Vector3(0, 1.2, 0));
 
       barraVida.position.z = 0.01;
-
-      obj_cacodemon.position.set(i, 0.3, -i);
+      if( i ===0)
+      {
+   obj_cacodemon.position.set(91, 40, 90);
+      }
+      if( i===1)
+      {
+   obj_cacodemon.position.set(90, 40, -89);
+      }
+      if( i===2)
+      {
+   obj_cacodemon.position.set(210,40, -90);
+      }
+      if( i ===3)
+      {
+   obj_cacodemon.position.set(210, 40, 90);
+      }
+      
       let arma_cac = new LancaMisseis(obj_cacodemon, [personagem], false);
       let novo_cac = new Cacodemon(obj_cacodemon, camera, new THREE.Box3(), 0.6, 5, arma_cac, personagem);
       novo_cac.barraFrente = barraVida;
@@ -672,7 +687,7 @@ function carregar_cac_Area5() {
 
 
    }
-   lancaMisseis.numInimigos = 3;
+   lancaMisseis.numInimigos = lancaMisseis.numInimigos +3;
 }
 
 //lostSoul
@@ -1020,7 +1035,7 @@ function estabeleceBoundingBoxes() {
 
    for (let i = -33.6; i <= 33.6; i = i + 11.2)// parede direita
    {
-      let vetorteste2 = new THREE.Vector3(i, 4.5, -49.6);
+      let vetorteste2 = new THREE.Vector3(i, 5, -49.6);
       areas[0].criaPilar(vetorteste2);
       //area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
@@ -1028,28 +1043,28 @@ function estabeleceBoundingBoxes() {
    }
    for (let i = -33.6; i <= 33.6; i = i + 11.2)// parede esqureda
    {
-      let vetorteste3 = new THREE.Vector3(i, 4.5, 49.6);
+      let vetorteste3 = new THREE.Vector3(i, 5, 49.6);
       areas[0].criaPilar(vetorteste3);
       //area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
    }
    for (let i = 49.6; i >= -49.6; i = i - 11.2)// parede tras
    {
-      let vetorteste3 = new THREE.Vector3(-33.6, 4.5, i);
+      let vetorteste3 = new THREE.Vector3(-33.6, 5, i);
       areas[0].criaPilar(vetorteste3);
       //area1.pilares.push(pilar);
       ///criarBoundingBox(pilar);
    }
    for (let i = 49.6; i >= 0; i = i - 11.2)// parede escada esquerda
    {
-      let vetorteste3 = new THREE.Vector3(33.6, 4.5, i);
+      let vetorteste3 = new THREE.Vector3(33.6, 5, i);
       areas[0].criaPilar(vetorteste3);
       //area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
    }
    for (let i = -49.6; i <= 0; i = i + 11.2)// parede escada direita
    {
-      let vetorteste3 = new THREE.Vector3(33.6, 4.5, i);
+      let vetorteste3 = new THREE.Vector3(33.6, 5, i);
       areas[0].criaPilar(vetorteste3);
       ////area1.pilares.push(pilar);
       //criarBoundingBox(pilar);
@@ -1241,12 +1256,12 @@ function render() {
    }
    if(personagem.simulacao_finalizada)
       return;
-   console.log(possui_todas_as_chaves);
+  // console.log(possui_todas_as_chaves);
    if(possui_todas_as_chaves && tempo_exibindo>=0){
       tempo_exibindo--;
-      console.log(tempo_exibindo)
+     // console.log(tempo_exibindo)
       if(tempo_exibindo==0){
-         console.log("none");
+      //   console.log("none");
          const msg = document.getElementById('mensagemChaves');
             msg.style.display = 'none';
       }
@@ -1322,7 +1337,7 @@ function render() {
       stats.update();
       let armasNovosDerrotados = lancaMisseis.controle_projeteis(scene, areas, fronteira);
 
-      if (personagem.chegada_area3) {
+      if (personagem.chegada_area3 && !personagem.chegada_area4) {
 
          if (!sold_acordados) {
             for (var i = 0; i < soldados.length; i++) {
@@ -1356,7 +1371,8 @@ function render() {
          }
       }
 
-      if (personagem.chegada_area2) {
+      if (personagem.chegada_area2 && !personagem.chegada_area4) {
+         
          if (!cac_acordados) {
             for (var i = 0; i < cacodemons.length; i++) {
                cacodemons[i].acordar();
@@ -1413,7 +1429,7 @@ function render() {
             // ////console.log(this.obj.position.y);
          }
       }
-      if (personagem.chegada_area1) {
+      if (personagem.chegada_area1&& !personagem.chegada_area4) {
          if (!lost_soul_acordados) {
             for (var i = 0; i < lost_soulvet.length; i++) {
                lost_soul_acordados = true;
@@ -1421,6 +1437,7 @@ function render() {
 
 
             }
+            lost_soul_acordados= true;
             lancaMisseis.inimigos = lancaMisseis.inimigos.concat(lost_soulvet);
             metralhadora.inimigos = lancaMisseis.inimigos;
          }
@@ -1503,36 +1520,44 @@ function render() {
 
 
       }
-
-      if (personagem.chegada_area4 && lancaMisseis.inimigos.length==0 && !areas[3].porta.abrindo && !areas[3].porta.aberta){
-         console.log("Abrir!");
-         areas[3].porta.abrindo=true;
-      }
-
-      if (areas[3].porta.abrindo) {
-          console.log("Abrindo!");
-         areas[3].abrir_porta(6.6, 1);
-
-      }
-
-      if (areas[1].porta.abrindo && areas[1].chave1 == null) {
-         let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: "rgb(95,40,180)" }));
-         areas[1].posicionar_chave1(chave);
-      }
-
-      if (areas[3].muralhas[0].abrindo && areas[3].chave3 == null) {
-
-         areas[3].posicionar_chave3(null);
-      }
- if(personagem.chegada_area4)
+       if(personagem.chegada_area4)
       {
+         console.log("entrou");
             lancaMisseis.inimigos = InimigosArea5;
                metralhadora.inimigos = InimigosArea5;
          if (!ElementalAcordado) {
-             Elementalvet[i].acordar();
+             Elementalvet[0].acordar();
             ElementalAcordado = true;
             
          }
+          Elementalvet[0].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+           if(!cac_Area5_acordados)
+         {
+            console.log('acordou Caco');
+            console.log(cacodemons_Area5);
+            for(var i =0;i<cacodemons_Area5.length;i++)
+            {
+               console.log('Entrou no for')
+             cacodemons_Area5[i].acordar();
+            }
+            cac_Area5_acordados = true;
+         }
+          for (var i = 0; i < cacodemons_Area5.length; i++) {
+
+            cacodemons_Area5[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+              cacodemons_Area5[i].arma.controle_projeteis(scene, areas, fronteira);
+         }
+         if (lost_soulvetE.length > 0) {
+  // Movimentar cada Lost Soul no vetor
+  for (var i = 0; i < lost_soulvetE.length; i++) {
+    if (lost_soulvetE[i]) {
+      // Fazer o movimento
+      lost_soulvetE[i].movimento(areas, fronteira, groundPlane, delta, false, false, scene);
+      
+    
+    }
+  }
+}
          
          if (armasNovosDerrotados.length != 0)
             Area5Derrotados = Area5Derrotados.concat(armasNovosDerrotados);
@@ -1572,6 +1597,27 @@ function render() {
          
       }
    }
+      if (personagem.chegada_area4 && lancaMisseis.inimigos.length==0 && !areas[3].porta.abrindo && !areas[3].porta.aberta){
+         console.log("Abrir!");
+         areas[3].porta.abrindo=true;
+      }
+
+      if (areas[3].porta.abrindo) {
+          console.log("Abrindo!");
+         areas[3].abrir_porta(6.6, 1);
+
+      }
+
+      if (areas[1].porta.abrindo && areas[1].chave1 == null) {
+         let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: "rgb(95,40,180)" }));
+         areas[1].posicionar_chave1(chave);
+      }
+
+      if (areas[3].muralhas[0].abrindo && areas[3].chave3 == null) {
+
+         areas[3].posicionar_chave3(null);
+      }
+
       
       
       //Elemental

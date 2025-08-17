@@ -33,7 +33,7 @@ class Lost_Soul {
 
       this.voo = true;
       this.obj = objeto;
-
+      this.naPlataforma_a4=[false,false];
       this.camera = camera;
 
       this.box = boxInimigo;
@@ -44,7 +44,7 @@ class Lost_Soul {
       this.speed = speedPadrao;
 
       this.naPlataforma = false;
-
+      this.atacouPlayer = false; 
       this.possui_chave1 = true;
 
       this.grandeArea = -1; // Variável que armazena em qual das 6 grande as áreas o personagem está.
@@ -519,6 +519,7 @@ class Lost_Soul {
 
 
    movimento(areas, fronteira, groundPlane, delta, moveUp, reset, scene = null) {
+        this.box = new THREE.Box3().setFromObject(this.obj);
       if(this.dormindo || this.vida<=0) // Se estiver a dormir, não faz nada
          return;
       if (this.isDashing ) {
@@ -537,6 +538,16 @@ objPrev.quaternion.copy(this.obj.quaternion);
 objPrev.scale.copy(this.obj.scale);
    objPrev.position.add(dashStep);
 
+        if(this.box.intersectsBox(this.personagem_rival.box))
+        {
+         if(!this.atacouPlayer)
+         {
+            this.personagem_rival.sofrerAtaque(5);
+            this.atacouPlayer= true;
+         }
+        }
+    
+
          this.dashFrames++;
 
         let vaiColidir = this.verificaColisaoDash(objPrev, areas, fronteira, dashStep);
@@ -552,6 +563,7 @@ objPrev.scale.copy(this.obj.scale);
          }
          return; // não executa o resto do movimento durante o dash
       }
+      this.atacouPlayer = false; 
 
       if (this.girando && false) {
          this.tempoDeGiro++;
@@ -663,7 +675,7 @@ objPrev.scale.copy(this.obj.scale);
 
 
 
-      this.box = new THREE.Box3().setFromObject(this.obj);
+    
       if (this.grandeArea >= 1) { // Se estivermos numa grande área que contém blocos
 
          moveDir.normalize().multiplyScalar(this.speed * delta); // Normaliza e multiplica pela velocidade, considerando o delta(Diferença entre quadros)
@@ -787,6 +799,16 @@ objPrev.scale.copy(this.obj.scale);
                //console.log(moveDir.y);
             }
          }
+            if (this.grandeArea == 4) {
+               //  //console.log(areas[0].boundingBoxesPilares);
+               this.speed=areas[this.grandeArea-1].colisoes_area4(this.speed,this.obj,this.larg,2,this.larg,moveDir,false,this.area,this.naPlataforma_a4,true);
+               if(areas[3].porta.abrindo || areas[3].porta.aberta){
+                 let speedColisao= verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].painel_box, this.speed, delta);
+                  this.speed= speedColisao[0];
+                  
+               }
+
+            }
 
       }
       else if (this.grandeArea == 0) {
@@ -866,6 +888,27 @@ objPrev.scale.copy(this.obj.scale);
 
 
       }
+      
+            if(this.grandeArea==4 && areas[3].muralhas[0].aberta){
+               let objeto = this.obj;
+               let pos_plataforma_a4 = new THREE.Vector3(areas[3].plataformas[0].mesh.position.x,
+                   areas[3].plataformas[0].mesh.position.y, areas[3].plataformas[0].mesh.position.z);
+               pos_plataforma_a4.addVectors(pos_plataforma_a4, areas[3].posicao_ini);
+               this.naPlataforma_a4[0] = (objeto.position.x <= pos_plataforma_a4.x + 2 && objeto.position.x >= pos_plataforma_a4.x - 2
+                  && objeto.position.z <= pos_plataforma_a4.z + 2 && objeto.position.z >= pos_plataforma_a4.z - 2
+                  //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+               );
+            }
+            if(!this.naPlataforma_a4[0] && this.grandeArea==4 && areas[3].muralhas[0].aberta){
+               let objeto = this.obj;
+               let pos_plataforma_a4 = new THREE.Vector3(areas[3].plataformas[1].mesh.position.x,
+                   areas[3].plataformas[1].mesh.position.y, areas[3].plataformas[1].mesh.position.z);
+               pos_plataforma_a4.addVectors(pos_plataforma_a4, areas[3].posicao_ini);
+               this.naPlataforma_a4[1] = (objeto.position.x <= pos_plataforma_a4.x + 2 && objeto.position.x >= pos_plataforma_a4.x - 2
+                  && objeto.position.z <= pos_plataforma_a4.z + 2 && objeto.position.z >= pos_plataforma_a4.z - 2
+                  //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+               );
+            }
 
 
       if (this.grandeArea > 0 && this.area == -1) {
@@ -892,6 +935,24 @@ objPrev.scale.copy(this.obj.scale);
 
          if (this.naPlataforma && this.box.intersectsBox(areas[1].plataforma.box)) {
             let qtd_mov = areas[1].qtd_movimento_plataforma;
+            this.obj.position.y += qtd_mov;
+            //console.log(this.obj.position.y);
+         }
+      }
+        if (areas[3].plataformas[0].em_movimento && areas[3].plataformas[0].subir) {
+
+
+         if (this.naPlataforma_a4[0] && this.box.intersectsBox(areas[3].plataformas[0].box)) {
+            let qtd_mov = areas[3].qtd_movimento_plataformas[0];
+            this.obj.position.y += qtd_mov;
+            //console.log(this.obj.position.y);
+         }
+      }
+      if (areas[3].plataformas[1].em_movimento && areas[3].plataformas[1].subir) {
+
+
+         if (this.naPlataforma_a4[1] && this.box.intersectsBox(areas[3].plataformas[1].box)) {
+            let qtd_mov = areas[3].qtd_movimento_plataformas[1];
             this.obj.position.y += qtd_mov;
             //console.log(this.obj.position.y);
          }
@@ -948,6 +1009,44 @@ objPrev.scale.copy(this.obj.scale);
    }
 
    if (grandeAreaPrev >= 1) {
+        if (grandeAreaPrev == 4) {
+         // Usar o mesmo método colisoes_area4 para verificar colisões
+         let resultadoColisao = areas[grandeAreaPrev-1].colisoes_area4(
+            this.dashSpeed, 
+            objPrev, 
+            this.larg, 
+            2, 
+            this.larg, 
+            dashStep, 
+            true, // true para apenas verificar colisão sem modificar a velocidade
+            this.area,
+            this.naPlataforma_a4,
+            true  // usar dashStep
+         );
+         
+         // Se a velocidade foi reduzida, houve colisão
+         if (resultadoColisao < this.dashSpeed) {
+            return true; // Vai colidir
+         }
+         
+         // Verificar colisão com o painel quando a porta está aberta ou abrindo
+         if (areas[3].porta.abrindo || areas[3].porta.aberta) {
+            let speedColisao = verifica_colisoes_com_blocos(
+               objPrev, 
+               this.larg, 
+               2, 
+               this.larg, 
+               dashStep, 
+               areas[grandeAreaPrev - 1].painel_box, 
+               this.dashSpeed, 
+               true
+            );
+            
+            if (speedColisao[1]) {
+               return true; // Vai colidir com o painel
+            }
+         }
+      }  
       // Testa cubos
       for (let j = 0; j < 3; j++) {
          let speedColisao = verifica_colisoes_com_blocos(

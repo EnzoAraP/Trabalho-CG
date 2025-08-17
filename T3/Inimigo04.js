@@ -67,6 +67,8 @@ class pain_elemental {
 
       this.contagemEsperaAtaque = 0;
 
+            this.naPlataforma_a4=[false,false];
+
       this.maxEsperaAtaque = 4;
 
       this.contagemPreAtaque = 0;
@@ -751,6 +753,16 @@ class pain_elemental {
                //console.log(moveDir.y);
             }
          }
+            if (this.grandeArea == 4) {
+               //  //console.log(areas[0].boundingBoxesPilares);
+               this.speed=areas[this.grandeArea-1].colisoes_area4(this.speed,this.obj,this.larg,2,this.larg,moveDir,false,this.area,this.naPlataforma_a4,true);
+               if(areas[3].porta.abrindo || areas[3].porta.aberta){
+                 let speedColisao= verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].painel_box, this.speed, delta);
+                  this.speed= speedColisao[0];
+                  
+               }
+
+            }
 
       }
       else if (this.grandeArea == 0) {
@@ -830,7 +842,27 @@ class pain_elemental {
 
 
       }
-
+      
+            if(this.grandeArea==4 && areas[3].muralhas[0].aberta){
+               let objeto = this.obj;
+               let pos_plataforma_a4 = new THREE.Vector3(areas[3].plataformas[0].mesh.position.x,
+                   areas[3].plataformas[0].mesh.position.y, areas[3].plataformas[0].mesh.position.z);
+               pos_plataforma_a4.addVectors(pos_plataforma_a4, areas[3].posicao_ini);
+               this.naPlataforma_a4[0] = (objeto.position.x <= pos_plataforma_a4.x + 2 && objeto.position.x >= pos_plataforma_a4.x - 2
+                  && objeto.position.z <= pos_plataforma_a4.z + 2 && objeto.position.z >= pos_plataforma_a4.z - 2
+                  //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+               );
+            }
+            if(!this.naPlataforma_a4[0] && this.grandeArea==4 && areas[3].muralhas[0].aberta){
+               let objeto = this.obj;
+               let pos_plataforma_a4 = new THREE.Vector3(areas[3].plataformas[1].mesh.position.x,
+                   areas[3].plataformas[1].mesh.position.y, areas[3].plataformas[1].mesh.position.z);
+               pos_plataforma_a4.addVectors(pos_plataforma_a4, areas[3].posicao_ini);
+               this.naPlataforma_a4[1] = (objeto.position.x <= pos_plataforma_a4.x + 2 && objeto.position.x >= pos_plataforma_a4.x - 2
+                  && objeto.position.z <= pos_plataforma_a4.z + 2 && objeto.position.z >= pos_plataforma_a4.z - 2
+                  //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
+               );
+            }
 
       if (this.grandeArea > 0 && this.area == -1) {
          let xi = (areas[this.grandeArea - 1].posicao_ini).x;
@@ -856,6 +888,24 @@ class pain_elemental {
 
          if (this.naPlataforma && this.box.intersectsBox(areas[1].plataforma.box)) {
             let qtd_mov = areas[1].qtd_movimento_plataforma;
+            this.obj.position.y += qtd_mov;
+            //console.log(this.obj.position.y);
+         }
+      }
+        if (areas[3].plataformas[0].em_movimento && areas[3].plataformas[0].subir) {
+
+
+         if (this.naPlataforma_a4[0] && this.box.intersectsBox(areas[3].plataformas[0].box)) {
+            let qtd_mov = areas[3].qtd_movimento_plataformas[0];
+            this.obj.position.y += qtd_mov;
+            //console.log(this.obj.position.y);
+         }
+      }
+      if (areas[3].plataformas[1].em_movimento && areas[3].plataformas[1].subir) {
+
+
+         if (this.naPlataforma_a4[1] && this.box.intersectsBox(areas[3].plataformas[1].box)) {
+            let qtd_mov = areas[3].qtd_movimento_plataformas[1];
             this.obj.position.y += qtd_mov;
             //console.log(this.obj.position.y);
          }
