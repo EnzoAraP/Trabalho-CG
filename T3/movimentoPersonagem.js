@@ -69,7 +69,7 @@ class Personagem {
         //som da chave
                       this.somchave = new THREE.Audio(new THREE.AudioListener());
                       const audioLoaderPlataforma = new THREE.AudioLoader();
-                      audioLoaderPlataforma.load('../0_assetsT3/sounds/chave.wav', (buffer) => {
+                      audioLoaderPlataforma.load('./0_assetsT3/sounds/chave.wav', (buffer) => {
                           this.somchave.setBuffer(buffer);
                           this.somchave.setVolume(0.5);
                       });
@@ -127,7 +127,7 @@ class Personagem {
 
       this.somAtaque = new THREE.Audio(this.listener);
       const audioLoader = new THREE.AudioLoader();
-      audioLoader.load('../0_assetsT3/sounds/playerInjured.wav', (buffer) => {
+      audioLoader.load('./0_assetsT3/sounds/playerInjured.wav', (buffer) => {
          this.somAtaque.setBuffer(buffer);
          this.somAtaque.setVolume(0.5);
       })

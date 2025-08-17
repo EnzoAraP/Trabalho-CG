@@ -160,7 +160,7 @@ class pain_elemental {
          
             if (!this.Somspawn) {
              this.Somspawn = new THREE.PositionalAudio(this.listener);
-           this.audioLoader.load('../0_assetsT3/sounds/painElemental/painSight.wav', (buffer) => {
+           this.audioLoader.load('./0_assetsT3/sounds/painElemental/painSight.wav', (buffer) => {
                 this.Somspawn.setBuffer(buffer);
                 this.Somspawn.setRefDistance(5); // Ajuste conforme necessário
                 this.Somspawn.setLoop(false);  // false para tocar apenas uma vez quando ferido
@@ -182,7 +182,7 @@ class pain_elemental {
           // Criar o som apenas se ainda não existir
           if (!this.Somdano) {
              this.Somdano = new THREE.PositionalAudio(this.listener);
-           this.audioLoader.load('../0_assetsT3/sounds/painElemental/injured.wav', (buffer) => {
+           this.audioLoader.load('./0_assetsT3/sounds/painElemental/injured.wav', (buffer) => {
                 this.Somdano.setBuffer(buffer);
                 this.Somdano.setRefDistance(5); // Ajuste conforme necessário
                 this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
@@ -198,7 +198,7 @@ class pain_elemental {
           // Criar o som apenas se ainda não existir
           if (!this.SomDash) {
              this.SomDash = new THREE.PositionalAudio(this.listener);
-             this.audioLoader.load('../0_assetsT3/sounds/painElemental/painAttack.wav', (buffer) => {
+             this.audioLoader.load('./0_assetsT3/sounds/painElemental/painAttack.wav', (buffer) => {
                 this.SomDash.setBuffer(buffer); 
                 this.SomDash.setRefDistance(5); // Ajuste conforme necessário
                 this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash

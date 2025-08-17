@@ -64,7 +64,7 @@ var area3 = new Area3([cubeGeo0,cubeGeo1,cubeGeo2,cubeGeo3],[materialCubo1,mater
       
    
 var area4 = new Area4([cubeGeo0,cubeGeo4,cubeGeo5,cubeGeo6],[materialCubo1,materialCubo4]);
-area4.degraus = criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, area4.estabelecerMaterial("./texturas_geral/area2/madeira_mediana.webp",1,2,0,0));
+area4.degraus = criar_degraus(new THREE.Vector3(80.5, 0, 0), 4, 5, 2, 8, 270, area4.estabelecerMaterial("./T3/texturas_geral/area2/madeira_mediana.webp",1,2,0,0));
 area4.cubos = [area4.cube1, area4.cube2, area4.cube3];
 
 //console.log(area1.cubos[1]);

@@ -27,7 +27,7 @@ class Area3 {
 
         this.repetir_porta = false;
 
-        audioLoader.load('../0_assetsT3/sounds/doorOpening.wav', (buffer) => {
+        audioLoader.load('./0_assetsT3/sounds/doorOpening.wav', (buffer) => {
             this.somPorta.setBuffer(buffer);
             this.somPorta.setVolume(0.5);
         });
@@ -564,7 +564,7 @@ class Area3 {
                     this.plane.visible = this.L200.visible = this.tank.visible = false;
             }
         }
-        loadOBJFile(this.assetManager, '../assets/objects/', 'plane', 20, 0, true);
+        loadOBJFile(this.assetManager, './assets/objects/', 'plane', 20, 0, true);
 
 
     }

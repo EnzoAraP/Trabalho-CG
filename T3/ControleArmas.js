@@ -756,7 +756,7 @@ class LancaMisseis {
 
                      this.somTiro = new THREE.Audio(this.listener);
                      const audioLoader = new THREE.AudioLoader();
-                     audioLoader.load('/TRABALHO-CG/0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
+                     audioLoader.load('./0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
                         this.somTiro.setBuffer(buffer);
                         this.somTiro.setVolume(0.5);
                      });

@@ -187,7 +187,7 @@ class Soldado {
                 // Criar o som apenas se ainda não existir
                 if (!this.Somdano) {
                    this.Somdano = new THREE.PositionalAudio(this.listener);
-                   this.audioLoader.load('../0_assetsT3/sounds/soldier/injured.wav', (buffer) => {
+                   this.audioLoader.load('./0_assetsT3/sounds/soldier/injured.wav', (buffer) => {
                       this.Somdano.setBuffer(buffer);
                       this.Somdano.setRefDistance(5); // Ajuste conforme necessário
                       this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
@@ -205,7 +205,7 @@ class Soldado {
                 if (!this.SomDash) {
                    
                    this.SomDash = new THREE.PositionalAudio(this.listener);
-                   this.audioLoader.load('../0_assetsT3/sounds/soldier/soldierAttack.wav', (buffer) => {
+                   this.audioLoader.load('./0_assetsT3/sounds/soldier/soldierAttack.wav', (buffer) => {
                       this.SomDash.setBuffer(buffer);
                       this.SomDash.setRefDistance(2); // Ajuste conforme necessário
                       this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
@@ -222,7 +222,7 @@ class Soldado {
                 // Criar o som apenas se ainda não existir
                 if (!this.SomNascer) {
                    this.SomNascer = new THREE.PositionalAudio(this.listener);
-                   this.audioLoader.load('../0_assetsT3/sounds/soldier/soldierSight.wav', (buffer) => {
+                   this.audioLoader.load('./0_assetsT3/sounds/soldier/soldierSight.wav', (buffer) => {
                       this.SomNascer.setBuffer(buffer);
                       this.SomNascer.setRefDistance(2); // Ajuste conforme necessário
                          // false para tocar apenas uma vez por dash

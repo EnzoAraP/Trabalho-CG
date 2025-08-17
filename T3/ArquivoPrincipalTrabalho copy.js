@@ -26,7 +26,7 @@ import { CubeTextureLoaderSingleFile } from '../libs/util/cubeTextureLoaderSingl
 
 
 
-let cubeMapTexture = new CubeTextureLoaderSingleFile().loadSingle('./2025.1_T2_Assets/subtract.png', 1);
+let cubeMapTexture = new CubeTextureLoaderSingleFile().loadSingle('./T3/2025.1_T2_Assets/subtract.png', 1);
 scene.background = cubeMapTexture;
 let possui_todas_as_chaves=false;
 let tempo_exibindo=180;
@@ -175,7 +175,7 @@ camera.add(listener);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 material;
-let material2 = areas[3].estabelecerMaterial("./texturas_geral/area2/big_wall2.jpg", 65, 2, 0, 0,"rgba(145, 117, 112, 1)");
+let material2 = areas[3].estabelecerMaterial("./T3/texturas_geral/area2/big_wall2.jpg", 65, 2, 0, 0,"rgba(145, 117, 112, 1)");
 const controle = new PointerLockControls(camera, renderer.domElement);
 controle.pointerSpeed = 0.6;
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
@@ -183,7 +183,7 @@ let planegeometry = new THREE.BoxGeometry(500, 0.1, 500); // Plano base 500x500
 let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
 let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das muralhas em x
 
-let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("../assets/textures/intertravado.jpg", 125, 125, 0, 0));
+let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("./assets/textures/intertravado.jpg", 125, 125, 0, 0));
 
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
@@ -451,7 +451,7 @@ const backgroundMusic = new THREE.Audio(listener);
 let audioLoader = new THREE.AudioLoader();
 
 // Carrega o áudio
-audioLoader.load('../0_assetsT3/sounds/doom.mp3',
+audioLoader.load('./0_assetsT3/sounds/doom.mp3',
   function(buffer) { // onLoad
     backgroundMusic.setBuffer(buffer);
     backgroundMusic.setLoop(true);

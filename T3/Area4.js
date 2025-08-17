@@ -33,10 +33,10 @@ class Area4 {
         });
 
         this.loader = new THREE.TextureLoader();
-        let textura_muralha = this.loader.load('T3/texturas_geral/area2/muralha_area4_text.jpg');
-        let textura_torres = this.loader.load('T3/texturas_geral/area2/normal_mapping/brickwall.jpg');
-        let textura_torres_normal = this.loader.load('T3/texturas_geral/area2/normal_mapping/brickwall_normal.jpg');
-        let textura_pontes = this.loader.load('T3/texturas_geral/area2/madeira_mediana.webp');
+        let textura_muralha = this.loader.load('./T3/texturas_geral/area2/muralha_area4_text.jpg');
+        let textura_torres = this.loader.load('./T3/texturas_geral/area2/normal_mapping/brickwall.jpg');
+        let textura_torres_normal = this.loader.load('./T3/texturas_geral/area2/normal_mapping/brickwall_normal.jpg');
+        let textura_pontes = this.loader.load('./T3/texturas_geral/area2/madeira_mediana.webp');
         let textura_pontes2 = new THREE.Texture().copy(textura_pontes);
         let cor_pontes = "rgba(160, 120, 120, 1)";
         this.material_pontes1 = [
@@ -81,8 +81,8 @@ class Area4 {
         this.altura_plataformas = 28;
 
 
-        let textura_vertical_janela = this.loader.load('T3/texturas_geral/area2/neo_gothic.jpg');
-        let textura_vertical_borda = this.loader.load('T3/texturas_geral/area2/rustic_brick2.jpg');
+        let textura_vertical_janela = this.loader.load('./T3/texturas_geral/area2/neo_gothic.jpg');
+        let textura_vertical_borda = this.loader.load('./T3/texturas_geral/area2/rustic_brick2.jpg');
         this.geometria_base_topo = new THREE.BoxGeometry(1, 2, 75);
         this.geometria_vertical = new THREE.BoxGeometry(1, 26, 6);
         this.geometria_centro_janela = new THREE.BoxGeometry(0.5, 4, 74.5);

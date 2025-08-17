@@ -175,7 +175,7 @@ camera.add(listener);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 keyboard = new KeyboardState();
 material;
-let material2 = areas[3].estabelecerMaterial("./texturas_geral/area2/big_wall2.jpg", 65, 2, 0, 0,"rgba(145, 117, 112, 1)");
+let material2 = areas[3].estabelecerMaterial("./T3/texturas_geral/area2/big_wall2.jpg", 65, 2, 0, 0,"rgba(145, 117, 112, 1)");
 const controle = new PointerLockControls(camera, renderer.domElement);
 controle.pointerSpeed = 0.6;
 const raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0).normalize(), 0, 2.1);
@@ -784,7 +784,7 @@ const backgroundMusic = new THREE.Audio(listener);
 let audioLoader = new THREE.AudioLoader();
 
 // Carrega o áudio
-audioLoader.load('../0_assetsT3/sounds/doom.mp3',
+audioLoader.load('./0_assetsT3/sounds/doom.mp3',
   function(buffer) { // onLoad
     backgroundMusic.setBuffer(buffer);
     backgroundMusic.setLoop(true);

@@ -55,7 +55,7 @@ class Area2 {
         const RES = (relPath) => new URL(relPath, import.meta.url).href;
 
 this.loader = new THREE.TextureLoader();
-let textura_porta = this.loader.load(RES('./T3/texturas_geral/area2/metal-door-texture-compressed.jpg'));
+let textura_porta = './T3/texturas_geral/area2/metal-door-texture-compressed.jpg';
 
 
 

@@ -159,7 +159,7 @@ class Cacodemon {
          // Criar o som apenas se ainda não existir
          if (!this.Somdano) {
             this.Somdano = new THREE.PositionalAudio(this.listener);
-            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonInjured.wav', (buffer) => {
+            this.audioLoader.load('./0_assetsT3/sounds/cacoDemon/cacodemonInjured.wav', (buffer) => {
                this.Somdano.setBuffer(buffer);
                this.Somdano.setRefDistance(5); // Ajuste conforme necessário
                this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
@@ -177,7 +177,7 @@ class Cacodemon {
          if (!this.SomDash) {
             
             this.SomDash = new THREE.PositionalAudio(this.listener);
-            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonAttack.wav', (buffer) => {
+            this.audioLoader.load('./0_assetsT3/sounds/cacoDemon/cacodemonAttack.wav', (buffer) => {
                this.SomDash.setBuffer(buffer);
                this.SomDash.setRefDistance(2); // Ajuste conforme necessário
                this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
@@ -195,7 +195,7 @@ class Cacodemon {
          // Criar o som apenas se ainda não existir
          if (!this.SomMorte) {
             this.SomMorte = new THREE.PositionalAudio(this.listener);
-            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonDeath.wav', (buffer) => {
+            this.audioLoader.load('./0_assetsT3/sounds/cacoDemon/cacodemonDeath.wav', (buffer) => {
                this.SomMorte.setBuffer(buffer);
                this.SomMorte.setRefDistance(5); // Ajuste conforme necessário
                this.SomMorte.setLoop(false);// false para tocar apenas uma vez por dash
@@ -211,7 +211,7 @@ class Cacodemon {
          console.log("PertoEsta1");
       if (!this.SomPerto) {
          this.SomPerto = new THREE.PositionalAudio(this.listener);
-         this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonNearby.wav', (buffer) => {
+         this.audioLoader.load('./0_assetsT3/sounds/cacoDemon/cacodemonNearby.wav', (buffer) => {
             this.SomPerto.setBuffer(buffer);
             this.SomPerto.setRefDistance(5);
             this.SomPerto.setLoop(true);
@@ -229,7 +229,7 @@ class Cacodemon {
          // Criar o som apenas se ainda não existir
          if (!this.SomNascer) {
             this.SomNascer = new THREE.PositionalAudio(this.listener);
-            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonSight.wav', (buffer) => {
+            this.audioLoader.load('./0_assetsT3/sounds/cacoDemon/cacodemonSight.wav', (buffer) => {
                this.SomNascer.setBuffer(buffer);
                this.SomNascer.setRefDistance(2); // Ajuste conforme necessário
                   // false para tocar apenas uma vez por dash
