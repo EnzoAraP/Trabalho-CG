@@ -18,7 +18,7 @@ import { testeGrandesAreas } from './criacaoAreas.js';
 import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 import { Area3 } from './area3.js';
 
-import {ativar_fim_da_luz_por_derrota} from './ArquivoPrincipalTrabalho copy 2.js';
+import {ativar_fim_da_luz_por_derrota} from './ArquivoPrincipalTrabalho.js';
 import { Area4 } from './Area4.js';
 
 var eixo_x = new THREE.Vector3(1, 0, 0);
