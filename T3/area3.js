@@ -21,6 +21,15 @@ import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
 class Area3 {
     constructor(geomterias_cubos, materiais_cubos) {
+        this.somPorta = new THREE.Audio(new THREE.AudioListener()); // sem listener na camera
+        const audioLoader = new THREE.AudioLoader();
+
+        this.repetir_porta = false;
+
+        audioLoader.load('../0_assetsT3/sounds/doorOpening.wav', (buffer) => {
+            this.somPorta.setBuffer(buffer);
+            this.somPorta.setVolume(0.5);
+        });
         this.inimigos_posicionados = false;
         this.loader = new THREE.TextureLoader();
         // Geometria e materias da porta, do bloco fechadura e da porta: 
@@ -220,11 +229,11 @@ class Area3 {
         this.boundingCube4 = null;
         this.boundingCube5 = null;
 
-        this.cube4.castShadow=true;
-        this.cube5.castShadow=true;
+        this.cube4.castShadow = true;
+        this.cube5.castShadow = true;
 
-        this.cube4.receiveShadow=true;
-        this.cube5.receiveShadow=true;
+        this.cube4.receiveShadow = true;
+        this.cube5.receiveShadow = true;
 
 
 
@@ -254,7 +263,7 @@ class Area3 {
 
         this.fachadaOval1 = this.hangar;
 
-        
+
 
 
         this.fachadaOval2 = new THREE.Mesh(geometry, material);
@@ -264,11 +273,11 @@ class Area3 {
         this.cube0.add(this.fachadaOval2);
 
 
-        this.fachadaOval1.castShadow=true;
-        this.fachadaOval1.receiveShadow=true;
+        this.fachadaOval1.castShadow = true;
+        this.fachadaOval1.receiveShadow = true;
 
-        this.fachadaOval2.castShadow=true;
-        this.fachadaOval2.receiveShadow=true;
+        this.fachadaOval2.castShadow = true;
+        this.fachadaOval2.receiveShadow = true;
         // Cria um contorno meia elipse (sem preenchimento) com base no mesmo shape da frente
 
         const pontosPerfil = [];
@@ -334,16 +343,16 @@ class Area3 {
         material2.side = THREE.DoubleSide;
         const tetoOval = new THREE.Mesh(geometria, material2);
 
-        
+
 
 
         // Posicionamento
 
         this.tetoOval = tetoOval;
-        this.tetoOvalBox=null;
+        this.tetoOvalBox = null;
 
-        tetoOval.castShadow=true;
-        tetoOval.receiveShadow=true;
+        tetoOval.castShadow = true;
+        tetoOval.receiveShadow = true;
 
         this.cube0.add(this.tetoOval);
         this.tetoOval.translateY(this.altura_geral / 2);
@@ -429,7 +438,7 @@ class Area3 {
         colidiu = this.tetoOvalBox.intersectsBox(boxBala)
         if (colidiu)
             return true;
-      
+
 
         return false;
 
@@ -627,6 +636,10 @@ class Area3 {
 
             this.comecou_a_abrir = true;
         }
+
+
+            this.somPorta.play();
+      
 
         this.porta1.mesh.position.z += multiplicador * 0.055; // Incremento de movimento
         this.porta2.mesh.position.z -= multiplicador * 0.055; // Incremento de movimento

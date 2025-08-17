@@ -153,10 +153,89 @@ class Soldado {
         this.moveRight = false;
         this.moveLeft = false;
 
+        this.som_nascer=false;
+
 
         this.armaSoldado = new armaSoldado(this.obj,scene,[this.personagem_rival]);
-    }
-
+       
+             //som
+             this.listener = null;
+             this.audioLoader = null;
+             this.Somdano = null;
+             this.SomDash = null;
+             this.SomMorte = null;
+             this.SomNascer = null;
+             this.SomPerto = null;
+       
+       
+             this.IniciaSound();
+          }
+          IniciaSound() {
+             if (!this.listener)
+                this.listener = new THREE.AudioListener();
+             this.camera.add(this.listener);
+             this.audioLoader = new THREE.AudioLoader();
+       
+       
+          }
+          SomLostSoulGerenciamento(SomEscolha) {
+       
+       
+             if (SomEscolha === "levardano") {
+                // Criar o som apenas se ainda não existir
+                if (!this.Somdano) {
+                   this.Somdano = new THREE.PositionalAudio(this.listener);
+                   this.audioLoader.load('../0_assetsT3/sounds/soldier/injured.wav', (buffer) => {
+                      this.Somdano.setBuffer(buffer);
+                      this.Somdano.setRefDistance(5); // Ajuste conforme necessário
+                      this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
+                      this.obj.add(this.Somdano);   // Adicionar ao objeto para que o som siga o inimigo
+                      this.Somdano.play();          // Iniciar reprodução
+                   });
+                } else if (!this.Somdano.isPlaying) {
+                   this.Somdano.play();             // Tocar novamente se já existir e não estiver tocando
+                }
+             }
+       
+             if (SomEscolha === "atirar") {
+                 console.log("Attack");
+                // Criar o som apenas se ainda não existir
+                if (!this.SomDash) {
+                   
+                   this.SomDash = new THREE.PositionalAudio(this.listener);
+                   this.audioLoader.load('../0_assetsT3/sounds/soldier/soldierAttack.wav', (buffer) => {
+                      this.SomDash.setBuffer(buffer);
+                      this.SomDash.setRefDistance(2); // Ajuste conforme necessário
+                      this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
+                      this.obj.add(this.SomDash);     // Adicionar ao objeto para que o som siga o inimigo
+                      this.SomDash.play();            // Iniciar reprodução
+                   });
+                } else if (!this.SomDash.isPlaying) {
+                  
+                   this.SomDash.play();               // Tocar novamente se já existir e não estiver tocando
+                }
+             }
+       
+             if (SomEscolha === "nascer") {
+                // Criar o som apenas se ainda não existir
+                if (!this.SomNascer) {
+                   this.SomNascer = new THREE.PositionalAudio(this.listener);
+                   this.audioLoader.load('../0_assetsT3/sounds/soldier/soldierSight.wav', (buffer) => {
+                      this.SomNascer.setBuffer(buffer);
+                      this.SomNascer.setRefDistance(2); // Ajuste conforme necessário
+                         // false para tocar apenas uma vez por dash
+                      this.obj.add(this.SomNascer);     // Adicionar ao objeto para que o som siga o inimigo
+                      this.SomNascer.play();            // Iniciar reprodução
+                   });
+                } else if (!this.SomNascer.isPlaying) {
+                   this.SomNascer.play();               // Tocar novamente se já existir e não estiver tocando
+                }
+             }
+       
+       
+       
+       
+          }
     
     // Função para acordar inimigos para batalha
     acordar() {
@@ -165,10 +244,16 @@ class Soldado {
         //this.obj.castShadow=true;
         //this.obj.receiveShadow=true;
         this.grupoBarras.visible = true;
+        if(!this.som_nascer){
+            this.SomLostSoulGerenciamento("nascer");   
+            this.som_nascer=true;
+        }
+            
     }
 
     // Função para operar seu sumiço gradativo
     sumir(areas,delta) {
+        
         //console.log("AAAAAAAAA");
          this.spriteMixer.update(delta);
         if(this.sumiu)
@@ -525,8 +610,10 @@ class Soldado {
                 
                 if(this.tempoAtual>=this.tempoControle+2*this.tempoTiro){
                     this.tempoControle = this.tempoAtual;
+                    this.SomLostSoulGerenciamento("atirar");
                     this.numTiros++;
                     this.armaSoldado.atirar(scene,areas,fronteira,this.obj,true,this.perturbacao_tiro,this.posicao_anterior_inimigo);
+                    
                     this.personagem_rival.obj.getWorldPosition(this.posicao_anterior_inimigo);
              
                     if(this.numTiros==this.numTirosMax){
@@ -894,6 +981,7 @@ class Soldado {
     }
 
     sofrerAtaque(danoInfligido, scene) {
+        this.SomLostSoulGerenciamento("levardano");
         this.vida -= danoInfligido;// Decrementa vida em caso de ataque
 
         //console.log("Vida:");

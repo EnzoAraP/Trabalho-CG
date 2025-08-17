@@ -20,6 +20,16 @@ import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
 class Area4 {
     constructor(geomterias_cubos, materiais_cubos) {
+        this.somPorta = new THREE.Audio(new THREE.AudioListener()); // sem listener na camera
+        const audioLoader = new THREE.AudioLoader();
+
+        this.repetir_porta = false;
+
+        audioLoader.load('../0_assetsT3/sounds/doorOpening.wav', (buffer) => {
+            this.somPorta.setBuffer(buffer);
+            this.somPorta.setVolume(0.5);
+        });
+
         this.loader = new THREE.TextureLoader();
         let textura_muralha = this.loader.load('./texturas_geral/area2/muralha_area4_text.jpg');
         let textura_torres = this.loader.load('./texturas_geral/area2/normal_mapping/brickwall.jpg');
@@ -561,7 +571,7 @@ class Area4 {
         this.painel = new THREE.Mesh(this.geometria_painel, this.material_painel);
         this.painel.castShadow = true;
         this.painel.receiveShadow = true;
-        this.painel.visible=false;
+        this.painel.visible = false;
         this.centro_portas.add(this.painel);
 
         this.porta = { mesh: this.porta_area_2, box: null, abrindo: false, aberta: false };
@@ -780,7 +790,7 @@ class Area4 {
 
         for (let i = 0; i < this.portais.length; i++) {
             let boxExpandida = this.portais_box[i].clone();
-            let margemX = 0.2; 
+            let margemX = 0.2;
             boxExpandida.min.x -= margemX;
             boxExpandida.max.x += margemX;
             colidiu = boxExpandida.intersectsBox(boxBala);
@@ -907,7 +917,7 @@ class Area4 {
 
     abrir_porta(limiteY, multiplicador) {
         if (!this.comecou_a_abrir_porta) {
-             this.painel.visible=true;
+            this.painel.visible = true;
             // Fazer com que a porte adentre a área 2 e não fique para fora:
             //this.muralha1.mesh.translateY(-0.02);
             //this.muralha2.mesh.translateX(-0.02);
@@ -921,7 +931,7 @@ class Area4 {
         this.porta.mesh.position.y += multiplicador * vel_porta;
         this.porta.box.setFromObject(this.porta.mesh);
 
-
+        this.somPorta.play();
 
 
         // Se alcançar o limite:

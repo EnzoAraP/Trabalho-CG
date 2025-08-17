@@ -1148,7 +1148,7 @@ let elevacaoBloco = null;
 // Create the cube
 let loader = new THREE.TextureLoader();
 let geometry = new THREE.BoxGeometry(10, 5, 5);
-let cubeMaterials = [
+/*let cubeMaterials = [
    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 2), //x+
    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 1, 1, 'orange'), //x-   Texture + color
    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //y+
@@ -1156,12 +1156,13 @@ let cubeMaterials = [
    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1), //z+
    setMaterial('./texturas_geral/area2/seamless-metal-cargo-box-texture-optimized.webp', 2, 1) //z-
 ];
-let cube = new THREE.Mesh(geometry, cubeMaterials);
+*/
+//let cube = new THREE.Mesh(geometry, cubeMaterials);
 
-cube.scale.set(10, 10, 10);
-scene.add(cube);
+//cube.scale.set(10, 10, 10);
+//scene.add(cube);
 
-cube.position.set(100, 100, 100);
+//cube.position.set(100, 100, 100);
 // To access textures individually, you should use their indexes
 //console.log(cube.material[0].map)
 
@@ -1524,7 +1525,7 @@ function render() {
 
          areas[3].posicionar_chave3(null);
       }
- if(personagem.chegada_area4)
+ if(personagem.chegada_area4 && false)
       {
             lancaMisseis.inimigos = InimigosArea5;
                metralhadora.inimigos = InimigosArea5;

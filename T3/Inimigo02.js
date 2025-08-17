@@ -28,7 +28,7 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class Cacodemon {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, arma, personagem) {
-      this.tipo="cacodemon";
+      this.tipo = "cacodemon";
       this.voo = true;
       this.obj = objeto;
 
@@ -43,7 +43,7 @@ class Cacodemon {
 
       this.naPlataforma = false;
 
-      this.naPlataforma_a4=[false,false];
+      this.naPlataforma_a4 = [false, false];
 
       this.possui_chave1 = true;
 
@@ -93,11 +93,11 @@ class Cacodemon {
 
       this.arma = arma;
 
-      arma.danoInfligido=50;
+      arma.danoInfligido = 8;
 
       this.tempoDesap = 50;
 
-      this.passos_desap=0;
+      this.passos_desap = 0;
 
       this.taxaDesap = 0.02;
 
@@ -105,11 +105,11 @@ class Cacodemon {
 
       this.transparente = false;
 
-      this.dormindo=true;
+      this.dormindo = true;
 
-      this.vidaMax=50;
+      this.vidaMax = 50;
       this.vida = this.vidaMax;
-      
+
       this.levaDano = true;
       this.padeceu = false;
 
@@ -122,170 +122,44 @@ class Cacodemon {
       this.anterior_yz = 0;
 
 
-
+      //som
+      this.listener = null;
+      this.audioLoader = null;
+      this.Somdano = null;
+      this.SomDash = null;
+      this.SomMorte = null;
+      this.SomNascer = null;
+      this.SomPerto = null;
 
       this.girando = false;
       this.tempoDeGiro = 0;
       this.t_max = 0;
       this.quaternionInicial = new THREE.Quaternion();
       this.quaternionFinal = new THREE.Quaternion();
-      
 
-      this.barraFrente=null;
-      this.barraFundo=null;
-      this.grupoBarras=null;
-      this.tamBarraVida=1.2;
-   this.IniciaSound();
+
+      this.barraFrente = null;
+      this.barraFundo = null;
+      this.grupoBarras = null;
+      this.tamBarraVida = 1.2;
+      this.IniciaSound();
    }
-   gerarMovimento2(personagem = this.personagem_rival.obj) {
-
-      this.girando = true;
-      this.direcao_movimento.subVectors(personagem.position, this.obj.position);
-      let giroMin = 0;
-      if (this.direcao_movimento.length() <= 6)
-         giroMin = Math.PI / 3;
-
-
-      let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-      let giroY = (Math.random() ** 2) * (Math.PI / 3) + giroMin;
-
-      let positivo = (Math.random() >= 0.5);
-
-      if (!positivo)
-         giroY = -giroY;
-      let giroZ = (Math.random() ** 4) * (Math.PI / 6);
-      if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
-         giroZ /= 5;
-      if (this.direcao_movimento.y * this.direcao_movimento.x < 0)
-         giroZ = -giroZ;
-
-
-
-
-      let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY);
-
-      this.direcao_movimento.applyMatrix4(rotMatrixY);
-
-      if (this.direcao_movimento.y < -0.1 || this.direcao_movimento.y > 0) {
-         let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
-         this.direcao_movimento.applyMatrix4(rotMatrixZ);
-
-      }
-      let dirAtualXZ = this.obj.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
-      const direcaoDesejadaXZ = this.direcao_movimento.clone().setY(0).normalize();
-
-
-
-      this.coef_rot_hor = dirAtualXZ.angleTo(direcaoDesejadaXZ);
-
-      let dirAtualYZ = this.obj.getWorldDirection(new THREE.Vector3()).setX(0).normalize();
-      const direcaoDesejadaYZ = this.direcao_movimento.clone().setX(0).normalize()
-
-      this.coef_rot_ver = dirAtualYZ.angleTo(direcaoDesejadaYZ);
-
-      let max_coef = this.coef_rot_hor >= this.coef_rot_ver ? this.coef_rot_hor : this.coef_rot_ver;
-
-
-      const giroEmGraus = Math.abs(THREE.MathUtils.radToDeg(max_coef));
-      if (giroEmGraus <= 30)
-         this.t_max = 1 + Math.floor(giroEmGraus) * 2;
-      else if (giroEmGraus <= 90)
-         this.t_max = Math.floor((giroEmGraus - 30)) + 60;
-      else
-         this.t_max = Math.floor((giroEmGraus - 90)) * 1.8 + 120;
-      // Para giro horizontal (em torno do eixo Y → plano XZ):
-      this.mult = dirAtualXZ.clone().cross(direcaoDesejadaXZ).y < 0 ? -1 : 1;
-      this.coef_rot_hor *= this.mult;
-
-      // Para giro vertical (em torno do eixo X → plano YZ):
-      this.mult = dirAtualYZ.clone().cross(direcaoDesejadaYZ).x < 0 ? -1 : 1;
-      this.coef_rot_ver *= this.mult;
-
+   IniciaSound() {
+      if (!this.listener)
+         this.listener = new THREE.AudioListener();
+      this.camera.add(this.listener);
+      this.audioLoader = new THREE.AudioLoader();
 
 
    }
-
-   ataque_especial2(scene) {
-      this.girando = true;
-      this.direcao_movimento.subVectors(this.personagem_rival.obj.position, this.obj.position);
-      let dirAtualXZ = this.obj.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
-      const direcaoDesejadaXZ = this.direcao_movimento.clone().setY(0).normalize();
+   SomLostSoulGerenciamento(SomEscolha) {
 
 
-
-      this.coef_rot_hor = dirAtualXZ.angleTo(direcaoDesejadaXZ);
-
-      let dirAtualYZ = this.obj.getWorldDirection(new THREE.Vector3()).setX(0).normalize();
-      const direcaoDesejadaYZ = this.direcao_movimento.clone().setX(0).normalize()
-
-      this.coef_rot_ver = dirAtualYZ.angleTo(direcaoDesejadaYZ);
-
-      let max_coef = this.coef_rot_hor >= this.coef_rot_ver ? this.coef_rot_hor : this.coef_rot_ver;
-
-
-      const giroEmGraus = Math.abs(THREE.MathUtils.radToDeg(max_coef));
-      if (giroEmGraus <= 30)
-         this.t_max = 1 + Math.floor(giroEmGraus / 2);
-      else if (giroEmGraus <= 90)
-         this.t_max = Math.floor((giroEmGraus - 30) / 3) + 15;
-      else
-         this.t_max = Math.floor((giroEmGraus - 90) / 10) + 25;
-      // Para giro horizontal (em torno do eixo Y → plano XZ):
-      this.mult = dirAtualXZ.clone().cross(direcaoDesejadaXZ).y < 0 ? -1 : 1;
-      this.coef_rot_hor *= this.mult;
-
-      // Para giro vertical (em torno do eixo X → plano YZ):
-      this.mult = dirAtualYZ.clone().cross(direcaoDesejadaYZ).x < 0 ? -1 : 1;
-      this.coef_rot_ver *= this.mult;
-
-
-   }
-
-   funcaoRotacaoHor(x) {
-      if (Math.abs(this.coef_rot_hor) < 1e-15)
-         return 0;
-
-      const t = this.t_max;
-      const coef = this.coef_rot_hor / (t * t);
-      const cubic = -2 * (x ** 3) / t + 3 * (x ** 2);
-
-      return coef * cubic; // Já está em radianos
-   }
-
-   funcaoRotacaoVert(x) {
-      if (Math.abs(this.coef_rot_ver) < 1e-15)
-         return 0;
-
-      const t = this.t_max;
-      const coef = this.coef_rot_ver / (t * t);
-      const cubic = -2 * (x ** 3) / t + 3 * (x ** 2);
-
-      return coef * cubic;
-   }
-
-   // Função para acordar inimigos para batalha
-   acordar(){
-      this.dormindo=false;
-      this.obj.visible=true;
-      this.grupoBarras.visible=true;
-   }
-   IniciaSound()
-      {
-         if(!this.listener)
-          this.listener = new THREE.AudioListener();
-         this.camera.add(this.listener);
-         this.audioLoader = new THREE.AudioLoader();
-   
-   
-      }
-         SomLostSoulGerenciamento(SomEscolha) {
-            
-         
-      if(SomEscolha === "levadano") {
+      if (SomEscolha === "levardano") {
          // Criar o som apenas se ainda não existir
          if (!this.Somdano) {
             this.Somdano = new THREE.PositionalAudio(this.listener);
-          this.audioLoader.load('../0_assetsT3/sounds/lostSoul/injured.wav', (buffer) => {
+            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonInjured.wav', (buffer) => {
                this.Somdano.setBuffer(buffer);
                this.Somdano.setRefDistance(5); // Ajuste conforme necessário
                this.Somdano.setLoop(false);  // false para tocar apenas uma vez quando ferido
@@ -296,56 +170,126 @@ class Cacodemon {
             this.Somdano.play();             // Tocar novamente se já existir e não estiver tocando
          }
       }
-      
-      if(SomEscolha === "deudash") {
+
+      if (SomEscolha === "atirou") {
+          console.log("Attack");
          // Criar o som apenas se ainda não existir
          if (!this.SomDash) {
+            
             this.SomDash = new THREE.PositionalAudio(this.listener);
-            this.audioLoader.load('../0_assetsT3/sounds/lostSoul/lost_soul_attack.wav', (buffer) => {
-               this.SomDash.setBuffer(buffer); 
-               this.SomDash.setRefDistance(5); // Ajuste conforme necessário
+            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonAttack.wav', (buffer) => {
+               this.SomDash.setBuffer(buffer);
+               this.SomDash.setRefDistance(2); // Ajuste conforme necessário
                this.SomDash.setLoop(false);    // false para tocar apenas uma vez por dash
                this.obj.add(this.SomDash);     // Adicionar ao objeto para que o som siga o inimigo
                this.SomDash.play();            // Iniciar reprodução
             });
          } else if (!this.SomDash.isPlaying) {
+           
             this.SomDash.play();               // Tocar novamente se já existir e não estiver tocando
          }
       }
+
+
+      if (SomEscolha === "morrer") {
+         // Criar o som apenas se ainda não existir
+         if (!this.SomMorte) {
+            this.SomMorte = new THREE.PositionalAudio(this.listener);
+            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonDeath.wav', (buffer) => {
+               this.SomMorte.setBuffer(buffer);
+               this.SomMorte.setRefDistance(5); // Ajuste conforme necessário
+               this.SomMorte.setLoop(false);// false para tocar apenas uma vez por dash
+               this.obj.add(this.SomMorte);     // Adicionar ao objeto para que o som siga o inimigo
+               this.SomMorte.play();            // Iniciar reprodução
+            });
+         } else if (!this.SomMorte.isPlaying) {
+            this.SomMorte.play();               // Tocar novamente se já existir e não estiver tocando
+         }
+      }
+
+      if (SomEscolha === "perto_esta") {
+         console.log("PertoEsta1");
+      if (!this.SomPerto) {
+         this.SomPerto = new THREE.PositionalAudio(this.listener);
+         this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonNearby.wav', (buffer) => {
+            this.SomPerto.setBuffer(buffer);
+            this.SomPerto.setRefDistance(5);
+            this.SomPerto.setLoop(true);
+            this.SomPerto.setVolume(1.2);
+            this.obj.add(this.SomPerto);
+            this.SomPerto.play();
+         });
+      } else  {
+         console.log("Play");
+         this.SomPerto.play();
+      }
    }
+
+      if (SomEscolha === "nascer") {
+         // Criar o som apenas se ainda não existir
+         if (!this.SomNascer) {
+            this.SomNascer = new THREE.PositionalAudio(this.listener);
+            this.audioLoader.load('../0_assetsT3/sounds/cacoDemon/cacodemonSight.wav', (buffer) => {
+               this.SomNascer.setBuffer(buffer);
+               this.SomNascer.setRefDistance(2); // Ajuste conforme necessário
+                  // false para tocar apenas uma vez por dash
+               this.obj.add(this.SomNascer);     // Adicionar ao objeto para que o som siga o inimigo
+               this.SomNascer.play();            // Iniciar reprodução
+            });
+         } else if (!this.SomNascer.isPlaying) {
+            this.SomNascer.play();               // Tocar novamente se já existir e não estiver tocando
+         }
+      }
+
+
+
+
+   }
+
+  
+
+   // Função para acordar inimigos para batalha
+   acordar() {
+      this.dormindo = false;
+      this.obj.visible = true;
+      this.grupoBarras.visible = true;
+      this.SomLostSoulGerenciamento("nascer");
+
+   }
+
 
    // Função para operar seu sumiço gradativo
    sumir() {
+      this.SomLostSoulGerenciamento("morrer");
       this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Barras continuam viradas ao usuário
-     
-      if (!this.sumiu) { // Se ele ainda não sumiu
-         let taxa_desap=this.taxaDesap; // Estabelece desaparecimento
-         if(!this.transparente)
-         {
-            this.transparente=true;
-            
-            //console.log("AA");
-         this.obj.traverse(function (child) {  // Para cada filho que é mesh
-            if (child.isMesh) {
-               //console.log("TP")
-               child.material.transparent = true; // Habilita transparência
-            }
-         });
 
-         this.barraFundo.material.transparent=true;
-      }
-         this.barraFundo.material.opacity-=taxa_desap; // Faz barra ir desaparecendo
+      if (!this.sumiu) { // Se ele ainda não sumiu
+         let taxa_desap = this.taxaDesap; // Estabelece desaparecimento
+         if (!this.transparente) {
+            this.transparente = true;
+
+            //console.log("AA");
+            this.obj.traverse(function (child) {  // Para cada filho que é mesh
+               if (child.isMesh) {
+                  //console.log("TP")
+                  child.material.transparent = true; // Habilita transparência
+               }
+            });
+
+            this.barraFundo.material.transparent = true;
+         }
+         this.barraFundo.material.opacity -= taxa_desap; // Faz barra ir desaparecendo
          //console.log(this.barraFundo.material.opacity);
-          this.obj.traverse(function (child) {
+         this.obj.traverse(function (child) {
             if (child.isMesh) {
                child.material.opacity -= taxa_desap; // Faz objetos irem desaparecendo
                //console.log(child.material.opacity );
             }
          });
          this.passos_desap++; // Incrementa despareciment
-         if (this.passos_desap==this.tempoDesap)// Se acabou, indica o sumiço
+         if (this.passos_desap == this.tempoDesap)// Se acabou, indica o sumiço
             this.sumiu = true;
-         
+
       }
    }
 
@@ -356,22 +300,23 @@ class Cacodemon {
       
       this.direcao_movimento.subVectors(personagem.position, this.obj.position);  // Direção até o personagem
       let giroMin = 0;
-      let exp=1.2;
+      let exp = 1.2;
+      
       if (this.direcao_movimento.length() <= 9)
          giroMin = Math.PI / 2; // Muito perto, pelo menos 90 graus
-      else if(this.direcao_movimento.length()<=20){
-          giroMin = Math.PI / 4; // Mais ou menos perto, ao menos 45
-          exp=0.8;
+      else if (this.direcao_movimento.length() <= 20) {
+         giroMin = Math.PI / 4; // Mais ou menos perto, ao menos 45
+         exp = 0.8;
       }
-      else if(this.direcao_movimento.length()>=40){
-         exp=2; // Um pouco longe, tende a se aproximar
+      else if (this.direcao_movimento.length() >= 40) {
+         exp = 2; // Um pouco longe, tende a se aproximar
       }
-      else if(this.direcao_movimento.length()>=60)
-         exp=5; // Muito longe, tende a se aproximar mais e mais
+      else if (this.direcao_movimento.length() >= 60)
+         exp = 5; // Muito longe, tende a se aproximar mais e mais
 
 
       let direcao_imimigo_copia = (new THREE.Vector3(0, 0, 0)).copy(this.direcao_movimento);
-      let giroY = (Math.random() ** (exp)) * (3*Math.PI / 8) + giroMin;  // Estabelece giro em relação à direção dele até o personagem
+      let giroY = (Math.random() ** (exp)) * (3 * Math.PI / 8) + giroMin;  // Estabelece giro em relação à direção dele até o personagem
 
       let positivo = (Math.random() >= 0.5); // Sorteia o sentido
 
@@ -380,12 +325,12 @@ class Cacodemon {
       let giroZ = (Math.random() ** 4) * (Math.PI / 6); // Giro vertical
       if (Math.abs(this.direcao_movimento.y) > 0.5 && this.direcao_movimento.y < 0)
          giroZ /= 5;// Reduz giro em certas condições
-      if (this.direcao_movimento.y  < 0)
+      if (this.direcao_movimento.y < 0)
          giroZ = -giroZ; // Adequa giro em z
 
 
 
-      
+
       let rotMatrixY = new THREE.Matrix4().makeRotationY(giroY); // Matriz de rotação
 
       this.direcao_movimento.applyMatrix4(rotMatrixY);
@@ -393,7 +338,7 @@ class Cacodemon {
 
 
       if (this.direcao_movimento.y < -0.1 || this.direcao_movimento.y > 0) {
-        
+
          let rotMatrixZ = new THREE.Matrix4().makeRotationX(giroZ);
          this.direcao_movimento.applyMatrix4(rotMatrixZ);
 
@@ -407,7 +352,7 @@ class Cacodemon {
       const angulo = this.obj.getWorldDirection(new THREE.Vector3()).angleTo(direcao); //Ângulo a se girar para alcançar direção
 
       const giroEmGraus = Math.min(THREE.MathUtils.radToDeg(angulo), 180); // Em graus
-      
+
       // Estabelece tempos de giro, de acordo com o tamanho do ângulo
       if (giroEmGraus <= 30)
          this.t_max = 1 + Math.floor(giroEmGraus * 2);
@@ -426,7 +371,7 @@ class Cacodemon {
       dummy.lookAt(alvoPos);  // Simula giro total do objeto
       this.quaternionFinal.copy(dummy.quaternion); // Obtém quartenion final
 
-      
+
    }
 
 
@@ -495,13 +440,17 @@ class Cacodemon {
 
       }
 
-      if(this.dormindo || this.vida<=0) // Se estiver a dormir, não faz nada
+      if (this.dormindo || this.vida <= 0) // Se estiver a dormir, não faz nada
          return;
 
+         if (this.direcao_movimento.length() <= 20){
+            console.log("PertoEsta");
+         this.SomLostSoulGerenciamento("perto_esta");
+      }
       //console.log(this.personagem_rival.obj.position);
       this.grupoBarras.lookAt(this.personagem_rival.obj.position); // Faz barras de vida olharem para o jogador
       if (this.girando) {// Se estiver girando
-         this.tempoDeGiro++; 
+         this.tempoDeGiro++;
 
          let t = this.tempoDeGiro / this.t_max;
          if (this.contagemPreAtaque != 0)
@@ -521,6 +470,7 @@ class Cacodemon {
       if (this.contagemPreAtaque != 0) {// Giro para o ataque é mais rápido
          this.contagemPreAtaque++;
          if (this.contagemPreAtaque == 20) {
+            //this.SomLostSoulGerenciamento("atirou");
             this.contagemPreAtaque = 0;
             this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
          }
@@ -557,7 +507,7 @@ class Cacodemon {
 
       let moveDir = this.obj.getWorldDirection(new THREE.Vector3());
 
-     
+
 
 
       this.box = new THREE.Box3().setFromObject(this.obj);
@@ -588,33 +538,33 @@ class Cacodemon {
             if (!colisaoAreaAtual && speedColisao[1])
                colisaoAreaAtual = true;
          }
-         
-            if (this.grandeArea == 1) {
-               //  console.log(areas[0].boundingBoxesPilares);
 
-               for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
+         if (this.grandeArea == 1) {
+            //  console.log(areas[0].boundingBoxesPilares);
 
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
-                  this.speed = speedColisao[0];
-                  if (speedColisao[1] == true) {
-                     console.log("bateu");
-                  }
+            for (var i = 0; i < areas[0].boundingBoxesPilares.length; i++) {
+
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxesPilares[i], this.speed, true);
+               this.speed = speedColisao[0];
+               if (speedColisao[1] == true) {
+                  console.log("bateu");
                }
-                for (var i = 0; i < areas[0].BoundingBoxpedras.length; i++) {// verifica bater com pedras em cima do pilar
-
-                  let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].BoundingBoxpedras[i], this.speed, true);
-                  this.speed = speedColisao[0];
-                  if (speedColisao[1] == true) {
-                     console.log("bateu");
-                  }
-               }
-
-               let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, true);
-               this.speed = colisaoPlat[0];
-                  
-
-               
             }
+            for (var i = 0; i < areas[0].BoundingBoxpedras.length; i++) {// verifica bater com pedras em cima do pilar
+
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].BoundingBoxpedras[i], this.speed, true);
+               this.speed = speedColisao[0];
+               if (speedColisao[1] == true) {
+                  console.log("bateu");
+               }
+            }
+
+            let colisaoPlat = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[0].boundingBoxplat, this.speed, true);
+            this.speed = colisaoPlat[0];
+
+
+
+         }
          if (this.grandeArea == 2) {
 
             let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].porta.box, this.speed, true);
@@ -624,9 +574,9 @@ class Cacodemon {
             if (this.redondezasDaFechadura) {
                speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].fechadura.box, this.speed, true);
                this.speed = speedColisao[0];
-               if(areas[this.grandeArea-1].chave1!=null){
-                   speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, true);
-                   this.speed = speedColisao[0];
+               if (areas[this.grandeArea - 1].chave1 != null) {
+                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].chave1Box, this.speed, true);
+                  this.speed = speedColisao[0];
                }
 
             }
@@ -662,13 +612,13 @@ class Cacodemon {
 
          }
          else if (this.grandeArea == 3) {
-               this.speed=areas[this.grandeArea-1].colisoes_area3(this.speed,this.obj,this.larg,2,this.larg,moveDir,true,this.area);
-               if(areas[this.grandeArea-1].soldados_derrotados==8){
-                  speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, true);
-                  
-               }
+            this.speed = areas[this.grandeArea - 1].colisoes_area3(this.speed, this.obj, this.larg, 2, this.larg, moveDir, true, this.area);
+            if (areas[this.grandeArea - 1].soldados_derrotados == 8) {
+               speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, true);
 
-            
+            }
+
+
             /*
             let isIntersectingStaircase = this.raycaster.intersectObject(areas[this.grandeArea - 1].degraus[1].rampa).length > 0.01; // Teste da rampa
 
@@ -706,23 +656,23 @@ class Cacodemon {
             }
                */
          }
-         else{
-             for (var j = 0; j < areas[this.grandeArea-1].boundingDegraus.length; j++) {
+         else {
+            for (var j = 0; j < areas[this.grandeArea - 1].boundingDegraus.length; j++) {
 
-            let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea-1].boundingDegraus[j], this.speed, true);
-            this.speed = colisaoSpeed[0];
-         }
+               let colisaoSpeed = verifica_colisoes_com_blocos(this.obj, this.larg, 1.2, this.larg, moveDir, areas[this.grandeArea - 1].boundingDegraus[j], this.speed, true);
+               this.speed = colisaoSpeed[0];
+            }
          }
          if (this.grandeArea == 4) {
-               //  //console.log(areas[0].boundingBoxesPilares);
-               this.speed=areas[this.grandeArea-1].colisoes_area4(this.speed,this.obj,this.larg,2,this.larg,moveDir,false,this.area,this.naPlataforma_a4,true);
-               if(areas[3].porta.abrindo || areas[3].porta.aberta){
-                 let speedColisao= verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].painel_box, this.speed, delta);
-                  this.speed= speedColisao[0];
-                  
-               }
+            //  //console.log(areas[0].boundingBoxesPilares);
+            this.speed = areas[this.grandeArea - 1].colisoes_area4(this.speed, this.obj, this.larg, 2, this.larg, moveDir, false, this.area, this.naPlataforma_a4, true);
+            if (areas[3].porta.abrindo || areas[3].porta.aberta) {
+               let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].painel_box, this.speed, delta);
+               this.speed = speedColisao[0];
 
             }
+
+         }
 
 
       }
@@ -804,20 +754,20 @@ class Cacodemon {
 
       }
 
-      if(this.grandeArea==4 && areas[3].muralhas[0].aberta){
+      if (this.grandeArea == 4 && areas[3].muralhas[0].aberta) {
          let objeto = this.obj;
          let pos_plataforma_a4 = new THREE.Vector3(areas[3].plataformas[0].mesh.position.x,
-             areas[3].plataformas[0].mesh.position.y, areas[3].plataformas[0].mesh.position.z);
+            areas[3].plataformas[0].mesh.position.y, areas[3].plataformas[0].mesh.position.z);
          pos_plataforma_a4.addVectors(pos_plataforma_a4, areas[3].posicao_ini);
          this.naPlataforma_a4[0] = (objeto.position.x <= pos_plataforma_a4.x + 2 && objeto.position.x >= pos_plataforma_a4.x - 2
             && objeto.position.z <= pos_plataforma_a4.z + 2 && objeto.position.z >= pos_plataforma_a4.z - 2
             //&& objeto.position.y-2 <= pos_plataforma_a2.y+2.1 && objeto.position.y-2 >= pos_plataforma_a2.y+1.95
          );
       }
-      if(!this.naPlataforma_a4[0] && this.grandeArea==4 && areas[3].muralhas[0].aberta){
+      if (!this.naPlataforma_a4[0] && this.grandeArea == 4 && areas[3].muralhas[0].aberta) {
          let objeto = this.obj;
          let pos_plataforma_a4 = new THREE.Vector3(areas[3].plataformas[1].mesh.position.x,
-             areas[3].plataformas[1].mesh.position.y, areas[3].plataformas[1].mesh.position.z);
+            areas[3].plataformas[1].mesh.position.y, areas[3].plataformas[1].mesh.position.z);
          pos_plataforma_a4.addVectors(pos_plataforma_a4, areas[3].posicao_ini);
          this.naPlataforma_a4[1] = (objeto.position.x <= pos_plataforma_a4.x + 2 && objeto.position.x >= pos_plataforma_a4.x - 2
             && objeto.position.z <= pos_plataforma_a4.z + 2 && objeto.position.z >= pos_plataforma_a4.z - 2
@@ -877,27 +827,28 @@ class Cacodemon {
          this.obj.position.y = 0.601;
 
       this.grupoBarras.position.copy(this.obj.position).add(new THREE.Vector3(0, 1.2, 0));
-      
+
 
 
 
       //console.log(this.obj.position.y);
    }
    sofrerAtaque(danoInfligido, scene) {
+      this.SomLostSoulGerenciamento("levardano");
       this.vida -= danoInfligido;// Decrementa vida em caso de ataque
-      
+
       console.log("Vida:");
       console.log(this.vida);
       if (!this.padeceu && this.vida <= 0) { // Se ainda não padeceu e a vida chegou a 0 ou algo menor que isso, coloca 0 na vida e acusa fim do inimigo
-         this.vida=0;
+         this.vida = 0;
          this.padeceu = true;
       }
       // Para adequar a barra;
-   const escala = this.vida / this.vidaMax; // Proporção de vida atual 
-   this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
+      const escala = this.vida / this.vidaMax; // Proporção de vida atual 
+      this.barraFrente.scale.set(escala, 1, 1);  // reduz proporcionalmente na largura
 
-   const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2; // Descola para continuar onde estava, à esquerda, na visão do jogador
-   this.barraFrente.position.x = deslocamentoX; // desloca
+      const deslocamentoX = -(this.tamBarraVida * (1 - escala)) / 2; // Descola para continuar onde estava, à esquerda, na visão do jogador
+      this.barraFrente.position.x = deslocamentoX; // desloca
 
    }
 }

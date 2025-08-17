@@ -19,7 +19,23 @@ import { criarChave } from './criacaoChave.js';
 class Area2 {
     constructor(geomterias_cubos, materiais_cubos) {
 
+         this.somPorta = new THREE.Audio(new THREE.AudioListener()); // sem listener na camera
+        const audioLoader = new THREE.AudioLoader();
 
+        this.repetir_porta=false;
+
+        audioLoader.load('../0_assetsT3/sounds/doorOpening.wav', (buffer) => {
+            this.somPorta.setBuffer(buffer);
+            this.somPorta.setVolume(0.5);
+        });
+
+        //som da plataforma
+        this.somPlataforma = new THREE.Audio(new THREE.AudioListener());
+        const audioLoaderPlataforma = new THREE.AudioLoader();
+        audioLoaderPlataforma.load('../0_assetsT3/sounds/plataformaMovendo.wav', (buffer) => {
+            this.somPlataforma.setBuffer(buffer);
+            this.somPlataforma.setVolume(0.5);
+        });
 
         this.loader = new THREE.TextureLoader();
         // Geometria e materias da porta, do bloco fechadura e da porta: 
@@ -307,12 +323,18 @@ class Area2 {
 
     // Função para abrir a porta inicial, passa-se o limite absouluto do movimento em Z e o multiplicador para verificar se será positivo ou negativo
     abrir_porta(limiteZ, multiplicador) {
+        
         if (!this.comecou_a_abrir) {
             // Fazer com que a porte adentre a área 2 e não fique para fora:
             this.porta.mesh.translateY(-0.02);
             this.porta.mesh.translateX(-0.02);
 
             this.comecou_a_abrir = true;
+            
+        }
+
+        if(!this.somPorta.isPlaying && !this.repetir_porta){
+            this.somPorta.play();
         }
 
         this.porta.mesh.position.z += multiplicador * 0.015; // Incremento de movimento
@@ -321,6 +343,8 @@ class Area2 {
 
         // Se alcançar o limite:
         if (multiplicador * this.porta.mesh.position.z >= multiplicador * limiteZ) {
+            
+            this.repetir_porta=true;
             this.porta.mesh.position.z = limiteZ; // Coloca no limite
             this.porta.box.setFromObject(this.porta.mesh);
             this.porta.abrindo = false;
@@ -383,6 +407,8 @@ class Area2 {
 
         let plataforma = this.plataforma.mesh;
         let plataformaBox = this.plataforma.box;
+
+        this.somPlataforma.play();
 
 
         plataforma.position.y += multiplicador * 0.02; // Elevação da plataforma por frame
