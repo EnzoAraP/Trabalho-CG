@@ -24,14 +24,14 @@ class Area2 {
 
         this.repetir_porta=false;
 
-        audioLoader.load('../0_assetsT3/sounds/doorOpening.wav', (buffer) => {
+        audioLoader.load('./0_assetsT3/sounds/doorOpening.wav', (buffer) => {
             this.somPorta.setBuffer(buffer);
             this.somPorta.setVolume(0.5);
         });
           //som da chave
                               this.somchave = new THREE.Audio(new THREE.AudioListener());
                               const audioLoaderchave = new THREE.AudioLoader();
-                              audioLoaderchave.load('../0_assetsT3/sounds/chave.wav', (buffer) => {
+                              audioLoaderchave.load('./0_assetsT3/sounds/chave.wav', (buffer) => {
                                   this.somchave.setBuffer(buffer);
                                   this.somchave.setVolume(0.5);
                               });
@@ -39,7 +39,7 @@ class Area2 {
         //som da plataforma
         this.somPlataforma = new THREE.Audio(new THREE.AudioListener());
         const audioLoaderPlataforma = new THREE.AudioLoader();
-        audioLoaderPlataforma.load('../0_assetsT3/sounds/plataformaMovendo.wav', (buffer) => {
+        audioLoaderPlataforma.load('./0_assetsT3/sounds/plataformaMovendo.wav', (buffer) => {
             this.somPlataforma.setBuffer(buffer);
             this.somPlataforma.setVolume(0.5);
         });
@@ -52,7 +52,7 @@ class Area2 {
         this.material_porta = new THREE.MeshLambertMaterial({ color: "rgb(50,120,90)" });
 
 
-        let textura_porta = this.loader.load('./texturas_geral/area2/metal-door-texture-compressed.jpg');
+        let textura_porta = this.loader.load('./T3/texturas_geral/area2/metal-door-texture-compressed.jpg');
 
         let rep_porta = 1 / 2;
         this.material_porta = [
@@ -70,11 +70,11 @@ class Area2 {
         this.porta_2_abrindo = false;
 
         this.geometria_suporte_fechadura = new THREE.BoxGeometry(1.5, 1, 1.5);
-        this.material_suporte_fechadura = this.estabelecerMaterial("./texturas_geral/area2/Arte_Conceitual.jpg",2,1,0,0,"rgba(41, 48, 94, 1)");
+        this.material_suporte_fechadura = this.estabelecerMaterial("./T3/texturas_geral/area2/Arte_Conceitual.jpg",2,1,0,0,"rgba(41, 48, 94, 1)");
         this.suporte_fechadura = new THREE.Mesh(this.geometria_suporte_fechadura, this.material_suporte_fechadura);
         this.geometria_plataforma_a2 = new BoxGeometry(4, 4, 4);
 
-        let texturaPlatA2 = this.loader.load("./texturas_geral/area2/5231.jpg");
+        let texturaPlatA2 = this.loader.load("./T3/texturas_geral/area2/5231.jpg");
 
 
         this.material_plataforma_a2 = [

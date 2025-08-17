@@ -26,7 +26,7 @@ import { CubeTextureLoaderSingleFile } from '../libs/util/cubeTextureLoaderSingl
 
 
 
-let cubeMapTexture = new CubeTextureLoaderSingleFile().loadSingle('./2025.1_T2_Assets/subtract.png', 1);
+let cubeMapTexture = new CubeTextureLoaderSingleFile().loadSingle('./T3/2025.1_T2_Assets/subtract.png', 1);
 scene.background = cubeMapTexture;
 let possui_todas_as_chaves=false;
 let tempo_exibindo=180;
@@ -183,7 +183,7 @@ let planegeometry = new THREE.BoxGeometry(500, 0.1, 500); // Plano base 500x500
 let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
 let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das muralhas em x
 
-let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("../assets/textures/intertravado.jpg", 125, 125, 0, 0));
+let groundPlane = new THREE.Mesh(planegeometry, areas[3].estabelecerMaterial("./assets/textures/intertravado.jpg", 125, 125, 0, 0));
 
 var fronteira = []; // Vetor que armazenará os objeto dos planos das fronteiras(Muralhas do mapa) nas 4 primeras posições e suas boundingBoxes nas próximas 4.
 for (var i = 0; i < 2; i++) { // Primeiro os dois planos em x e z positivos. 
@@ -353,28 +353,28 @@ let assetManagerCacodemon = {
 }
 
 
-carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1);
-carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1);
-carregarArquivoGLB(assetManager, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1);
+carregarArquivoGLB(assetManager, './T3/2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1);
+carregarArquivoGLB(assetManager, './T3/2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1);
+carregarArquivoGLB(assetManager, './T3/2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1);
 
 ///Carregar do Lost SoulArea1
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_Soul");
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_Soul");
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_Soul");
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_Soul");
-carregarArquivoObj(assetManagerLost, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_Soul");
+carregarArquivoObj(assetManagerLost, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_Soul");
 
 //Carregar do Elemental+LostSoulElemental
-carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_SoulE");
-carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_SoulE");
-carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_SoulE");
-carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_SoulE");
-carregarArquivoObj(assetManagerElemental, './2025.1_T2_Assets/', 'skull', false, './2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_SoulE");
-carregarArquivoGLBGenerico(assetManagerElemental, '../T3/ElementalBlender/', 'Corrigido', false,null, scene, 1.8,"elemental_Soul");
-carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1,"cacodemonE");
-carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1,"cacodemonE");
-carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1,"cacodemonE");
-carregarArquivoGLBGenerico(assetManagerCacodemon, './2025.1_T2_Assets/', 'cacodemon', false, "4", scene, 1,"cacodemonE");
+carregarArquivoObj(assetManagerElemental, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "1", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "2", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "3", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "4", scene,"lost_SoulE");
+carregarArquivoObj(assetManagerElemental, './T3/2025.1_T2_Assets/', 'skull', false, './T3/2025.1_T2_Assets/skull/', 'skull', "5", scene,"lost_SoulE");
+carregarArquivoGLBGenerico(assetManagerElemental, './T3/ElementalBlender/', 'Corrigido', false,null, scene, 1.8,"elemental_Soul");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './T3/2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './T3/2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './T3/2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1,"cacodemonE");
+carregarArquivoGLBGenerico(assetManagerCacodemon, './T3/2025.1_T2_Assets/', 'cacodemon', false, "4", scene, 1,"cacodemonE");
 let cacodemon_geometry = new THREE.BoxGeometry(0.6, 1.2, 0.6);
 
 let cacodemon_material = new THREE.MeshLambertMaterial({ color: "rgb(55, 9, 180)" });

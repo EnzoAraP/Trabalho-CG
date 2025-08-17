@@ -33,7 +33,7 @@ class Area3 {
         this.inimigos_posicionados = false;
         this.loader = new THREE.TextureLoader();
         // Geometria e materias da porta, do bloco fechadura e da porta: 
-        let texturaCubes = "./texturas_geral/area2/textura_hangar.jpg";
+        let texturaCubes = "./T3/texturas_geral/area2/textura_hangar.jpg";
         let texturaMap = null;
 
         this.soldados_derrotados = 0;
@@ -56,13 +56,13 @@ class Area3 {
 
 
 
-        let texturaPlatA2 = "./texturas_geral/area2/Arte_Conceitual.jpg";
+        let texturaPlatA2 = "./T3/texturas_geral/area2/Arte_Conceitual.jpg";
 
         let planegeometry = new THREE.BoxGeometry(70, 0.1, 96); // Plano base 500x500
         let border_planeGeometry_YZ = new THREE.BoxGeometry(1, 9, 500); // Geometra das muralhas em z 
         let border_planeGeometry_XY = new THREE.BoxGeometry(500, 9, 1); // Geomteria das muralhas em x
         let texturaPlano = "./"
-        let materialP = this.estabelecerMaterial('./texturas_geral/area2/hangar_concrete_floor_compressed.webp', 10, 7, 0, 0, "rgba(65, 65, 65, 1)");
+        let materialP = this.estabelecerMaterial('./T3/texturas_geral/area2/hangar_concrete_floor_compressed.webp', 10, 7, 0, 0, "rgba(65, 65, 65, 1)");
 
         this.plano = new THREE.Mesh(planegeometry, materialP);
 
@@ -245,7 +245,7 @@ class Area3 {
             steps: 1 // Quantidade de divisões na profundidade
         };
 
-        let texturaFachada = "./texturas_geral/area2/fachada_hangar.jpg";
+        let texturaFachada = "./T3/texturas_geral/area2/fachada_hangar.jpg";
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
         /*let material = [
         this.estabelecerMaterial( texturaFachada, 1/8,1/8, 0, 0,"rgba(21, 46, 0, 1)",texturaMap), //x+
@@ -369,7 +369,7 @@ class Area3 {
 
 
 
-        this.materialPlat = this.estabelecerMaterial('./texturas_geral/area2/hangar_concrete_floor_compressed.webp', 1, 1, 0, 0, "rgba(139, 187, 107, 1)");
+        this.materialPlat = this.estabelecerMaterial('./T3/texturas_geral/area2/hangar_concrete_floor_compressed.webp', 1, 1, 0, 0, "rgba(139, 187, 107, 1)");
         this.geometriaPlat = new THREE.BoxGeometry(2, 2, 2);
         this.plat_chave = new THREE.Mesh(this.geometriaPlat, this.materialPlat);
         this.plat_chave_box = null;

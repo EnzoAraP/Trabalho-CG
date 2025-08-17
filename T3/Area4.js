@@ -25,16 +25,16 @@ class Area4 {
 
         this.repetir_porta = false;
 
-        audioLoader.load('../0_assetsT3/sounds/doorOpening.wav', (buffer) => {
+        audioLoader.load('./0_assetsT3/sounds/doorOpening.wav', (buffer) => {
             this.somPorta.setBuffer(buffer);
             this.somPorta.setVolume(0.5);
         });
 
         this.loader = new THREE.TextureLoader();
-        let textura_muralha = this.loader.load('./texturas_geral/area2/muralha_area4_text.jpg');
-        let textura_torres = this.loader.load('./texturas_geral/area2/normal_mapping/brickwall.jpg');
-        let textura_torres_normal = this.loader.load('./texturas_geral/area2/normal_mapping/brickwall_normal.jpg');
-        let textura_pontes = this.loader.load('./texturas_geral/area2/madeira_mediana.webp');
+        let textura_muralha = this.loader.load('T3/texturas_geral/area2/muralha_area4_text.jpg');
+        let textura_torres = this.loader.load('T3/texturas_geral/area2/normal_mapping/brickwall.jpg');
+        let textura_torres_normal = this.loader.load('T3/texturas_geral/area2/normal_mapping/brickwall_normal.jpg');
+        let textura_pontes = this.loader.load('T3/texturas_geral/area2/madeira_mediana.webp');
         let textura_pontes2 = new THREE.Texture().copy(textura_pontes);
         let cor_pontes = "rgba(160, 120, 120, 1)";
         this.material_pontes1 = [
@@ -60,7 +60,7 @@ class Area4 {
          //som da plataforma
                 this.somPlataforma = new THREE.Audio(new THREE.AudioListener());
                 const audioLoaderPlataforma = new THREE.AudioLoader();
-                audioLoaderPlataforma.load('../0_assetsT3/sounds/plataformaMovendo.wav', (buffer) => {
+                audioLoaderPlataforma.load('./0_assetsT3/sounds/plataformaMovendo.wav', (buffer) => {
                     this.somPlataforma.setBuffer(buffer);
                     this.somPlataforma.setVolume(0.5);
                 });
@@ -79,8 +79,8 @@ class Area4 {
         this.altura_plataformas = 28;
 
 
-        let textura_vertical_janela = this.loader.load('./texturas_geral/area2/neo_gothic.jpg');
-        let textura_vertical_borda = this.loader.load('./texturas_geral/area2/rustic_brick2.jpg');
+        let textura_vertical_janela = this.loader.load('T3/texturas_geral/area2/neo_gothic.jpg');
+        let textura_vertical_borda = this.loader.load('T3/texturas_geral/area2/rustic_brick2.jpg');
         this.geometria_base_topo = new THREE.BoxGeometry(1, 2, 75);
         this.geometria_vertical = new THREE.BoxGeometry(1, 26, 6);
         this.geometria_centro_janela = new THREE.BoxGeometry(0.5, 4, 74.5);
@@ -170,11 +170,11 @@ class Area4 {
         this.muralha_2_abrindo = false;
 
         this.geometria_suporte_fechadura = new THREE.BoxGeometry(2.5, 1, 2.5);
-        this.material_suporte_fechadura = this.estabelecerMaterial("./texturas_geral/area2/concreto.jpg", 2, 1, 0, 0);
+        this.material_suporte_fechadura = this.estabelecerMaterial("T3/texturas_geral/area2/concreto.jpg", 2, 1, 0, 0);
         this.suporte_fechadura = new THREE.Mesh(this.geometria_suporte_fechadura, this.material_suporte_fechadura);
         this.geometria_plataforma_a2 = new BoxGeometry(4, this.altura_plataformas, 4);
 
-        let texturaPlatA2 = this.loader.load("./texturas_geral/area2/5231.jpg");
+        let texturaPlatA2 = this.loader.load("T3/texturas_geral/area2/5231.jpg");
 
 
         this.material_plataforma_a2 = [
@@ -193,13 +193,13 @@ class Area4 {
         this.plataforma2_area_4 = new THREE.Mesh(this.geometria_plataforma_a2, this.material_plataforma_a2);
 
 
-        let texturaCubes1 = this.loader.load("./texturas_geral/area2/textura_medieval_paredes.jpg");
+        let texturaCubes1 = this.loader.load("T3/texturas_geral/area2/textura_medieval_paredes.jpg");
         let texturaCubes2 = new THREE.Texture().copy(texturaCubes1);
         let texturaCubes3 = new THREE.Texture().copy(texturaCubes1);
-        let texturaChao = this.loader.load("./texturas_geral/area2/chao_liso.webp");
-        let texturaTapete = this.loader.load("./texturas_geral/area2/carpet.jpg");
+        let texturaChao = this.loader.load("T3/texturas_geral/area2/chao_liso.webp");
+        let texturaTapete = this.loader.load("T3/texturas_geral/area2/carpet.jpg");
         //let textura_torres_normal2 = new THREE.Texture().copy(textura_torres_normal)
-        let textura_torres_normal2 = this.loader.load("./texturas_geral/area2/normal_mapping/mapa2_wall.jpg")
+        let textura_torres_normal2 = this.loader.load("T3/texturas_geral/area2/normal_mapping/mapa2_wall.jpg")
         this.material_cubosaa = [
             this.estabelecerMaterialJaCarregado(texturaCubes1, 16, 1, 0, 0, "rgb(255,255,255)", textura_torres_normal2, [2, 0.5]
 
@@ -334,7 +334,7 @@ class Area4 {
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
 
-        const material_blocos = this.estabelecerMaterial("./texturas_geral/area2/caixa_madeira.jpg", 3, 3, 0, 0, "rgb(207, 122, 82)");
+        const material_blocos = this.estabelecerMaterial("T3/texturas_geral/area2/caixa_madeira.jpg", 3, 3, 0, 0, "rgb(207, 122, 82)");
         this.blocosExtras = []; // Vetor dos blocos
         this.boundingBlocosExtras = []; // Vetor das bounding boxes
 
@@ -463,7 +463,7 @@ class Area4 {
         this.esferas = [];
         this.esferas_box = [];
 
-        let material_esfera = this.estabelecerMaterial("./texturas_geral/area2/esfera_rocha.jpg", 5, 5, 0, 0);
+        let material_esfera = this.estabelecerMaterial("T3/texturas_geral/area2/esfera_rocha.jpg", 5, 5, 0, 0);
         let geometria_esfera = new THREE.SphereGeometry(4, 32, 32);
 
         // ESFERAS: 6 ao todo (2 canto direito, 2 canto esquerdo, 2 atrás)
@@ -513,7 +513,7 @@ class Area4 {
 
         this.geometria_porta = new BoxGeometry(0.6, 6, 4);
 
-        let textura_porta = this.loader.load('./texturas_geral/area2/door_texture2.jpg');
+        let textura_porta = this.loader.load('T3/texturas_geral/area2/door_texture2.jpg');
 
         let rep_porta = 1 / 2;
         this.material_porta = [
@@ -622,7 +622,7 @@ class Area4 {
                     this.plane.visible = this.L200.visible = this.tank.visible = false;
             }
         }
-        carregarArquivoGLB(this.assetManager, './assets_local/', 'BigBen', true, -1, this.cube0, 40);
+        carregarArquivoGLB(this.assetManager, './T3/assets_local/', 'BigBen', true, -1, this.cube0, 40);
 
 
     }

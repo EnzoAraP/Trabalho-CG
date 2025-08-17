@@ -55,8 +55,8 @@ class Area1{
     
 Cubos_Loader(){ // carrega texturas antes para não lagar
   var textureLoader = new THREE.TextureLoader();
- this.chao = textureLoader.load('../T3/AssetsT3/GroundColor.jpg');//carrega textura do chao
- this.chaonormal = textureLoader.load('../T3/AssetsT3/GroundNormalGL.jpg');//carrega normal do chao
+ this.chao = textureLoader.load('./T3/AssetsT3/GroundColor.jpg');//carrega textura do chao
+ this.chaonormal = textureLoader.load('./T3/AssetsT3/GroundNormalGL.jpg');//carrega normal do chao
 }
 Por_Textura_Cubo(){// poe texturas nos cubos
   
@@ -120,12 +120,12 @@ subir_Plataforma(){
 }
 carregarTexturaPilar(){ // funçaao para carregar a textura dos pilares a parte, fazendo assim que não pese ao olhar pra eles.
   var textureLoader = new THREE.TextureLoader();
- this.pedra = textureLoader.load('../T3/AssetsT3/BricksColor.jpg');//carrega textura do pilar
-this.dismappedra = textureLoader.load('../T3/AssetsT3/BricksDisplacement.jpg'); // carrega displacment map feito
-this.normalmappedra= textureLoader.load('../T3/AssetsT3/BricksNormalGL.jpg');
-this.stone = textureLoader.load('../T3/AssetsT3/Stone_Columnbasecolor.jpg');//carrega textura do pilar
-this.dismap = textureLoader.load('../T3/AssetsT3/Stone_Columnheight.png'); // carrega displacment map feito
-this.normalmap = textureLoader.load('../T3/AssetsT3/Stone_Columnnormal.jpg');
+ this.pedra = textureLoader.load('./T3/AssetsT3/BricksColor.jpg');//carrega textura do pilar
+this.dismappedra = textureLoader.load('./T3/AssetsT3/BricksDisplacement.jpg'); // carrega displacment map feito
+this.normalmappedra= textureLoader.load('./T3/AssetsT3/BricksNormalGL.jpg');
+this.stone = textureLoader.load('./T3/AssetsT3/Stone_Columnbasecolor.jpg');//carrega textura do pilar
+this.dismap = textureLoader.load('./T3/AssetsT3/Stone_Columnheight.png'); // carrega displacment map feito
+this.normalmap = textureLoader.load('./T3/AssetsT3/Stone_Columnnormal.jpg');
   this.dismap.wrapS = THREE.RepeatWrapping;
     this.dismap.wrapT = THREE.RepeatWrapping; // ← IMPORTANTE para bordas
     
