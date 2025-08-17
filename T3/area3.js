@@ -505,7 +505,7 @@ class Area3 {
         this.luz_local.target.position.add(new THREE.Vector3(0, -this.altura_geral / 2, 0));
         // (opcional) Ajuda para visualizar o volume de sombra
         const helper = new THREE.CameraHelper(dirLight.shadow.camera);
-        scene.add(helper);
+       // scene.add(helper);
         //scene.add(helper);
 
         dirLight.intensity = 0;

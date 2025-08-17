@@ -28,7 +28,14 @@ class Area2 {
             this.somPorta.setBuffer(buffer);
             this.somPorta.setVolume(0.5);
         });
-
+          //som da chave
+                              this.somchave = new THREE.Audio(new THREE.AudioListener());
+                              const audioLoaderchave = new THREE.AudioLoader();
+                              audioLoaderchave.load('../0_assetsT3/sounds/chave.wav', (buffer) => {
+                                  this.somchave.setBuffer(buffer);
+                                  this.somchave.setVolume(0.5);
+                              });
+                              this.somchave.play();
         //som da plataforma
         this.somPlataforma = new THREE.Audio(new THREE.AudioListener());
         const audioLoaderPlataforma = new THREE.AudioLoader();
@@ -394,6 +401,7 @@ class Area2 {
             console.log(this.chave2Box);
             if (personagem.box.intersectsBox(this.chave2Box)) {
                 personagem.possui_chave2=true;
+                     this.somchave.play();
                 this.cube0.remove(this.chave2);
                 scene.remove(this.chave2);
                 this.chave2Retirada = true;

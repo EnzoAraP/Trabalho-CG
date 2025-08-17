@@ -65,6 +65,15 @@ class Personagem {
       this.regiaoEscada = false;
 
       this.saiu_plataforma = false;
+      
+        //som da chave
+                      this.somchave = new THREE.Audio(new THREE.AudioListener());
+                      const audioLoaderPlataforma = new THREE.AudioLoader();
+                      audioLoaderPlataforma.load('../0_assetsT3/sounds/chave.wav', (buffer) => {
+                          this.somchave.setBuffer(buffer);
+                          this.somchave.setVolume(0.5);
+                      });
+                      this.somchave.play();
 
       this.saiu_plataforma_a4 = [false, false];
 
@@ -238,6 +247,7 @@ class Personagem {
                   let pegouS = colisaoPlat[1];
                   if (pegouS && !this.possui_chave1) {
                      //console.log("Pegou a chave!");
+                        this.somchave.play();
                      this.possui_chave1 = true;
                      this.pegou_chave1=true;
 
@@ -315,6 +325,7 @@ class Personagem {
                   let speedColisao = verifica_colisoes_com_blocos(this.obj, this.larg, 2, this.larg, moveDir, areas[this.grandeArea - 1].plat_chave_box, this.speed, true);
                   this.speed = speedColisao[0];
                   if(speedColisao[1] && !this.pegou_chave3){
+                     this.somchave.play();
                      //console.log("cheave3");
                      areas[2].plat_chave.remove(areas[2].chave3);
                      this.pegou_chave3=true;

@@ -57,7 +57,13 @@ class Area4 {
 
         ];
 
-
+         //som da plataforma
+                this.somPlataforma = new THREE.Audio(new THREE.AudioListener());
+                const audioLoaderPlataforma = new THREE.AudioLoader();
+                audioLoaderPlataforma.load('../0_assetsT3/sounds/plataformaMovendo.wav', (buffer) => {
+                    this.somPlataforma.setBuffer(buffer);
+                    this.somPlataforma.setVolume(0.5);
+                });
 
         this.geometeria_pontes1 = new THREE.BoxGeometry(5, 1, 166);
         this.geometeria_pontes2 = new THREE.BoxGeometry(106, 1, 5);
@@ -897,7 +903,7 @@ class Area4 {
 
             this.comecou_a_abrir = true;
         }
-        let vel_muralha = 3;
+        let vel_muralha = 0.5;
         for (let i = 0; i < this.muralhas.length; i++) {
             this.muralhas[i].mesh.position.y += multiplicador * vel_muralha;
             this.muralhas[i].box.setFromObject(this.muralhas[i].mesh);
@@ -993,7 +999,7 @@ class Area4 {
 
     // Função para mover plataforma: passa-se limite e multiplicador ( -1 ou 1 )
     mover_plataforma(limiteY, multiplicador, indice = 0) {
-
+        this.somPlataforma.play();
         let plataforma = this.plataformas[indice].mesh;
         let plataformaBox = this.plataformas[indice].box;
 

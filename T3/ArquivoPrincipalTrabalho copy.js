@@ -660,9 +660,9 @@ function estabeleceBoundingBoxes() {
    areas[3].plataformas[0].box = new THREE.Box3().setFromObject(areas[3].plataformas[0].mesh);
    areas[3].plataformas[1].box = new THREE.Box3().setFromObject(areas[3].plataformas[1].mesh);
    const helper23 = new THREE.Box3Helper(areas[3].plataformas[0].box, 0xffff00); // Amarelo
-   scene.add(helper23);
+  // scene.add(helper23);
    const helper27 = new THREE.Box3Helper(areas[3].plataformas[1].box, 0xffff00); // Amarelo
-   scene.add(helper27);
+ //  scene.add(helper27);
 
    areas[2].tetoOvalBox=new THREE.Box3().setFromObject(areas[2].tetoOval);
    areas[2].plat_chave_box = new THREE.Box3().setFromObject(areas[2].plat_chave);
@@ -684,7 +684,7 @@ function estabeleceBoundingBoxes() {
 
    areas[2].bounding_caixa_bloqueio = new THREE.Box3().setFromObject(areas[2].caixa_bloqueio);
    const helper42 = new THREE.Box3Helper(areas[2].bounding_caixa_bloqueio, 0xffff00);
-   scene.add(helper42);
+  // scene.add(helper42);
 
 
    for (var i = 0; i < areas[1].num_blocos_extras; i++) {

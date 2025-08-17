@@ -993,9 +993,9 @@ function estabeleceBoundingBoxes() {
    areas[3].plataformas[0].box = new THREE.Box3().setFromObject(areas[3].plataformas[0].mesh);
    areas[3].plataformas[1].box = new THREE.Box3().setFromObject(areas[3].plataformas[1].mesh);
    const helper23 = new THREE.Box3Helper(areas[3].plataformas[0].box, 0xffff00); // Amarelo
-   scene.add(helper23);
+  // scene.add(helper23);
    const helper27 = new THREE.Box3Helper(areas[3].plataformas[1].box, 0xffff00); // Amarelo
-   scene.add(helper27);
+ //  scene.add(helper27);
 
    areas[2].tetoOvalBox=new THREE.Box3().setFromObject(areas[2].tetoOval);
    areas[2].plat_chave_box = new THREE.Box3().setFromObject(areas[2].plat_chave);
@@ -1005,7 +1005,7 @@ function estabeleceBoundingBoxes() {
    areas[2].porta1.box = new THREE.Box3().setFromObject(areas[2].porta1.mesh);
    areas[2].porta2.box = new THREE.Box3().setFromObject(areas[2].porta2.mesh);
    const helper22 = new THREE.Box3Helper(areas[2].porta1.box, 0xffff00); // Amarelo
-   scene.add(helper22);
+  // scene.add(helper22);
    areas[2].fachadaOvalbox1 = new THREE.Box3().setFromObject(areas[2].fachadaOval1);
 
    areas[2].fachadaOvalbox2 = new THREE.Box3().setFromObject(areas[2].fachadaOval2);
@@ -1017,7 +1017,7 @@ function estabeleceBoundingBoxes() {
 
    areas[2].bounding_caixa_bloqueio = new THREE.Box3().setFromObject(areas[2].caixa_bloqueio);
    const helper42 = new THREE.Box3Helper(areas[2].bounding_caixa_bloqueio, 0xffff00);
-   scene.add(helper42);
+   //scene.add(helper42);
 
 
    for (var i = 0; i < areas[1].num_blocos_extras; i++) {
@@ -1522,26 +1522,6 @@ function render() {
 
       }
 
-      if (personagem.chegada_area4 && lancaMisseis.inimigos.length==0 && !areas[3].porta.abrindo && !areas[3].porta.aberta){
-         console.log("Abrir!");
-         areas[3].porta.abrindo=true;
-      }
-
-      if (areas[3].porta.abrindo) {
-          console.log("Abrindo!");
-         areas[3].abrir_porta(6.6, 1);
-
-      }
-
-      if (areas[1].porta.abrindo && areas[1].chave1 == null) {
-         let chave = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: "rgb(95,40,180)" }));
-         areas[1].posicionar_chave1(chave);
-      }
-
-      if (areas[3].muralhas[0].abrindo && areas[3].chave3 == null) {
-
-         areas[3].posicionar_chave3(null);
-      }
  if(personagem.chegada_area4)
       {
          console.log("entrou");
