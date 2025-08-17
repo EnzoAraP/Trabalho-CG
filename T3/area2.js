@@ -56,8 +56,7 @@ class Area2 {
 
 this.loader = new THREE.TextureLoader();
 let textura_porta = this.loader.load(RES('./T3/texturas_geral/area2/metal-door-texture-compressed.jpg'));
-texturaPlatA2 = this.loader.load(RES('./T3/texturas_geral/area2/5231.jpg'));
-texturaCubes = this.loader.load(RES('./T3/texturas_geral/area2/mad_metal_reduzido.webp'));
+
 
 
         let rep_porta = 1 / 2;

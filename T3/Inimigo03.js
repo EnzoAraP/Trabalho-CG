@@ -322,7 +322,7 @@ class Soldado {
         // Make sure to use the texture once it's fully loaded, by
         // passing a callback function to the loader.
         let loader = new THREE.TextureLoader();
-        let texture = loader.load("../assets/textures/sprites/zombieman.png", (texture) => {
+        let texture = loader.load("./assets/textures/sprites/zombieman.png", (texture) => {
 
             // An ActionSprite is instantiated with these arguments :
             // - which THREE.Texture to use

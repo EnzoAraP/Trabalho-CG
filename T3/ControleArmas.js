@@ -733,7 +733,9 @@ class Metralhadora {
 
 class LancaMisseis {
    constructor(donoDaArma, inimigos, ehJogador, dano = 10, velocidadeProjetil = 1.4, corArma = "rgb(226, 17, 17)", corProjetil = "rgb(15, 187, 10)") {
-        this.tempoUltimoTiro = 0;
+        
+         const RES = (relPath) => new URL(relPath, import.meta.url).href;
+      this.tempoUltimoTiro = 0;
         this.ehJogador = ehJogador;
         this.donoDaArma = donoDaArma;
         this.inimigos = inimigos;
@@ -754,7 +756,7 @@ class LancaMisseis {
 
                      this.somTiro = new THREE.Audio(this.listener);
                      const audioLoader = new THREE.AudioLoader();
-                     audioLoader.load('./0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
+                     audioLoader.load('/TRABALHO-CG/0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
                         this.somTiro.setBuffer(buffer);
                         this.somTiro.setVolume(0.5);
                      });
