@@ -52,7 +52,13 @@ class Area2 {
         this.material_porta = new THREE.MeshLambertMaterial({ color: "rgb(50,120,90)" });
 
 
-        let textura_porta = this.loader.load('./T3/texturas_geral/area2/metal-door-texture-compressed.jpg');
+        const RES = (relPath) => new URL(relPath, import.meta.url).href;
+
+this.loader = new THREE.TextureLoader();
+let textura_porta = this.loader.load(RES('./T3/texturas_geral/area2/metal-door-texture-compressed.jpg'));
+texturaPlatA2 = this.loader.load(RES('./T3/texturas_geral/area2/5231.jpg'));
+texturaCubes = this.loader.load(RES('./T3/texturas_geral/area2/mad_metal_reduzido.webp'));
+
 
         let rep_porta = 1 / 2;
         this.material_porta = [

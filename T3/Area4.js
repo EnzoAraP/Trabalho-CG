@@ -20,6 +20,8 @@ import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
 class Area4 {
     constructor(geomterias_cubos, materiais_cubos) {
+
+                const RES = (relPath) => new URL(relPath, import.meta.url).href;
         this.somPorta = new THREE.Audio(new THREE.AudioListener()); // sem listener na camera
         const audioLoader = new THREE.AudioLoader();
 

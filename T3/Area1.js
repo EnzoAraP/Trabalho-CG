@@ -14,7 +14,9 @@ import { PointerLockControls } from '../build/jsm/controls/PointerLockControls.j
 import { BoxGeometry, TextureLoader } from '../build/three.module.js';
 import { CSG } from '../libs/other/CSGMesh.js'  
 class Area1{
+  
   constructor(geomterias_cubos,materiais_cubos){
+            const RES = (relPath) => new URL(relPath, import.meta.url).href;
     //Cubos:
        this.cube0= new THREE.Mesh(geomterias_cubos[0], materiais_cubos[0]), //Cubo central-pai.
        // Cubos que compõem o cenário

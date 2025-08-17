@@ -29,6 +29,8 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class pain_elemental {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem) {
+              const RES = (relPath) => new URL(relPath, import.meta.url).href;
+
       this.arma = null;
 
       this.voo = true;

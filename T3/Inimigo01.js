@@ -28,6 +28,8 @@ var eixo_z = new THREE.Vector3(0, 0, 1);
 class Lost_Soul {
 
    constructor(objeto, camera, boxInimigo, larg, speedPadrao, personagem, dash = false) {
+              const RES = (relPath) => new URL(relPath, import.meta.url).href;
+
         this.tipo="lost_soul";
       this.arma = null;
 

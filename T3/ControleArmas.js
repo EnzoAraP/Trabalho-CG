@@ -35,7 +35,7 @@ class LancaMisse2is {
         if (ehJogador) {
             this.spriteMixer = new SpriteMixer();
 
-            new THREE.TextureLoader().load('./2025.1_T2_Assets/spritesdoom.png', (tex) => {
+            new THREE.TextureLoader().load('./T3/2025.1_T2_Assets/spritesdoom.png', (tex) => {
                
                 this.actionSprite = this.spriteMixer.ActionSprite(tex, 4, 1);
                 this.obj.add(this.actionSprite);
@@ -151,7 +151,7 @@ class Metralhadora {
 
       this.actionSprite = null;
 
-      new THREE.TextureLoader().load('./2025.1_T2_Assets/chaingun.png', (tex) => {
+      new THREE.TextureLoader().load('./T3/2025.1_T2_Assets/chaingun.png', (tex) => {
          tex.wrapS = THREE.RepeatWrapping;
          tex.wrapT = THREE.RepeatWrapping;
 
@@ -180,7 +180,7 @@ class Metralhadora {
 
         this.somTiro = new THREE.Audio(this.listener);
         const audioLoader = new THREE.AudioLoader();
-        audioLoader.load('../0_assetsT3/sounds/chaingunFiring.wav', (buffer) => {
+        audioLoader.load('./0_assetsT3/sounds/chaingunFiring.wav', (buffer) => {
            this.somTiro.setBuffer(buffer);
            this.somTiro.setVolume(0.3);
         });
@@ -754,11 +754,11 @@ class LancaMisseis {
 
                      this.somTiro = new THREE.Audio(this.listener);
                      const audioLoader = new THREE.AudioLoader();
-                     audioLoader.load('../0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
+                     audioLoader.load('./0_assetsT3/sounds/rocketFiring.wav', (buffer) => {
                         this.somTiro.setBuffer(buffer);
                         this.somTiro.setVolume(0.5);
                      });
-            new THREE.TextureLoader().load('./2025.1_T2_Assets/spritesdoom.png', (tex) => {
+            new THREE.TextureLoader().load('./T3/2025.1_T2_Assets/spritesdoom.png', (tex) => {
                
                 this.actionSprite = this.spriteMixer.ActionSprite(tex, 4, 1);
                 this.obj.add(this.actionSprite);

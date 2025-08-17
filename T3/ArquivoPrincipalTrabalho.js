@@ -352,7 +352,7 @@ let assetManagerCacodemon = {
    }
 }
 
-
+        const RES = (relPath) => new URL(relPath, import.meta.url).href;
 carregarArquivoGLB(assetManager, './T3/2025.1_T2_Assets/', 'cacodemon', false, "1", scene, 1);
 carregarArquivoGLB(assetManager, './T3/2025.1_T2_Assets/', 'cacodemon', false, "2", scene, 1);
 carregarArquivoGLB(assetManager, './T3/2025.1_T2_Assets/', 'cacodemon', false, "3", scene, 1);

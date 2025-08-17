@@ -470,7 +470,7 @@ class Cacodemon {
       if (this.contagemPreAtaque != 0) {// Giro para o ataque é mais rápido
          this.contagemPreAtaque++;
          if (this.contagemPreAtaque == 20) {
-            //this.SomLostSoulGerenciamento("atirou");
+            this.SomLostSoulGerenciamento("atirou");
             this.contagemPreAtaque = 0;
             this.arma.atirar(scene, this.obj, true, 0.3);// Se chegar o momento, faz a arma atirar
          }

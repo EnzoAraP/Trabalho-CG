@@ -21,6 +21,7 @@ import { verifica_colisoes_com_blocos } from './testeColisaoBloco.js';
 
 class Area3 {
     constructor(geomterias_cubos, materiais_cubos) {
+                const RES = (relPath) => new URL(relPath, import.meta.url).href;
         this.somPorta = new THREE.Audio(new THREE.AudioListener()); // sem listener na camera
         const audioLoader = new THREE.AudioLoader();
 
@@ -602,6 +603,7 @@ class Area3 {
         this.assetManager.planeBox = new THREE.Box3().setFromObject(this.assetManager.plane);
         //console.log(this.assetManager.plane);
         this.assetManager.in_position = true;
+        
 
     }
 
@@ -701,6 +703,7 @@ class Area3 {
                 this.cube0.remove(this.chave2);
                 scene.remove(this.chave2);
                 this.chave2Retirada = true;
+                personagem.possui_chave3=true;
             }
         }
 
