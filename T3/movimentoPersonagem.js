@@ -329,6 +329,7 @@ class Personagem {
                      //console.log("cheave3");
                      areas[2].plat_chave.remove(areas[2].chave3);
                      this.pegou_chave3=true;
+                     this.possui_chave3 = true;
                   }
                }
 

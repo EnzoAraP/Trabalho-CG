@@ -703,7 +703,7 @@ class Area3 {
                 this.cube0.remove(this.chave2);
                 scene.remove(this.chave2);
                 this.chave2Retirada = true;
-                personagem.possui_chave3=true;
+                
             }
         }
 
