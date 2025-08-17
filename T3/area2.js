@@ -100,11 +100,11 @@ class Area2 {
         geomterias_cubos[2] = cubeGeo2;
         geomterias_cubos[3] = cubeGeo3;
 
-        let texturaCubes = this.loader.load("./texturas_geral/area2/mad_metal_reduzido.webp");
+        let texturaCubes = this.loader.load("./T3/texturas_geral/area2/mad_metal_reduzido.webp");
         let texturaCubesB = new THREE.Texture().copy(texturaCubes);
         let texturaCubesC = new THREE.Texture().copy(texturaCubes);
-        //let texturaChao = this.loader.load("./texturas_geral/area2/metal_floor.jpg");
-        let texturaChao = this.loader.load("./texturas_geral/area2/chao3_area2.jpg");
+        //let texturaChao = this.loader.load("./T3/texturas_geral/area2/metal_floor.jpg");
+        let texturaChao = this.loader.load("./T3/texturas_geral/area2/chao3_area2.jpg");
         this.material_cubosaa = [
             this.estabelecerMaterialJaCarregado(texturaCubes, 12, 1, 0, 0), //x+
             this.estabelecerMaterialJaCarregado(texturaCubes, 12, 1, 0, 0),
@@ -169,7 +169,7 @@ class Area2 {
 
         this.cubos = [this.cube1, this.cube2, this.cube3];
 
-        let texturaBlocosExtras = this.loader.load("./texturas_geral/area2/metal_texture.webp");
+        let texturaBlocosExtras = this.loader.load("./T3/texturas_geral/area2/metal_texture.webp");
 
         const material_blocos = this.estabelecerMaterialJaCarregado(texturaBlocosExtras,1,2,0,0);
 
